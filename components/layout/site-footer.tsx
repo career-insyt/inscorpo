@@ -41,15 +41,15 @@ export function SiteFooter() {
           {/* Brand Column */}
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2.5 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-corp-accent flex items-center justify-center">
-                <span className="text-white font-bold text-sm">I</span>
+              <div className="w-8 h-8 rounded-lg bg-[#2563eb] flex items-center justify-center border border-blue-400 p-0.5 shadow-sm overflow-hidden">
+                <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain rounded-md" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[15px] font-semibold tracking-tight" style={{ color: "var(--corp-text)" }}>
-                  INSYT
+                <span className="text-[15px] font-black tracking-tight" style={{ color: "var(--corp-text)" }}>
+                  CAREER INSYT
                 </span>
                 <span className="text-[10px] font-medium tracking-[0.2em] uppercase" style={{ color: "var(--corp-text-tertiary)" }}>
-                  Corporate
+                  Corporate OS
                 </span>
               </div>
             </Link>
@@ -96,7 +96,7 @@ export function SiteFooter() {
           style={{ borderTop: "1px solid var(--corp-border)" }}
         >
           <p className="text-[12px]" style={{ color: "var(--corp-text-tertiary)" }}>
-            © {new Date().getFullYear()} INSYT. All rights reserved. Made with ❤️ in Bangladesh.
+            © {new Date().getFullYear()} INSYT. All rights reserved. Crafted with excellence in Bangladesh.
           </p>
           <div className="flex items-center gap-2">
             {/* LinkedIn */}

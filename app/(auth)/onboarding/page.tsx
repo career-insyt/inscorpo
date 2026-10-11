@@ -11,23 +11,23 @@ import { useUser } from "@/components/providers/user-context";
 import { account } from "@/lib/appwrite";
 
 const CAREER_GOALS = [
-  { id: "mto", title: "Management Trainee Officer (MTO)", icon: "🏆", desc: "Targeting MNCs & Bank leadership tracks (BRAC Bank, Unilever, GP, BAT)" },
-  { id: "finance", title: "Corporate Finance & Banking", icon: "📊", desc: "Financial modeling, credit analysis, valuation, and investment banking" },
-  { id: "tech", title: "Tech, Product & Data Analytics", icon: "💻", desc: "Software engineering, product management, Power BI, and AI automation" },
-  { id: "comm", title: "Business Communication & Pitching", icon: "🎤", desc: "Executive presentations, slide decks, cold email strategy, and workplace communication" },
+  { id: "media", title: "Creative Media & Video Production", icon: "🎬", desc: "Digital storytelling, Premiere Pro, motion graphics, and AI generative workflows" },
+  { id: "presentation", title: "Presentation Engineering & Pitch Decks", icon: "📊", desc: "Gamma, Canva, PowerPoint executive design, and investor pitches" },
+  { id: "tech", title: "Tech, Product & AI Automation", icon: "💻", desc: "AI tools for business, ChatGPT/Claude prompting, and workflow automation" },
+  { id: "gre", title: "Global Grad School & GRE Mastery", icon: "🎓", desc: "Quantitative reasoning, verbal mastery, and international scholarship prep" },
 ];
 
 const EXP_LEVELS = [
   { id: "undergrad", label: "University Undergrad (Final Year / Junior)", detail: "Preparing early for campus placements" },
-  { id: "fresh_grad", label: "Fresh Graduate (0-1 Year Experience)", detail: "Actively applying to MTO and corporate entry circulars" },
+  { id: "fresh_grad", label: "Fresh Graduate (0-1 Year Experience)", detail: "Actively applying to corporate and graduate opportunities" },
   { id: "mid_corp", label: "Mid-Level Professional (1-3 Years Experience)", detail: "Upskilling for promotion or sector transition" },
 ];
 
 export default function OnboardingWizardPage() {
   const router = useRouter();
-  const { addXP, enrollInPath, addNotification } = useUser();
+  const { enrollInPath, addNotification } = useUser();
   const [step, setStep] = useState(1);
-  const [selectedGoal, setSelectedGoal] = useState("mto");
+  const [selectedGoal, setSelectedGoal] = useState("media");
   const [selectedExp, setSelectedExp] = useState("fresh_grad");
   const [enrolling, setEnrolling] = useState(false);
 
@@ -42,13 +42,10 @@ export default function OnboardingWizardPage() {
     } catch {}
 
     // Auto-enroll based on goal
-    if (selectedGoal === "mto") enrollInPath("corporate-mto", "Corporate Job / MTO Masterclass");
-    else if (selectedGoal === "finance") enrollInPath("excel-corporate", "Excel for Corporate Careers");
-    else if (selectedGoal === "tech") enrollInPath("ai-automation", "AI & Automation for Work");
-    else enrollInPath("business-comm", "Business Communication & Slide Pitching");
-
-    // Award welcome XP
-    addXP(100, "🎉 Completed Onboarding Wizard & Activated Career Passport");
+    if (selectedGoal === "media") enrollInPath("video-ai-production", "Video Editing + AI Production");
+    else if (selectedGoal === "presentation") enrollInPath("presentation-engineering", "Gamma + Canva + PowerPoint");
+    else if (selectedGoal === "tech") enrollInPath("ai-for-work", "AI for Work, Career & Business");
+    else enrollInPath("gre-preparation", "GRE Preparation");
 
     addNotification({
       type: "achievement",
@@ -176,40 +173,40 @@ export default function OnboardingWizardPage() {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-corp-text">
-                      {selectedGoal === "mto"
-                        ? "Corporate Management Trainee (MTO) Preparation"
-                        : selectedGoal === "finance"
-                        ? "Excel Financial Modeling & Corporate Finance"
+                      {selectedGoal === "media"
+                        ? "Video Editing + AI Production"
+                        : selectedGoal === "presentation"
+                        ? "Presentation Engineering (Gamma + Canva + PowerPoint)"
                         : selectedGoal === "tech"
-                        ? "AI & Automation for Work Productivity"
-                        : "Business Communication & Slide Pitching Masterclass"}
+                        ? "AI for Work, Career & Business"
+                        : "GRE Preparation Masterclass"}
                     </p>
-                    <p className="text-[11px] text-corp-text-tertiary">Recommended Starter Path</p>
+                    <p className="text-[11px] text-corp-text-tertiary">Recommended Starter Course</p>
                   </div>
                 </div>
                 <ul className="text-xs text-corp-text-secondary space-y-1.5 list-disc list-inside pt-2 border-t border-corp-border">
-                  {selectedGoal === "mto" ? (
+                  {selectedGoal === "media" ? (
                     <>
-                      <li>MTO Assessment Case Solving Templates</li>
-                      <li>Behavioral Interview STAR Frameworks</li>
+                      <li>Premiere Pro & CapCut Timeline Mastery</li>
+                      <li>Sound Design & Generative AI Production</li>
                       <li>Verified Certificate of Completion</li>
                     </>
-                  ) : selectedGoal === "finance" ? (
+                  ) : selectedGoal === "presentation" ? (
                     <>
-                      <li>3-Statement Financial Modeling Sandboxes</li>
-                      <li>DCF Valuation & Sensitivity Analysis</li>
+                      <li>Gamma AI & Canva Pro Design Systems</li>
+                      <li>Executive Pitch Deck Architecture</li>
                       <li>Verified Certificate of Completion</li>
                     </>
                   ) : selectedGoal === "tech" ? (
                     <>
-                      <li>Power BI & Interactive Dashboards</li>
                       <li>Prompt Engineering & Workflow Automation</li>
+                      <li>Claude, ChatGPT & Agentic Workflows</li>
                       <li>Verified Certificate of Completion</li>
                     </>
                   ) : (
                     <>
-                      <li>McKinsey Issue Trees & Slide Storytelling</li>
-                      <li>Executive Cold Email & Memo Writing</li>
+                      <li>Quantitative Reasoning & Verbal Mastery</li>
+                      <li>Full Length Simulation Tests</li>
                       <li>Verified Certificate of Completion</li>
                     </>
                   )}

@@ -47,13 +47,7 @@ function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: str
 }
 
 export function HeroSection() {
-  let state = { xp: 2400, level: 24, streak: 14 };
   let user = null;
-  
-  try {
-    const userCtx = useUser();
-    if (userCtx?.state) state = userCtx.state;
-  } catch {}
   
   try {
     const authCtx = useAuth();
@@ -135,7 +129,7 @@ export function HeroSection() {
 
             {/* Executive Body Copy */}
             <p className="text-base md:text-lg leading-relaxed text-[#A0ABBC] max-w-xl">
-              Master Management Trainee (MTO) recruitment, corporate Excel, financial modeling, and AI productivity. Track your progress with XP, verified certificates, and an AI-powered Career Passport.
+              Master video editing &amp; AI production, executive presentations, workflow automation, and GRE preparation. Track your progress with XP, verified certificates, and an AI-powered Career Passport.
             </p>
 
             {/* Action Buttons */}
@@ -241,7 +235,7 @@ export function HeroSection() {
                   </div>
 
                   <h3 className="text-base font-bold text-white">
-                    Management Trainee Officer (MTO) Track
+                    Video Editing + AI Production
                   </h3>
 
                   {/* Progress Bar */}
@@ -250,7 +244,7 @@ export function HeroSection() {
                   </div>
 
                   <div className="pt-1 flex items-center justify-between text-xs text-[#A0ABBC]">
-                    <span>Next: FMCG Case Reallocation Simulation</span>
+                    <span>Next: Advanced Pacing &amp; Sound Design</span>
                     <Link href="/dashboard" className="text-[#5B7CF6] hover:underline flex items-center gap-1 font-semibold">
                       <span>Continue</span>
                       <ChevronRight size={12} />

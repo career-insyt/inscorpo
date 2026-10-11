@@ -1,10 +1,11 @@
 export type Notification = {
   id: string;
-  type: "achievement" | "course" | "community" | "system";
+  type: "achievement" | "course" | "community" | "system" | "alert";
   title: string;
   message: string;
   time: string;
   read: boolean;
+  link?: string;
 };
 
 export type CourseProgress = {
@@ -13,16 +14,12 @@ export type CourseProgress = {
   progress: number; // 0-100
   lastAccessed: string;
   category: "finance" | "communication" | "analytics" | "strategy" | "tests" | "general";
+  courseId?: string;
+  totalLessons?: number;
+  completedLessons?: string[];
+  score?: number;
 };
 
-export type LeaderboardUser = {
-  id: string;
-  name: string;
-  xp: number;
-  level: number;
-  streak: number;
-  isUser: boolean;
-};
 
 export type CommunityPost = {
   id: string;
@@ -40,16 +37,8 @@ export type CommunityPost = {
   replies?: { author: string; text: string }[];
 };
 
-export type XpLog = {
-  id: string;
-  reason: string;
-  amount: number;
-  date: string; // ISO string
-};
-
 export type Task = {
   title: string;
-  xp: number;
   done: boolean;
 };
 
@@ -87,6 +76,15 @@ export type PassportProfile = {
   experience: PassportExperience[];
   customSkills: string[];
   topSkills?: string[];
+  verifiedSkillDetails?: Record<
+    string,
+    {
+      verified: boolean;
+      score: number;
+      verifiedAt: string;
+      hash?: string;
+    }
+  >;
   verificationHash?: string;
   isPublic?: boolean;
 };
@@ -96,8 +94,6 @@ export type UserState = {
   name: string;
   username: string;
   email: string;
-  xp: number;
-  level: number;
   streak: number;
   
   // Weekly Activity (Minutes per day: Mon-Sun)
@@ -106,9 +102,7 @@ export type UserState = {
   // Collections
   notifications: Notification[];
   courseProgress: CourseProgress[];
-  leaderboard: LeaderboardUser[];
   communityPosts: CommunityPost[];
-  xpLogs: XpLog[];
   todayTasks: Task[];
   upcomingEvents: Event[];
   recentBadges: Badge[];
@@ -118,18 +112,19 @@ export type UserState = {
   experienceLevel?: string;
 
   // Subscription & Monetization Architecture
-  subscriptionTier?: "starter" | "pro" | "enterprise";
+  subscriptionTier?: "starter" | "single_course" | "flagship_path" | "pro" | "enterprise";
   subscriptionStatus?: "active" | "inactive" | "trialing";
 
   // Career Passport CV data
   passportProfile?: PassportProfile;
 
-  // Enrollment & Gamification
+  // Enrollment
   enrolledPathSlugs: string[];
   lastCheckInDate?: string;
   streakFreezes?: number;
   redeemedVouchers: string[];
   completedChallengeIds: string[];
+  completedMockTests?: string[];
   purchasedItemIds: string[];
   completedChecklistTaskIds?: string[];
 };

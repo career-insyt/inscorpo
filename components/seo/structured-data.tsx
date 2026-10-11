@@ -39,7 +39,7 @@ export function JobPostingSchema({
     },
     datePosted: postedDate || "2026-08-01",
     validThrough: deadline || "2026-09-01",
-    employmentType: type?.includes("MTO") ? "FULL_TIME" : "FULL_TIME",
+    employmentType: "FULL_TIME",
   };
 
   return (

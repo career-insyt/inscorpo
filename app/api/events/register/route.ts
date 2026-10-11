@@ -9,7 +9,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required registration fields" }, { status: 400 });
     }
 
-    const ticketId = `TICKET-${(eventId || "BAUBC").toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`;
+    const safePrefix = (eventId || "BAUBC").toUpperCase();
+    const uniqueSuffix = typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID().slice(0, 8).toUpperCase()
+      : Math.floor(100000 + Math.random() * 900000).toString();
+    const ticketId = `TICKET-${safePrefix}-${uniqueSuffix}`;
     const timestamp = new Date().toISOString();
 
     // Log registration dispatch in dev mode

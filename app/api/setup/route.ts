@@ -18,15 +18,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized access to database setup endpoint" }, { status: 401 });
     }
 
-    const reqBody = await req.json().catch(() => ({}));
-    const apiKey = reqBody.apiKey || process.env.APPWRITE_API_KEY;
+    // API key must come from server environment only — never from request body
+    const apiKey = process.env.APPWRITE_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: "Server API key or request apiKey is required" }, { status: 400 });
+      return NextResponse.json({ error: "Server APPWRITE_API_KEY environment variable is required" }, { status: 400 });
     }
 
     const client = new Client()
-      .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || "https://sgp.cloud.appwrite.io/v1")
-      .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT || "6a55c66500032e142d85")
+      .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || "")
+      .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT || "")
       .setKey(apiKey);
 
     const db = new Databases(client);
@@ -64,7 +64,8 @@ export async function POST(req: Request) {
           Permission.read(Role.any()),
           Permission.create(Role.users()),
           Permission.update(Role.users()),
-          Permission.delete(Role.users()),
+          // No global Permission.delete(Role.users()) — prevents any user from deleting any document.
+          // Document-level permissions should be set when creating individual documents.
         ]);
         results.push(`✅ Created collection: ${col.name}`);
       } catch (e: any) {
@@ -353,11 +354,7 @@ export async function POST(req: Request) {
     }
 
     // ─── Mock Tests ──────────────────────────────────────────────
-    const mockTests = [
-      { title: "Bangladesh Bank AD Full Length Mock Test", category: "Banking", difficulty: "Advanced", questions: 30, duration: 60, xp: 250, description: "Monetary policy, CRR/SLR regulations, and financial economics.", locked: false },
-      { title: "Corporate Management Trainee (MTO) Cognitive Test", category: "Corporate", difficulty: "Advanced", questions: 30, duration: 45, xp: 300, description: "Numerical reasoning, logical deduction, and case analytics.", locked: false },
-      { title: "Excel Aptitude Test — Banking", category: "Excel", difficulty: "Medium", questions: 30, duration: 45, xp: 180, description: "Applied Excel questions for banking and finance interviews.", locked: false },
-    ];
+    const mockTests: any[] = [];
     for (const test of mockTests) {
       try {
         const existing = await db.listDocuments(DB_ID, "mock_tests", [Query.equal("title", test.title)]);
@@ -374,11 +371,7 @@ export async function POST(req: Request) {
     }
 
     // ─── Workshops ───────────────────────────────────────────────
-    const workshops = [
-      { title: "Excel for Finance Professionals", host: "Shadman Sakib, CFA", date: "Jul 18, 2025", time: "3:00 PM", duration: "2 hours", level: "Intermediate", description: "VLOOKUP, Pivot Tables, financial model templates and live Q&A.", registered: false, spots: 40 },
-      { title: "Case Interview Bootcamp", host: "Tahmid Farhan, McKinsey", date: "Jul 26, 2025", time: "4:00 PM", duration: "3 hours", level: "All Levels", description: "Live case cracking with frameworks, feedback and practice pairs.", registered: false, spots: 20 },
-      { title: "Power BI Dashboard Design", host: "Nusrat Jahan", date: "Aug 02, 2025", time: "6:00 PM", duration: "2 hours", level: "Beginner", description: "Build your first interactive Power BI dashboard from scratch.", registered: false, spots: 50 },
-    ];
+    const workshops: any[] = [];
     for (const ws of workshops) {
       try {
         const existing = await db.listDocuments(DB_ID, "workshops", [Query.equal("title", ws.title)]);
@@ -396,7 +389,7 @@ export async function POST(req: Request) {
 
     // ─── Community Posts ─────────────────────────────────────────
     const communityPosts = [
-      { authorName: "Farhan Ahmed", authorRole: "Unilever MTO Officer", content: "Just cleared the Unilever Assessment Center after 3 months on INSYT! The STAR interview framework & case study modules were 🔥. Huge thanks to the community!", space: "Corporate", likes: 47 },
+      { authorName: "Farhan Ahmed", authorRole: "Creative Video Producer", content: "Just landed a high-ticket client contract after 3 months on INSYT! The pacing, sound design, and generative AI workflow modules were 🔥. Huge thanks to the community!", space: "Creative Media", likes: 47 },
       { authorName: "Nusrat Jahan", authorRole: "Excel Enthusiast", content: "Pro tip: Use XLOOKUP instead of VLOOKUP for banking model templates — it handles left lookups and returns arrays natively. Here's a quick formula: =XLOOKUP(A2, data!A:A, data!B:B, \"Not Found\")", space: "Excel", likes: 38 },
       { authorName: "Sabrina Islam", authorRole: "Finance Student", content: "Anyone else finding the DCF module incredibly practical? I built a full 3-statement model for a BD telecom company as a class project and my professor was impressed. The Excel templates here are industry-grade.", space: "Excel", likes: 25 },
       { authorName: "Mehedi Hasan", authorRole: "Data Analyst Trainee", content: "Power BI tip: Use the RANKX function in DAX to create dynamic rankings that update automatically when your data refreshes. Game-changer for monthly sales reports!", space: "Power BI", likes: 19 },

@@ -5,46 +5,37 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  LayoutDashboard, BookOpen, FileText, ClipboardList,
-  Award, Users, Trophy, Settings, HelpCircle, ChevronLeft, ChevronRight,
-  Briefcase, Calendar, Sun, Moon, Compass, Mic, Zap, Layers, Presentation,
-  Flame, Rocket, Sparkles, Star, Target
+  Rocket, BookOpen, ClipboardList, FileText, Briefcase,
+  Mic, Target, Zap, Award, Settings, HelpCircle,
+  ChevronLeft, ChevronRight, Sun, Moon
 } from "lucide-react";
 import { useTheme } from "@/components/providers/theme-provider";
 import { useUser } from "@/components/providers/user-context";
 import { cn } from "@/lib/utils";
 
-/* ─── Nav Structure (Bangla Corporate LMS) ─── */
+/* ─── 5-Pillar Canonical Product Architecture (Section 1 & 2) ─── */
 function buildNavSections() {
   return {
-    topItems: [
-      { icon: Rocket,    label: "ড্যাশবোর্ড",           href: "/dashboard",       color: "blue"   },
-      { icon: FileText,  label: "ক্যারিয়ার পাসপোর্ট",  href: "/career-passport", color: "blue",  isNew: true },
-      { icon: Target,    label: "ক্যারিয়ার হাব",         href: "/career-hub",       color: "indigo" },
-      { icon: Trophy,    label: "লিডারবোর্ড",         href: "/leaderboard",      color: "amber"  },
+    primaryPillars: [
+      { icon: Rocket,        label: "Dashboard",       href: "/dashboard",     subLabel: "Career Command Center", color: "blue" },
+      { icon: BookOpen,      label: "Learn",           href: "/learn",         subLabel: "Courses, Paths & Drills", color: "emerald" },
+      { icon: ClipboardList, label: "Evaluate",        href: "/evaluate",      subLabel: "Assessments & Diagnostics", color: "amber" },
+      { icon: FileText,      label: "Career Passport", href: "/passport",      subLabel: "Proof-of-Work Identity", color: "blue", isNew: true },
+      { icon: Briefcase,     label: "Opportunities",   href: "/opportunities", subLabel: "Curated Employer Matching", color: "rose" },
     ],
-    learnSection: {
-      label: "লার্নিং ও প্রস্তুতি",
+    contextualTools: {
+      label: "Applied Practice & Tools",
       items: [
-        { icon: Compass,       label: "লার্নিং ট্র্যাকসমূহ",   href: "/learn",           color: "emerald" },
-        { icon: Mic,           label: "এআই মক ইন্টারভিউ",      href: "/mock-interviews", color: "blue",  isNew: true },
-        { icon: ClipboardList, label: "মক টেস্ট",            href: "/mock-tests",      color: "amber"   },
-        { icon: Zap,          label: "স্কিল চ্যালেঞ্জেস",      href: "/challenges",  color: "amber"   },
-        { icon: Award,         label: "সার্টিফিকেটসমূহ",       href: "/certificates",    color: "amber"   },
-      ],
-    },
-    applySection: {
-      label: "সুযোগ ও নেটওয়ার্ক",
-      items: [
-        { icon: Briefcase,    label: "জব সার্কুলার",         href: "/jobs",        color: "rose"   },
-        { icon: Presentation, label: "লাইভ ওয়ার্কশপ",       href: "/workshops",   color: "amber"  },
+        { icon: Mic,    label: "AI Mock Interviews", href: "/mock-interviews", color: "indigo" },
+        { icon: Target, label: "Career Strategy Hub", href: "/career-hub", color: "indigo" },
+        { icon: Zap,    label: "Case Challenges",    href: "/challenges", color: "amber" },
+        { icon: Award,  label: "Credentials Archive", href: "/certificates", color: "emerald" },
       ],
     },
     accountSection: {
-      label: "অ্যাকাউন্ট",
+      label: "Support",
       items: [
-        { icon: Settings,     label: "সেটিংস",            href: "/settings",    color: "slate"  },
-        { icon: HelpCircle,   label: "সাহায্য ও সাপোর্ট", href: "/help",        color: "slate"  },
+        { icon: HelpCircle, label: "Help Center", href: "/help", color: "blue" },
       ],
     },
   };
@@ -60,13 +51,35 @@ const colorMap: Record<string, { bg: string; text: string; lightBg: string; bord
 };
 
 function isActive(href: string, pathname: string) {
-  if (href === "/dashboard") return pathname === "/dashboard";
+  if (href === "/mock-interviews") {
+    return pathname === "/mock-interviews" || pathname.startsWith("/mock-interviews/") || pathname === "/evaluate/interviews" || pathname.startsWith("/evaluate/interviews/");
+  }
+  if (href === "/cockpit" || href === "/dashboard") {
+    return pathname === "/dashboard" || pathname === "/cockpit";
+  }
+  if (href === "/prepare" || href === "/learn") {
+    return pathname === "/prepare" || pathname.startsWith("/prepare/") || pathname === "/learn" || pathname.startsWith("/learn/");
+  }
+  if (href === "/evaluate" || href === "/mock-tests") {
+    // Explicitly exclude mock-interviews so Evaluate tab does NOT highlight when selecting AI Mock Interviews
+    if (pathname.startsWith("/mock-interviews") || pathname.startsWith("/evaluate/interviews")) {
+      return false;
+    }
+    return pathname === "/evaluate" || pathname === "/mock-tests" || pathname.startsWith("/mock-tests/");
+  }
+  if (href === "/passport" || href === "/career-passport") {
+    return pathname === "/passport" || pathname.startsWith("/passport/") || pathname === "/career-passport" || pathname.startsWith("/career-passport/");
+  }
+  if (href === "/opportunities" || href === "/jobs") {
+    return pathname === "/opportunities" || pathname.startsWith("/opportunities/") || pathname === "/jobs" || pathname.startsWith("/jobs/");
+  }
   return pathname === href || pathname.startsWith(href + "/");
 }
 
 interface NavItem {
   icon: React.ComponentType<{ size?: number; className?: string }>;
   label: string;
+  subLabel?: string;
   href: string;
   color: string;
   isNew?: boolean;
@@ -111,9 +124,11 @@ function NavLink({ item, collapsed, active }: { item: NavItem; collapsed: boolea
 
       {!collapsed && (
         <>
-          <span className="flex-1 text-xs font-bangla font-black tracking-tight leading-tight truncate">
-            {item.label}
-          </span>
+          <div className="flex-1 min-w-0">
+            <span className="block text-xs font-mono font-black tracking-tight leading-tight truncate">
+              {item.label}
+            </span>
+          </div>
           {item.isNew && (
             <span
               className="px-1.5 py-0.5 rounded text-[9px] font-mono font-black uppercase tracking-wider"
@@ -123,7 +138,7 @@ function NavLink({ item, collapsed, active }: { item: NavItem; collapsed: boolea
                   : { background: "#e11d48", color: "#fff" }
               }
             >
-              NEW
+              PRO
             </span>
           )}
         </>
@@ -159,36 +174,41 @@ export function DashboardSidebar() {
             >
               <Link href="/dashboard" className="flex items-center gap-2.5 font-mono">
                 <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-black text-sm border-2 border-blue-400"
-                  style={{ background: "#2563eb", boxShadow: "3px 3px 0px 0px #1e3a8a" }}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-[#2563eb] border-2 border-blue-400 p-0.5 overflow-hidden"
+                  style={{ boxShadow: "3px 3px 0px 0px #1e3a8a" }}
                 >
-                  I
+                  <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain rounded-lg" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-base font-black tracking-tight leading-none text-corp-text">INSYT</span>
-                  <span className="text-[9px] font-black tracking-widest uppercase text-[#2563eb]">Corporate</span>
+                  <span className="text-sm font-black tracking-tight leading-none text-corp-text">CAREER INSYT</span>
+                  <span className="text-[9px] font-black tracking-widest uppercase text-[#2563eb]">Corporate OS</span>
                 </div>
               </Link>
             </motion.div>
           )}
         </AnimatePresence>
         {collapsed && (
-          <Link href="/dashboard" className="mx-auto">
+          <Link href="/dashboard" className="mx-auto" title="Career INSYT">
             <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-black text-sm border-2 border-blue-400"
-              style={{ background: "#2563eb", boxShadow: "2px 2px 0px 0px #1e3a8a" }}
+              className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#2563eb] border-2 border-blue-400 p-0.5 overflow-hidden"
+              style={{ boxShadow: "2px 2px 0px 0px #1e3a8a" }}
             >
-              I
+              <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain rounded-lg" />
             </div>
           </Link>
         )}
       </div>
 
-      {/* ── Navigation List ── */}
+      {/* ── Navigation List: 5 Canonical Pillars + Contextual Practice ── */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5 font-mono scrollbar-none">
-        {/* Top Items */}
+        {/* 5 Canonical Pillars */}
         <div className="space-y-1">
-          {nav.topItems.map((item) => (
+          {!collapsed && (
+            <p className="px-2 pb-1 text-[9px] font-mono font-black uppercase tracking-wider text-corp-text-tertiary">
+              Core Architecture
+            </p>
+          )}
+          {nav.primaryPillars.map((item) => (
             <NavLink
               key={item.href}
               item={item}
@@ -198,15 +218,15 @@ export function DashboardSidebar() {
           ))}
         </div>
 
-        {/* Learn Section */}
+        {/* Contextual Tools & Practice */}
         <div className="pt-3 border-t-2" style={{ borderColor: "var(--corp-border)" }}>
           {!collapsed && (
-            <p className="px-2 pb-1 text-[10px] font-bangla font-black uppercase tracking-wider text-corp-text-tertiary">
-              {nav.learnSection.label}
+            <p className="px-2 pb-1 text-[9px] font-mono font-black uppercase tracking-wider text-corp-text-tertiary">
+              {nav.contextualTools.label}
             </p>
           )}
           <div className="space-y-1">
-            {nav.learnSection.items.map((item) => (
+            {nav.contextualTools.items.map((item) => (
               <NavLink
                 key={item.href}
                 item={item}
@@ -217,29 +237,10 @@ export function DashboardSidebar() {
           </div>
         </div>
 
-        {/* Apply Section */}
+        {/* Account & Support Section */}
         <div className="pt-3 border-t-2" style={{ borderColor: "var(--corp-border)" }}>
           {!collapsed && (
-            <p className="px-2 pb-1 text-[10px] font-bangla font-black uppercase tracking-wider text-corp-text-tertiary">
-              {nav.applySection.label}
-            </p>
-          )}
-          <div className="space-y-1">
-            {nav.applySection.items.map((item) => (
-              <NavLink
-                key={item.href}
-                item={item}
-                collapsed={collapsed}
-                active={isActive(item.href, pathname)}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Account Section */}
-        <div className="pt-3 border-t-2" style={{ borderColor: "var(--corp-border)" }}>
-          {!collapsed && (
-            <p className="px-2 pb-1 text-[10px] font-bangla font-black uppercase tracking-wider text-corp-text-tertiary">
+            <p className="px-2 pb-1 text-[9px] font-mono font-black uppercase tracking-wider text-corp-text-tertiary">
               {nav.accountSection.label}
             </p>
           )}
@@ -256,20 +257,17 @@ export function DashboardSidebar() {
         </div>
       </nav>
 
-      {/* ── COLLAPSE / BACK TOGGLE BUTTON (YELLOW BACKGROUND WITH DARK BROWN ARROW) ── */}
-      <div className="p-3 border-t-2 flex-shrink-0" style={{ borderColor: "var(--corp-border)" }}>
+      {/* ── Collapse Toggle Bar ── */}
+      <div className="p-3 border-t-2 flex items-center justify-between" style={{ borderColor: "var(--corp-border)" }}>
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="w-full flex items-center justify-center p-2.5 rounded-xl bg-amber-400 text-amber-950 border-2 border-amber-500 shadow-[3px_3px_0px_0px_#78350f] hover:bg-amber-300 transition-all font-mono font-black min-h-[44px]"
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="w-full py-2.5 px-3 rounded-xl flex items-center justify-center text-xs font-mono font-black bg-amber-400 hover:bg-amber-300 text-[#78350f] border-2 border-amber-600 shadow-[2px_2px_0px_0px_#78350f] transition-all cursor-pointer"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          {collapsed ? (
-            <ChevronRight size={20} className="text-amber-950 fill-amber-950 stroke-[3]" />
-          ) : (
-            <div className="flex items-center gap-2 text-xs font-mono font-black uppercase text-amber-950">
-              <ChevronLeft size={20} className="text-amber-950 fill-amber-950 stroke-[3]" />
-              <span>Collapse Sidebar</span>
-            </div>
+          {collapsed ? <ChevronRight size={16} className="text-[#78350f] stroke-[2.5]" /> : (
+            <span className="flex items-center gap-1.5 text-[11px] font-black text-[#78350f] uppercase tracking-wider">
+              <ChevronLeft size={14} className="text-[#78350f] stroke-[2.5]" /> Collapse
+            </span>
           )}
         </button>
       </div>

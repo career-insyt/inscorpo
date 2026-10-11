@@ -16,11 +16,10 @@ import { useRouter } from "next/navigation";
 interface MarketplaceItem {
   id: string;
   title: string;
-  category: "B2B Enterprise" | "XP Swag & Rewards" | "Templates & Books" | "Exam Vouchers";
+  category: "B2B Enterprise" | "Executive Coaching & Gear" | "Templates & Books" | "Exam Vouchers";
   description: string;
   price: string;
   numericPriceBDT: number;
-  xpCost: number;
   rating: number;
   badge: string;
   icon: string;
@@ -34,7 +33,6 @@ const marketplaceItems: MarketplaceItem[] = [
     description: "4-week executive intensive covering n8n, Bangla OCR, bKash webhooks, NGOAB FD-7 reporting, and Power BI control towers.",
     price: "৳25,000",
     numericPriceBDT: 25000,
-    xpCost: 25000,
     rating: 5.0,
     badge: "Executive Seat",
     icon: "⚡"
@@ -46,7 +44,6 @@ const marketplaceItems: MarketplaceItem[] = [
     description: "Private NDA-protected corporate cohort for your finance, RMG, or M&E team using your company's live anonymized workflow data.",
     price: "৳250,000",
     numericPriceBDT: 250000,
-    xpCost: 150000,
     rating: 5.0,
     badge: "Private Batch",
     icon: "🏢"
@@ -54,11 +51,10 @@ const marketplaceItems: MarketplaceItem[] = [
   {
     id: "insyt-tech-swag-pack",
     title: "Official INSYT Tech Swag Pack (T-Shirt + Stickers)",
-    category: "XP Swag & Rewards",
+    category: "Executive Coaching & Gear",
     description: "Premium cotton tech t-shirt with custom printed INSYT Operator decals + laptop sticker pack.",
     price: "৳1,200",
     numericPriceBDT: 1200,
-    xpCost: 15000,
     rating: 4.9,
     badge: "Popular Swag",
     icon: "👕"
@@ -66,11 +62,10 @@ const marketplaceItems: MarketplaceItem[] = [
   {
     id: "mnc-mentoring-session",
     title: "1-on-1 CV Review & Mock Interview with MNC Director",
-    category: "XP Swag & Rewards",
+    category: "Executive Coaching & Gear",
     description: "Private 45-minute coaching session with a Management Trainee alumnus or HR Lead from top FMCG/Telco companies.",
     price: "৳3,500",
     numericPriceBDT: 3500,
-    xpCost: 25000,
     rating: 5.0,
     badge: "Exclusive Mentoring",
     icon: "🤝"
@@ -82,7 +77,6 @@ const marketplaceItems: MarketplaceItem[] = [
     description: "Premium, ATS-optimized Word and PDF templates designed specifically for management trainee and banking jobs.",
     price: "৳450",
     numericPriceBDT: 450,
-    xpCost: 2000,
     rating: 4.8,
     badge: "Best Seller",
     icon: "📄"
@@ -94,7 +88,6 @@ const marketplaceItems: MarketplaceItem[] = [
     description: "The complete guidebook outlining syllabus weightages, focus writing topics, and monetary formulas.",
     price: "৳350",
     numericPriceBDT: 350,
-    xpCost: 1500,
     rating: 4.9,
     badge: "Guidebook",
     icon: "📘"
@@ -106,17 +99,16 @@ const marketplaceItems: MarketplaceItem[] = [
     description: "Get 10% off your official IELTS registration fee at British Council with this exam voucher code.",
     price: "৳1,500",
     numericPriceBDT: 1500,
-    xpCost: 8000,
     rating: 4.9,
     badge: "Limited Voucher",
     icon: "🎫"
   }
 ];
 
-type PaymentGateway = "bkash" | "nagad" | "rocket" | "upay" | "bank" | "stripe" | "xp";
+type PaymentGateway = "bkash" | "nagad" | "rocket" | "upay" | "bank" | "stripe";
 
 export default function MarketplacePage() {
-  const { state, addXP, buyItem } = useUser();
+  const { state, buyItem } = useUser();
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -150,7 +142,7 @@ export default function MarketplacePage() {
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvc, setCardCvc] = useState("");
 
-  const categories = ["All", "B2B Enterprise", "XP Swag & Rewards", "Templates & Books", "Exam Vouchers"];
+  const categories = ["All", "B2B Enterprise", "Executive Coaching & Gear", "Templates & Books", "Exam Vouchers"];
 
   const filteredItems = marketplaceItems.filter((item) => {
     const matchesCat = activeCategory === "All" ? true : item.category === activeCategory;
@@ -172,24 +164,6 @@ export default function MarketplacePage() {
   const handleExecutePayment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedItem) return;
-
-    if (selectedGateway === "xp") {
-      if (state.xp < selectedItem.xpCost) {
-        const shortfall = selectedItem.xpCost - state.xp;
-        setAlertDialog({
-          isOpen: true,
-          title: "Insufficient XP!",
-          message: `Insufficient XP! You need ${shortfall.toLocaleString()} more XP to unlock "${selectedItem.title}".`,
-          type: "xp",
-          requiredXP: selectedItem.xpCost,
-          currentXP: state.xp,
-          actionText: "Earn XP in Drills",
-          onAction: () => router.push("/mock-tests"),
-        });
-        return;
-      }
-      addXP(-selectedItem.xpCost, `XP Store Purchase: ${selectedItem.title}`);
-    }
 
     setIsProcessing(true);
 
@@ -219,24 +193,24 @@ export default function MarketplacePage() {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-corp-accent/10 text-corp-accent mb-4 border border-corp-accent/20">
             <ShoppingBag size={14} />
-            <span className="text-[11px] font-extrabold uppercase tracking-wider">Merged Marketplace & XP Rewards Store</span>
+            <span className="text-[11px] font-extrabold uppercase tracking-wider">Corporate Marketplace & Solutions Store</span>
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight mb-2" style={{ color: "var(--corp-text)" }}>
             Marketplace & Operator Store
           </h1>
           <p className="text-[15px] max-w-2xl" style={{ color: "var(--corp-text-secondary)" }}>
-            Purchase B2B corporate cohorts, ATS resume packs, and exam vouchers using bKash, Nagad, Cards, Bank Transfer, or your accumulated XP points.
+            Access B2B corporate cohorts, ATS resume playbooks, executive coaching, and certified exam vouchers via bKash, Nagad, Card, or Bank Wire.
           </p>
         </div>
 
-        {/* XP Balance Badge */}
+        {/* Verification Standing Badge */}
         <div className="p-4 rounded-2xl border flex items-center gap-3" style={{ background: "var(--corp-surface)", borderColor: "var(--corp-border)" }}>
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
-            <Zap size={20} className="fill-amber-500" />
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+            <ShieldCheck size={20} className="text-emerald-500" />
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-corp-text-tertiary">Available XP</p>
-            <p className="text-xl font-black font-mono text-amber-500">{state.xp.toLocaleString()} XP</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-corp-text-tertiary">Talent Standing</p>
+            <p className="text-sm font-black font-mono text-emerald-500">Corporate Scholar</p>
           </div>
         </div>
       </div>
@@ -310,7 +284,7 @@ export default function MarketplacePage() {
                 <div className="mt-6 pt-4 border-t flex items-center justify-between" style={{ borderColor: "var(--corp-border)" }}>
                   <div>
                     <p className="font-bold text-sm" style={{ color: "var(--corp-text)" }}>{item.price}</p>
-                    <p className="text-[10px] font-bold text-amber-500 font-mono">or {item.xpCost.toLocaleString()} XP</p>
+                    <p className="text-[10px] font-bold text-corp-text-tertiary font-mono">Official Corporate Rate</p>
                   </div>
 
                   <button
@@ -367,7 +341,7 @@ export default function MarketplacePage() {
                       {selectedItem.title}
                     </h2>
                     <p className="text-xs text-corp-text-secondary mt-1">
-                      Total: <span className="font-bold text-corp-accent">{selectedItem.price}</span> (or {selectedItem.xpCost.toLocaleString()} XP)
+                      Total: <span className="font-bold text-corp-accent">{selectedItem.price}</span>
                     </p>
                   </div>
 
@@ -376,7 +350,7 @@ export default function MarketplacePage() {
                     <label className="block text-xs font-bold uppercase tracking-wider" style={{ color: "var(--corp-text-tertiary)" }}>
                       Select Payment Gateway
                     </label>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                       {[
                         { id: "bkash", label: "bKash", color: "bg-pink-600 text-white" },
                         { id: "nagad", label: "Nagad", color: "bg-orange-600 text-white" },
@@ -384,7 +358,6 @@ export default function MarketplacePage() {
                         { id: "upay", label: "Upay", color: "bg-blue-600 text-white" },
                         { id: "bank", label: "Bank", color: "bg-slate-700 text-white" },
                         { id: "stripe", label: "Card", color: "bg-indigo-600 text-white" },
-                        { id: "xp", label: "XP Points", color: "bg-amber-500 text-white" },
                       ].map((gw) => (
                         <button
                           key={gw.id}
@@ -487,14 +460,6 @@ export default function MarketplacePage() {
                             style={{ background: "var(--corp-surface)", borderColor: "var(--corp-border)", color: "var(--corp-text)" }}
                           />
                         </div>
-                      </div>
-                    )}
-
-                    {selectedGateway === "xp" && (
-                      <div className="text-center py-3 space-y-1">
-                        <p className="font-bold text-amber-500">XP Balance Redemption</p>
-                        <p className="text-xs text-corp-text-secondary">Current Balance: {state.xp.toLocaleString()} XP</p>
-                        <p className="text-xs font-bold text-emerald-600">Remaining after claim: {(state.xp - selectedItem.xpCost).toLocaleString()} XP</p>
                       </div>
                     )}
                   </div>

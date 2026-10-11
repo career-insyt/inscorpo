@@ -48,13 +48,6 @@ export const FEATURE_FLAG_INVENTORY: Record<string, FeatureFlagMeta> = {
   },
 
   // ── Phase 2: Growth & Validation (ACTIVE NOW) ─────────────────────────
-  UNIVERSITY_LEADERBOARDS: {
-    enabled: true,
-    phase: "Phase 2",
-    activationCondition: "Default Launch Active",
-    targetMetric: "Retention",
-    dependencies: ["Appwrite DB Leaderboard"],
-  },
   COMMUNITY_PEER_REVIEWS: {
     enabled: true,
     phase: "Phase 2",

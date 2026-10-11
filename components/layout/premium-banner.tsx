@@ -13,12 +13,11 @@ const ROUTE_MESSAGES: { route: string; text: string; cta: string }[] = [
   { route: "/ai", text: "Access the full 12-tool AI Suite — the ultimate career arsenal", cta: "Go Pro" },
   { route: "/certificates", text: "Generate verified, employer-trusted digital certificates", cta: "Go Pro" },
   { route: "/career-passport", text: "Export ATS-optimized executive PDF resumes instantly", cta: "Go Pro" },
-  { route: "/learn", text: "Unlock all 8+ executive learning paths & career tracks", cta: "Go Pro" },
-  { route: "/leaderboard", text: "See your true global rank with advanced leaderboard filters", cta: "Go Pro" },
+  { route: "/learn", text: "Unlock all 5 flagship masterclasses & interactive practice gyms", cta: "Go Pro" },
 ];
 
 const DEFAULT = {
-  text: "Upgrade to unlock all learning paths, certificates & AI tools —",
+  text: "Upgrade to unlock all flagship masterclasses, practice gyms & verified credentials —",
   brand: "INSYT Pro",
   cta: "Upgrade Now",
 };
@@ -60,63 +59,64 @@ export function PremiumBanner() {
           className="overflow-hidden flex-shrink-0 relative z-30 hidden sm:block"
         >
           <div
-            className="relative flex flex-wrap items-center justify-center gap-2 px-4 py-1.5 text-[11px] sm:text-[12px] font-medium overflow-hidden"
+            className="relative flex flex-wrap items-center justify-center gap-2 px-4 py-1.5 text-[11px] sm:text-[12px] font-medium overflow-hidden font-sans"
             style={{
-              background: "linear-gradient(90deg, #0a0f1e 0%, #0d1b2a 25%, #162032 50%, #0d1b2a 75%, #0a0f1e 100%)",
-              color: "rgba(255,255,255,0.88)",
-              borderBottom: "1px solid rgba(245,158,11,0.2)",
+              background: "linear-gradient(90deg, #006effff 0%, #0099ffff 35%, #006effff 70%, #0099ffff 100%)",
+              color: "#0f172a",
+              borderBottom: "1.5px solid #93c5fd",
             }}
           >
             {/* Animated shimmer */}
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
-                background: "linear-gradient(90deg, transparent 0%, rgba(245,158,11,0.06) 50%, transparent 100%)",
+                background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.7) 50%, transparent 100%)",
                 backgroundSize: "200% 100%",
                 animation: "shimmer 4s linear infinite",
               }}
             />
 
             {/* Crown icon */}
-            <Crown size={13} className="flex-shrink-0 relative z-10" style={{ color: "#F59E0B" }} />
+            <Crown size={14} className="flex-shrink-0 relative z-10 text-amber-500 fill-amber-400 drop-shadow-sm" />
 
             {/* Message */}
-            <span className="relative z-10 text-center max-w-[400px] sm:max-w-none leading-tight">
+            <span className="relative z-10 text-center max-w-[400px] sm:max-w-none leading-tight font-bold text-slate-800">
               {match ? (
                 <>
-                  <span className="text-white/80">{match.text} — </span>
-                  <span className="font-black text-[#F59E0B]">INSYT Pro</span>
+                  <span className="text-slate-700">{match.text} — </span>
+                  <span className="font-black text-[#1e40af]">INSYT Pro</span>
                 </>
               ) : (
                 <>
-                  <span className="text-white/80">{DEFAULT.text} </span>
-                  <span className="font-black text-[#F59E0B]">{DEFAULT.brand}</span>
+                  <span className="text-white">{DEFAULT.text} </span>
+                  <span className="font-black text-[#0004ff]">{DEFAULT.brand}</span>
                 </>
               )}
             </span>
 
-            {/* CTA */}
+            {/* CTA Button: Red background with white text, labeled 'Update Now' */}
             <Link
               href="/subscription"
-              className="relative z-10 flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-black uppercase tracking-wide transition-all hover:opacity-90 hover:scale-105 flex-shrink-0 ml-1"
+              className="relative z-10 flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-black uppercase tracking-wide transition-all hover:brightness-110 hover:scale-105 active:scale-95 flex-shrink-0 ml-1 shadow-md cursor-pointer"
               style={{
-                background: "linear-gradient(135deg, #F59E0B, #D97706)",
-                color: "#0a0f1e",
-                boxShadow: "0 2px 8px rgba(245,158,11,0.35)",
+                background: "#dc2626",
+                color: "#ffffff",
+                border: "1px solid #b91c1c",
+                boxShadow: "0 2px 8px rgba(220,38,38,0.4)",
               }}
             >
-              <Zap size={10} className="fill-current" />
-              {match ? match.cta : DEFAULT.cta}
-              <ChevronRight size={10} />
+              <Zap size={11} className="fill-white text-white" />
+              <span>Update Now</span>
+              <ChevronRight size={11} className="text-white" />
             </Link>
 
             {/* Dismiss */}
             <button
               onClick={handleDismiss}
-              className="relative z-10 w-7 h-7 rounded-md flex items-center justify-center hover:bg-white/10 transition-colors flex-shrink-0 ml-0.5 active:scale-95"
+              className="relative z-10 w-7 h-7 rounded-md flex items-center justify-center hover:bg-black/5 transition-colors flex-shrink-0 ml-0.5 active:scale-95 text-slate-500 hover:text-slate-900"
               aria-label="Dismiss banner"
             >
-              <X size={13} className="text-white/50" />
+              <X size={13} />
             </button>
           </div>
         </motion.div>

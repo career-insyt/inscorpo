@@ -40,9 +40,9 @@ const COLUMNS: { id: JobApplicationDoc["status"]; label: string; color: string; 
 
 const TAB_HEADERS = {
   corporate: {
-    badge: "MNC & Bank Recruitment Portal",
-    title: "Corporate Job Board",
-    subtitle: "Discover Management Trainee (MTO) circulars, analyst roles, and direct interview drives at leading Bangladeshi corporate enterprises.",
+    badge: "05 · Opportunities — INSYT Corporate",
+    title: "Curated Career Opportunities & Skill Matching",
+    subtitle: "Verified corporate openings mapped directly to your verified skill portfolio, capstones, and calibrated Readiness Index.",
   },
   research: {
     badge: "Government Research Intelligence",
@@ -52,7 +52,7 @@ const TAB_HEADERS = {
 };
 
 export default function JobsPage() {
-  const { addNotification, addXP } = useUser();
+  const { addNotification } = useUser();
   const { user } = useAuth();
 
   const [jobs, setJobs] = useState<JobListing[]>(jobsData);

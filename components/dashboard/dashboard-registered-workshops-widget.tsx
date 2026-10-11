@@ -88,7 +88,7 @@ export function DashboardRegisteredWorkshopsWidget() {
     return () => clearInterval(interval);
   }, [registeredWorkshops]);
 
-  if (loading) return null;
+  if (loading || registeredWorkshops.length === 0) return null;
 
   return (
     <motion.div
@@ -96,102 +96,67 @@ export function DashboardRegisteredWorkshopsWidget() {
       animate={{ opacity: 1, y: 0 }}
       className="font-mono"
     >
-      {registeredWorkshops.length > 0 ? (
-        <div
-          className="p-5 rounded-2xl border-2 border-emerald-500 shadow-[5px_5px_0px_0px_#047857] text-white flex flex-col md:flex-row md:items-center justify-between gap-4 overflow-hidden relative"
-          style={{
-            background: "linear-gradient(135deg, #064e3b 0%, #0f2b48 50%, #1e1b4b 100%)",
-          }}
-        >
-          <div className="space-y-1.5 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase bg-emerald-400 text-emerald-950 border border-emerald-500 flex items-center gap-1">
-                <CheckCircle2 size={12} /> SEAT CONFIRMED &amp; REGISTERED
-              </span>
-              <span className="px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase bg-amber-400 text-amber-950 border border-amber-500">
-                BAU Career Club (BAUCC) x INSYT
-              </span>
-            </div>
-            <h3 className="text-base sm:text-lg font-black uppercase text-white tracking-wide truncate">
-              🎟️ {registeredWorkshops[0].title}
-            </h3>
-            <div className="flex flex-wrap gap-4 text-xs font-bold text-emerald-200 font-sans">
-              <span className="flex items-center gap-1"><Calendar size={13} className="text-emerald-400" /> {registeredWorkshops[0].date}</span>
-              <span className="flex items-center gap-1"><Clock size={13} className="text-emerald-400" /> {registeredWorkshops[0].time}</span>
-              <span className="flex items-center gap-1"><ShieldCheck size={13} className="text-emerald-400" /> Verified Pass Issued</span>
-            </div>
-          </div>
-
-          {/* Countdown Timer Block */}
-          <div className="flex flex-col items-start md:items-end gap-1 flex-shrink-0">
-            <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1">
-              <Timer size={12} className="animate-pulse" /> Event Starts In
+      <div
+        className="p-5 rounded-2xl border-2 border-emerald-500 shadow-[5px_5px_0px_0px_#047857] text-white flex flex-col md:flex-row md:items-center justify-between gap-4 overflow-hidden relative"
+        style={{
+          background: "linear-gradient(135deg, #064e3b 0%, #0f2b48 50%, #1e1b4b 100%)",
+        }}
+      >
+        <div className="space-y-1.5 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase bg-emerald-400 text-emerald-950 border border-emerald-500 flex items-center gap-1">
+              <CheckCircle2 size={12} /> SEAT CONFIRMED &amp; REGISTERED
             </span>
-            <div className="flex items-center gap-1 bg-slate-950/70 p-2 sm:p-2.5 rounded-xl border border-emerald-500/50 shadow-[3px_3px_0px_0px_#047857]">
-              <div className="flex flex-col items-center px-1.5 min-w-[34px]">
-                <span className="text-base sm:text-lg font-black text-amber-400 leading-none">
-                  {String(timeLeft.days).padStart(2, "0")}
-                </span>
-                <span className="text-[8px] font-black uppercase text-emerald-300/90 mt-0.5">DAYS</span>
-              </div>
-              <span className="text-emerald-400 font-black text-sm pb-2">:</span>
-              <div className="flex flex-col items-center px-1.5 min-w-[34px]">
-                <span className="text-base sm:text-lg font-black text-amber-400 leading-none">
-                  {String(timeLeft.hours).padStart(2, "0")}
-                </span>
-                <span className="text-[8px] font-black uppercase text-emerald-300/90 mt-0.5">HRS</span>
-              </div>
-              <span className="text-emerald-400 font-black text-sm pb-2">:</span>
-              <div className="flex flex-col items-center px-1.5 min-w-[34px]">
-                <span className="text-base sm:text-lg font-black text-amber-400 leading-none">
-                  {String(timeLeft.minutes).padStart(2, "0")}
-                </span>
-                <span className="text-[8px] font-black uppercase text-emerald-300/90 mt-0.5">MIN</span>
-              </div>
-              <span className="text-emerald-400 font-black text-sm pb-2">:</span>
-              <div className="flex flex-col items-center px-1.5 min-w-[34px]">
-                <span className="text-base sm:text-lg font-black text-amber-400 leading-none">
-                  {String(timeLeft.seconds).padStart(2, "0")}
-                </span>
-                <span className="text-[8px] font-black uppercase text-emerald-300/90 mt-0.5">SEC</span>
-              </div>
-            </div>
+            <span className="px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase bg-amber-400 text-amber-950 border border-amber-500">
+              INSYT Live Workshop
+            </span>
+          </div>
+          <h3 className="text-base sm:text-lg font-black uppercase text-white tracking-wide truncate">
+            🎟️ {registeredWorkshops[0].title}
+          </h3>
+          <div className="flex flex-wrap gap-4 text-xs font-bold text-emerald-200 font-sans">
+            <span className="flex items-center gap-1"><Calendar size={13} className="text-emerald-400" /> {registeredWorkshops[0].date}</span>
+            <span className="flex items-center gap-1"><Clock size={13} className="text-emerald-400" /> {registeredWorkshops[0].time}</span>
+            <span className="flex items-center gap-1"><ShieldCheck size={13} className="text-emerald-400" /> Verified Pass Issued</span>
           </div>
         </div>
-      ) : (
-        <div
-          className="p-5 rounded-2xl border-2 border-[#2563eb] shadow-[5px_5px_0px_0px_#1e3a8a] text-white flex flex-col md:flex-row md:items-center justify-between gap-4"
-          style={{ background: "var(--corp-surface)" }}
-        >
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase bg-amber-400 text-amber-950 border border-amber-500">
-                BAUCC x INSYT LIVE MASTERCLASS
-              </span>
-              <span className="text-xs font-bold text-amber-400 flex items-center gap-1">
-                <Sparkles size={13} /> +150 XP Seat Reward
-              </span>
-            </div>
-            <h3 className="text-base sm:text-lg font-black uppercase text-corp-text">
-              CV Writing &amp; LinkedIn Hacks with Niaz Ahmed
-            </h3>
-            <p className="text-xs font-sans font-medium text-corp-text-secondary">
-              Master ATS-friendly CV engineering &amp; LinkedIn recruiter hacks with Bangladesh&apos;s #1 CV Engineer (Founder &amp; CEO, Corporate Ask).
-            </p>
-          </div>
 
-          <a
-            href="https://forms.gle/qYevAczJCgUe4KVPA"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-5 py-3 rounded-lg text-xs font-black uppercase text-white bg-[#2563eb] hover:bg-blue-600 transition-all border-2 border-blue-400 shadow-[3px_3px_0px_0px_#1e3a8a] flex items-center justify-center gap-2 flex-shrink-0 active:scale-95 text-center"
-          >
-            <Ticket size={14} />
-            <span>Register Now</span>
-            <ArrowRight size={14} />
-          </a>
+        {/* Countdown Timer Block */}
+        <div className="flex flex-col items-start md:items-end gap-1 flex-shrink-0">
+          <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1">
+            <Timer size={12} className="animate-pulse" /> Event Starts In
+          </span>
+          <div className="flex items-center gap-1 bg-slate-950/70 p-2 sm:p-2.5 rounded-xl border border-emerald-500/50 shadow-[3px_3px_0px_0px_#047857]">
+            <div className="flex flex-col items-center px-1.5 min-w-[34px]">
+              <span className="text-base sm:text-lg font-black text-amber-400 leading-none">
+                {String(timeLeft.days).padStart(2, "0")}
+              </span>
+              <span className="text-[8px] font-black uppercase text-emerald-300/90 mt-0.5">DAYS</span>
+            </div>
+            <span className="text-emerald-400 font-black text-sm pb-2">:</span>
+            <div className="flex flex-col items-center px-1.5 min-w-[34px]">
+              <span className="text-base sm:text-lg font-black text-amber-400 leading-none">
+                {String(timeLeft.hours).padStart(2, "0")}
+              </span>
+              <span className="text-[8px] font-black uppercase text-emerald-300/90 mt-0.5">HRS</span>
+            </div>
+            <span className="text-emerald-400 font-black text-sm pb-2">:</span>
+            <div className="flex flex-col items-center px-1.5 min-w-[34px]">
+              <span className="text-base sm:text-lg font-black text-amber-400 leading-none">
+                {String(timeLeft.minutes).padStart(2, "0")}
+              </span>
+              <span className="text-[8px] font-black uppercase text-emerald-300/90 mt-0.5">MIN</span>
+            </div>
+            <span className="text-emerald-400 font-black text-sm pb-2">:</span>
+            <div className="flex flex-col items-center px-1.5 min-w-[34px]">
+              <span className="text-base sm:text-lg font-black text-amber-400 leading-none">
+                {String(timeLeft.seconds).padStart(2, "0")}
+              </span>
+              <span className="text-[8px] font-black uppercase text-emerald-300/90 mt-0.5">SEC</span>
+            </div>
+          </div>
         </div>
-      )}
+      </div>
     </motion.div>
   );
 }

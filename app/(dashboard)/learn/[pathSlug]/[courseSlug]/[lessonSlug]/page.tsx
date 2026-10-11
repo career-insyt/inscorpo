@@ -5,416 +5,38 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, Play, FileText, Bookmark, MessageSquare,
   Sparkles, CheckCircle2, ChevronRight, Download, Send, Check, AlertCircle,
-  Table, HelpCircle, Terminal, Calculator, Layers, Code, Zap
+  Table, HelpCircle, Terminal, Calculator, Layers, Code, Zap, Video,
+  Wand2, ShieldAlert, FileSpreadsheet, RefreshCw, Eye, CheckSquare, BarChart3, GraduationCap
 } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@/components/providers/user-context";
+import { DYNAMIC_LESSONS, getLessonBySlug, LessonDetail } from "@/lib/data/lessons";
+import PythonAnalyticsStudio from "@/components/learning/python-analytics-studio";
+import WorkflowAutomationStudio from "@/components/learning/workflow-automation-studio";
+import { BIPowerBISqlStudio } from "@/components/learning/bi-powerbi-sql-studio";
+import { MTORecruitmentStudio } from "@/components/learning/mto-recruitment-studio";
+import { RenderLessonNotes } from "@/components/learning/render-lesson-notes";
 
 interface PageProps {
   params: Promise<{ pathSlug: string; courseSlug: string; lessonSlug: string }>;
 }
 
-// Extensive database of specific GOATED lesson details for Excel & Corporate Analytics
-const dynamicLessons: Record<string, {
-  title: string;
-  xpReward: number;
-  duration: string;
-  videoUrl: string;
-  notes: string;
-  quiz: {
-    question: string;
-    options: string[];
-    correctIdx: number;
-    explanation: string;
-  };
-  hasSimulator?: "lookup" | "npv" | "solver" | "email" | "resume" | "star" | "forces" | "formula";
-}> = {
-  // Quantitative Aptitude & Number Theory Lessons
-  "divisibility-remainders": {
-    title: "Factors, Multiples, and Remainder Theorem",
-    xpReward: 60,
-    duration: "25m",
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    notes: `### Factors, Multiples & Remainder Theorem
-
-#### Executive Overview & Quantitative Strategy
-Quantitative reasoning on top-tier corporate assessments evaluates your ability to recognize structural number properties rather than perform brute-force arithmetic.
-
-#### Core Mathematical Theorems:
-1. **Divisibility Definition**: An integer $n$ is divisible by $d$ if there exists an integer $k$ such that:
-   $$n = k \\times d$$
-2. **The Quotient-Remainder Formula**: For any integer $n$ divided by positive divisor $d$:
-   $$n = q \\cdot d + r \\quad \\text{where } 0 \\le r < d$$
-3. **Remainder Addition Property**:
-   $$\\text{Rem}\\left(\\frac{A + B}{d}\\right) = \\text{Rem}\\left(\\frac{\\text{Rem}(A/d) + \\text{Rem}(B/d)}{d}\\right)$$
-4. **Prime Factorization Rule**: The number of factors of $N = p_1^{a} \\cdot p_2^{b} \\cdot p_3^{c}$ is given by:
-   $$\\text{Total Factors} = (a+1)(b+1)(c+1)$$
-
-#### High-Score Test Shortcuts:
-* If $x$ divided by 9 leaves remainder $r$, then the sum of digits of $x$ divided by 9 also leaves remainder $r$.
-* Remainder problems involving large exponents ($x^n \\bmod d$) should be solved using pattern recognition or modular cycles.`,
-    quiz: {
-      question: "If integer x is divided by 9, the remainder is 5. What is the remainder when 3x + 4 is divided by 9?",
-      options: [
-        "1",
-        "3",
-        "4",
-        "7"
-      ],
-      correctIdx: 0,
-      explanation: "Let x = 9k + 5. Then 3x + 4 = 3(9k + 5) + 4 = 27k + 15 + 4 = 27k + 19. Expressing 19 in terms of multiples of 9: 19 = 9(2) + 1. Therefore, the remainder is 1."
-    },
-    hasSimulator: "formula"
-  },
-
-  // Excel Fundamentals
-  "excel-orientation": {
-    title: "Excel Course Orientation & Setup Guide",
-    xpReward: 50,
-    duration: "15m",
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    notes: `### Excel Course Orientation & Corporate Setup Guide
-
-#### Executive Summary & Corporate Context
-In investment banking, management consulting, and FMCG corporate analytics, financial modeling speed and precision dictate career velocity. This masterclass trains you to work mouse-free using industry-standard keyboard shortcut systems.
-
-#### Core Setup Standards for Corporate Analysts:
-1. **Gridlines Display**: Ensure Gridlines are enabled under \`View -> Show -> Gridlines\` for raw data, but hidden for presentation executive decks.
-2. **Formula Auto-Calculation**: Set Calculation Options to \`Automatic\` under \`Formulas -> Calculation Options\`.
-3. **Quick Access Toolbar (QAT)**: Customize the top bar with \`Save\`, \`Undo\`, \`Redo\`, \`Paste Special Values\`, and \`Font Color\`.
-
-#### Best Practices Checklist:
-* **Color Coding Standards**: Blue text = Hardcoded inputs, Black text = Formulas & calculations, Green text = Links to other sheets, Red text = External links/warnings.
-* **Never Hardcode in Formulas**: Separate assumptions (inputs) into dedicated input cells rather than writing numbers inside formulas (e.g. use \`=A1*(1+B1)\` instead of \`=A1*1.05\`).`,
-    quiz: {
-      question: "According to financial modeling standards, what cell text color should be used for hardcoded input numbers?",
-      options: [
-        "Black font",
-        "Blue font",
-        "Green font",
-        "Red font"
-      ],
-      correctIdx: 1,
-      explanation: "Standard corporate financial modeling guidelines mandate Blue font for hardcoded input values and Black font for calculated formulas."
-    },
-    hasSimulator: "formula"
-  },
-
-  "keyboard-shortcuts": {
-    title: "High-Frequency Executive Keyboard Shortcuts",
-    xpReward: 70,
-    duration: "25m",
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    notes: `### High-Frequency Executive Keyboard Shortcuts
-
-#### The Mouse-Free Productivity Philosophy
-Top analysts work 3x faster by eliminating mouse dependency. Memorize these key combinations to navigate spreadsheets at elite speeds.
-
-#### Essential Shortcut Cheat Sheet:
-* **Navigation & Selection**:
-  * \`Ctrl + Arrow Keys\`: Jump to the edge of the data region.
-  * \`Ctrl + Shift + Arrow Keys\`: Select range to the edge of data.
-  * \`Ctrl + Home / End\`: Jump to cell A1 or the last used cell.
-* **Editing & Formatting**:
-  * \`F4\`: Toggle absolute/relative cell references (\`$A$1\`, \`A$1\`, \`$A1\`, \`A1\`) OR repeat last action.
-  * \`Ctrl + 1\`: Open Format Cells dialog box.
-  * \`Alt + H + O + I\`: Auto-fit column widths.
-  * \`Alt + = \`: AutoSum selected numbers.
-  * \`Ctrl + Shift + 1\`: Format as Number (\`#,##0.00\`).
-  * \`Ctrl + Shift + 4\`: Format as Currency (\`$#,##0.00\`).
-
-#### Pro Tip:
-Use the \`Alt\` ribbon navigation key. Pressing \`Alt\` highlights key tips across the ribbon menu, allowing access to any Excel command without touching the mouse.`,
-    quiz: {
-      question: "Which function key toggles cell reference locking (absolute vs relative, e.g. $A$1) inside the formula bar?",
-      options: [
-        "F2",
-        "F4",
-        "F8",
-        "F12"
-      ],
-      correctIdx: 1,
-      explanation: "Pressing F4 while editing a cell reference cycles through absolute ($A$1), row-locked (A$1), column-locked ($A1), and relative (A1) modes."
-    },
-    hasSimulator: "formula"
-  },
-
-  // Excel Formulas & Data Cleaning
-  "lookup-functions": {
-    title: "XLOOKUP vs VLOOKUP/INDEX-MATCH",
-    xpReward: 80,
-    duration: "25m",
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    notes: `### XLOOKUP Syntax & Advanced Array Mapping
-
-#### Executive Overview
-Microsoft introduced \`XLOOKUP\` to solve the critical vulnerabilities of legacy \`VLOOKUP\` and replace multi-nested \`INDEX-MATCH\` functions.
-
-#### Syntactical Signature:
-\`\`\`excel
-=XLOOKUP(lookup_value, lookup_array, return_array, [if_not_found], [match_mode], [search_mode])
-\`\`\`
-
-#### Comparative Advantages:
-1. **Leftward Lookups**: Searches left or right without requiring the lookup column to be the leftmost array column.
-2. **Default Exact Match**: Defaults to exact match (\`match_mode = 0\`), eliminating accidental approximate matching errors.
-3. **Native Error Handling**: Includes built-in \`[if_not_found]\` parameter, removing the need to wrap formulas in \`IFERROR()\`.
-4. **Dynamic Array Return**: Returns an entire row or multi-column array when paired with multiple return columns.
-
-#### Real-World Corporate Example:
-\`\`\`excel
-=XLOOKUP(E2, Employees[ID], Employees[Salary], "Employee Not Found", 0)
-\`\`\``,
-    quiz: {
-      question: "Which array parameter represents the target database column from which values are extracted in XLOOKUP?",
-      options: [
-        "lookup_value",
-        "lookup_array",
-        "return_array",
-        "match_mode"
-      ],
-      correctIdx: 2,
-      explanation: "The return_array parameter defines the target dataset column or range containing the values to return."
-    },
-    hasSimulator: "lookup"
-  },
-
-  "summary-functions": {
-    title: "SUMIFS, COUNTIFS & Conditional Summaries",
-    xpReward: 75,
-    duration: "30m",
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    notes: `### SUMIFS, COUNTIFS & Multi-Criteria Analytics
-
-#### Corporate Application
-Executive dashboards require aggregating metrics based on dynamic filters (e.g. Total Revenue for Region='North' AND Category='Electronics' AND Date >= Q1).
-
-#### Formula Syntax Signatures:
-* **SUMIFS**:
-  \`\`\`excel
-  =SUMIFS(sum_range, criteria_range1, criteria1, [criteria_range2, criteria2], ...)
-  \`\`\`
-* **COUNTIFS**:
-  \`\`\`excel
-  =COUNTIFS(criteria_range1, criteria1, [criteria_range2, criteria2], ...)
-  \`\`\`
-
-#### Key Syntactical Rule:
-In \`SUMIFS\`, the \`sum_range\` comes **FIRST**, whereas in legacy single-criterion \`SUMIF\`, the sum range comes last. Always use \`SUMIFS\` for consistency.
-
-#### Logical Operators in Criteria:
-* Greater than $50,000: \`">50000"\`
-* Date range filter: \`">="&DATE(2026,1,1)\`
-* Wildcard matching: \`"North*"\` (matches North, Northeast, Northwest)`,
-    quiz: {
-      question: "In the SUMIFS function, what is the position of the sum_range parameter?",
-      options: [
-        "The very first argument",
-        "The very last argument",
-        "Directly after criteria_range1",
-        "Inside an array bracket"
-      ],
-      correctIdx: 0,
-      explanation: "Unlike single-criterion SUMIF, SUMIFS requires sum_range as its first parameter before any criteria ranges are listed."
-    },
-    hasSimulator: "formula"
-  },
-
-  // Financial Modeling
-  "npv-irr-models": {
-    title: "NPV & IRR Investment Case Modeling",
-    xpReward: 90,
-    duration: "40m",
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    notes: `### Net Present Value (NPV) & Internal Rate of Return (IRR)
-
-#### Executive Overview & DCF Modeling
-Capital budgeting decisions evaluate whether projected future cash flows justify initial capital outlays based on the Weighted Average Cost of Capital (WACC).
-
-#### Core Financial Formulas:
-* **Net Present Value (NPV)**:
-  $$NPV = \\sum_{t=1}^{n} \\frac{CF_t}{(1+r)^t} - \\text{Initial Investment}$$
-  * Excel Formula: \`=NPV(rate, CF1, CF2, CF3) - Initial_Outflow\`
-* **Internal Rate of Return (IRR)**:
-  The discount rate $r$ that sets $NPV = 0$.
-  * Excel Formula: \`=IRR(values_range)\`
-
-#### Decision Rules:
-* **If NPV > 0**: Project adds shareholder value $\\rightarrow$ **ACCEPT**.
-* **If IRR > WACC**: Return exceeds cost of capital $\\rightarrow$ **ACCEPT**.`,
-    quiz: {
-      question: "If the calculated NPV of a capital expansion project is positive at a 10% WACC discount rate, what does this indicate about the IRR?",
-      options: [
-        "The IRR is less than 10%.",
-        "The IRR is exactly equal to 10%.",
-        "The IRR is greater than 10%.",
-        "The IRR cannot be determined."
-      ],
-      correctIdx: 2,
-      explanation: "A positive NPV means the investment yield exceeds the discount rate. Therefore, the rate of return where NPV equals zero (the IRR) must be greater than 10%."
-    },
-    hasSimulator: "npv"
-  },
-
-  // Optimization
-  "goal-seek-solver": {
-    title: "Using Solver to Optimize Product Mixes",
-    xpReward: 95,
-    duration: "30m",
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    notes: `### Excel Solver & Linear Optimization Modeling
-
-#### Executive Overview
-Excel Solver uses linear programming algorithms (Simplex LP) to maximize profit or minimize costs subject to operational resource constraints.
-
-#### Optimization Setup Framework:
-1. **Objective Cell**: Target metric cell to Maximize, Minimize, or set to a target value (e.g. Total Profit).
-2. **Variable Cells (By Changing Variable Cells)**: Production quantities or resource allocation inputs.
-3. **Constraints**: Operational boundary equations (e.g. Total Labor Hours $\\le$ 120, Machine Time $\\le$ 80 hours).
-
-#### Solver Engine Selection:
-* **Simplex LP**: Used for linear models where variables increase proportionally.
-* **GRG Nonlinear**: Used for smooth nonlinear equations.
-* **Evolutionary**: Used for complex non-smooth functions with IF statements.`,
-    quiz: {
-      question: "Which Excel Solver parameter defines the decision variables that Excel alters to optimize the objective function?",
-      options: [
-        "Objective Cell",
-        "Variable Cells (By Changing Variable Cells)",
-        "Constraint Parameters",
-        "Engine Sensitivity"
-      ],
-      correctIdx: 1,
-      explanation: "The variable cells ('By Changing Variable Cells') represent the decision parameters that Solver adjusts to achieve optimal results."
-    },
-    hasSimulator: "solver"
-  },
-
-  // Executive Communication
-  "email-templates-generator": {
-    title: "Building Executive & Cold Networking Templates",
-    xpReward: 85,
-    duration: "30m",
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    notes: `### Structured Business Email Formulations
-
-#### Executive Communication Strategy
-Busy corporate executives receive 100+ emails daily. High-impact emails must adhere to strict brevity rules and low-friction calls to action.
-
-#### 3-Step Structural Framework:
-1. **Action-Oriented Subject Line**: Clear, concise, and explicit (e.g., \`Meeting Request: Q3 Analytics Alignment (15 Min)\`).
-2. **First 2 Sentences**: Establish relevance immediately. Answer 'Why me?' and 'Why now?'.
-3. **Specific Low-Friction CTA**: Propose specific dates/times or binary choices rather than open-ended questions like 'When are you free?'.`,
-    quiz: {
-      question: "Which of the following represents the most professional and low-friction email subject line?",
-      options: [
-        "Urgent: Read this right now",
-        "Introduction and questions",
-        "Meeting Proposal: Q3 Analytics Alignment (July 15, 15 Min)",
-        "Hello from a student"
-      ],
-      correctIdx: 2,
-      explanation: "A high-impact subject line clearly states the objective, context, date, and time commitment to minimize friction."
-    },
-    hasSimulator: "email"
-  },
-
-  "achievement-quantifier": {
-    title: "Writing Quantifiable Achievement Bullet Points",
-    xpReward: 90,
-    duration: "25m",
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    notes: `### Quantifying Resume Bullets & Google XYZ Formula
-
-#### ATS & Executive Recruiter Standards
-Recruiters and ATS parsers rank candidates based on clear evidence of business impact rather than passive job descriptions.
-
-#### The Google XYZ Formula:
-> "Accomplished **[X]**, as measured by **[Y]**, by doing **[Z]**."
-
-#### Bad vs. Good Examples:
-* **Bad**: *"Responsible for updating sales data in Excel."*
-* **Good (XYZ Format)**: *"Engineered an automated Excel P&L model, accelerating monthly financial closing by 35% and saving 12 hours of manual labor per reporting cycle."*`,
-    quiz: {
-      question: "Which of the following resume bullets strictly follows the Google XYZ impact formula?",
-      options: [
-        "Responsible for handling client calls and managing records.",
-        "Increased regional sales revenue by 22% ($180k) in Q3 by optimizing Google Ads targeting parameters.",
-        "Helped the team with weekly presentation decks.",
-        "Managed database files and organized office travel."
-      ],
-      correctIdx: 1,
-      explanation: "This bullet specifies X (sales increased by 22%), Y (measured by $180k in Q3), and Z (optimizing Google Ads targeting parameters)."
-    },
-    hasSimulator: "resume"
-  },
-
-  "star-story-builder": {
-    title: "Structuring STAR Behavioral Interview Stories",
-    xpReward: 95,
-    duration: "25m",
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    notes: `### The STAR Behavioral Interview Framework
-
-#### Structure & Time Allocation
-Behavioral interview questions ("Tell me about a time when...") evaluate past actions to predict future performance. Use the STAR method to structure your response.
-
-#### STAR Breakdown & Target Time Ratios:
-1. **Situation (15%)**: Concise context (Who, What, Where, When).
-2. **Task (15%)**: The explicit problem or goal to be solved.
-3. **Action (60%)**: The specific steps **YOU** took. Use 'I' statements, detail problem-solving logic, and highlight leadership.
-4. **Result (10%)**: Quantifiable business metrics outcome.`,
-    quiz: {
-      question: "Which section of the STAR interview framework should consume approximately 60% of your total response time?",
-      options: [
-        "Situation",
-        "Task",
-        "Action",
-        "Result"
-      ],
-      correctIdx: 2,
-      explanation: "The Action phase demonstrates your personal competencies, decision logic, and problem-solving actions, forming the core of the response."
-    },
-    hasSimulator: "star"
-  },
-
-  "five-forces-builder": {
-    title: "Applying Porter's Five Forces Framework Models",
-    xpReward: 90,
-    duration: "30m",
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    notes: `### Porter's Five Forces Strategic Framework
-
-#### Executive Summary & Consulting Application
-Michael Porter's framework analyzes an industry's structural attractiveness and long-term return on capital.
-
-#### The Five Competitive Forces:
-1. **Threat of New Entrants**: Barrier heights (capital requirements, scale economies, IP).
-2. **Bargaining Power of Buyers**: Buyer concentration, switching costs, price sensitivity.
-3. **Bargaining Power of Suppliers**: Supplier concentration, availability of inputs.
-4. **Threat of Substitutes**: Relative price-performance of alternative product categories.
-5. **Competitive Rivalry**: Number of industry players, fixed cost structures, exit barriers.`,
-    quiz: {
-      question: "Which of the following factors increases the Bargaining Power of Buyers?",
-      options: [
-        "High switching costs to switch to competing products.",
-        "Undifferentiated, standardized products with zero switching costs.",
-        "Highly fragmented buyers purchasing small quantities.",
-        "Supplier threat of forward integration."
-      ],
-      correctIdx: 1,
-      explanation: "When products are standardized and switching costs are zero, buyers can easily switch suppliers, increasing their bargaining leverage."
-    },
-    hasSimulator: "forces"
-  }
+const trackTitles: Record<string, string> = {
+  "business-intelligence-analyst": "Enterprise Business Intelligence & Power BI",
+  "applied-ai-automation": "Applied Workplace AI & Enterprise Automation",
+  "corporate-python-automation": "Corporate Python & Data Automation",
+  "video-ai-production": "Video Editing + AI Production",
+  "presentation-engineering": "Gamma + Canva + PowerPoint",
+  "ai-for-work": "AI for Work, Career & Business",
+  "gre-preparation": "GRE Preparation",
 };
 
 export default function LessonPlayerPage(props: PageProps) {
-  const { state, addXP, addNotification, updateCourseProgress, recordStudyMinutes } = useUser();
+  const { state, addNotification, updateCourseProgress, recordStudyMinutes } = useUser();
   const params = use(props.params);
-  const pathSlug = params?.pathSlug || "excel-corporate";
-  const courseSlug = params?.courseSlug || "excel-fundamentals";
-  const lessonSlug = params?.lessonSlug || "lookup-functions";
+  const pathSlug = params?.pathSlug || "video-ai-production";
+  const courseSlug = params?.courseSlug || "capcut-complete-course";
+  const lessonSlug = params?.lessonSlug || "timeline-assembly";
 
   // Formatted title for dynamic fallback
   const formattedTitle = lessonSlug
@@ -422,223 +44,315 @@ export default function LessonPlayerPage(props: PageProps) {
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 
-  // Fetch specific lesson content or build GOATED dynamic fallback
-  const lesson = dynamicLessons[lessonSlug] || {
+  // Fetch lesson from comprehensive catalog or build robust fallback
+  const lesson: LessonDetail = getLessonBySlug(lessonSlug) || {
+    slug: lessonSlug,
     title: formattedTitle,
-    xpReward: 60,
+    xpReward: 70,
     duration: "25m",
     videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
-    notes: `### ${formattedTitle} — Executive Masterclass & Debugging Guide
+    notes: `### ${formattedTitle} — Masterclass Lesson & Practical Guide
 
-#### Executive Overview & Corporate Context
-In modern data-driven corporate roles, mastering **${formattedTitle}** allows analysts to automate reporting workflows, reduce manual error risks, and generate executive insights under tight deadlines.
+#### Executive Overview
+Mastering **${formattedTitle}** provides you with tangible, production-grade skills that elevate your speed and output quality.
 
-#### Key Learning Objectives & Core Framework:
-1. **Analytical Mastery**: Apply formulas and operational rules for **${formattedTitle}** in real-world business scenarios.
-2. **Efficiency Best Practices**: Use industry-standard keyboard shortcuts and structured layout templates.
-3. **Verification & Audit**: Test calculations against edge cases to prevent spreadsheet errors.
+#### Key Learning Objectives & Framework:
+1. **Precision Execution**: Apply professional techniques and industry-standard workflows.
+2. **Efficiency Shortcuts**: Eliminate mouse dependency and reduce manual friction.
+3. **Quality Validation**: Audit your outputs against rigorous edge-case criteria.
 
-#### Step-by-Step Implementation Guide:
-* **Step 1**: Review the input dataset structure and verify formatting integrity using \`TRIM()\` and \`CLEAN()\`.
-* **Step 2**: Construct your calculation formula using absolute reference locks (\`$\`) where necessary (e.g. \`$A$2:\$E$100\`).
-* **Step 3**: Audit formula outputs using \`Ctrl + [\` (Trace Precedents) and test edge cases.
-
-#### ⚠️ Corporate Failure Modes & Debugging Playbook:
-* **\`#N/A\` Error**: Occurs when lookup values contain hidden trailing spaces or unmatched data types (e.g. Text vs Number). Fix by wrapping in \`TRIM(A2)\` or converting text numbers using \`VALUE()\`.
-* **\`#VALUE!\` Error**: Occurs when arithmetic operations are performed on text cells. Wrap formulas in \`IFERROR(formula, 0)\`.
-* **\`#REF!\` Error**: Caused by deleted referenced cells or invalid array offsets. Undo immediately with \`Ctrl + Z\`.
-
-#### Corporate Analyst Pro-Tip:
-Always maintain a clean separation between **Inputs** (Blue font), **Calculations** (Black font), and **Summary KPI Cards**. Never hardcode numerical constants inside formulas!`,
+#### Step-by-Step Implementation:
+* **Step 1**: Set up your project environment and configure clean folder structures.
+* **Step 2**: Apply the core framework and test against real-world scenarios.
+* **Step 3**: Validate your final deliverable before export or presentation.`,
     quiz: {
-      question: `In corporate financial modeling, what is the primary fix for an #N/A lookup error caused by hidden trailing spaces?`,
+      question: `What is the primary benefit of mastering ${formattedTitle} in professional workflows?`,
       options: [
-        "Wrap the lookup cell in TRIM(), e.g., TRIM(A2)",
-        "Delete the formula and re-type the whole sheet",
-        "Change font size to 14pt",
-        "Disable auto-calculation options"
+        "Eliminates manual friction and guarantees verified quality outputs",
+        "Decreases screen brightness automatically",
+        "Replaces all cloud storage services",
+        "Converts desktop applications into mobile widgets"
       ],
       correctIdx: 0,
-      explanation: "Hidden leading/trailing spaces in text inputs are the #1 cause of #N/A lookup mismatches. Wrapping lookup targets in TRIM(A2) strips unwanted whitespace."
+      explanation: "Standardized professional workflows streamline execution, eliminate repetitive manual errors, and guarantee consistent deliverable quality."
     },
-    hasSimulator: "formula"
+    hasSimulator: courseSlug.includes("automation") || lessonSlug.startsWith("auto-") ? "workflow-automation"
+      : courseSlug.includes("python") || lessonSlug.startsWith("py-") ? "python-analytics"
+      : courseSlug.includes("modeling") || courseSlug.includes("excel") || (pathSlug === "corporate-analyst" && !courseSlug.includes("python") && !courseSlug.includes("automation")) ? "corporate-modeling"
+      : pathSlug === "video-ai-production" ? "tool-matrix"
+      : pathSlug === "presentation-engineering" ? "export-lab"
+      : pathSlug === "ai-for-work" ? "ai-verification"
+      : pathSlug === "gre-preparation" ? "error-log"
+      : "messy-data"
   };
 
   const [activeTab, setActiveTab] = useState<"video" | "reading" | "simulation" | "quiz">("video");
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizSuccess, setQuizSuccess] = useState(false);
-  const [showXPPopup, setShowXPPopup] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
-  // XLOOKUP Simulator state
-  const [lookupVal, setLookupVal] = useState("Emp-02");
-  const [lookupResult, setLookupResult] = useState<any>(null);
+  // ── Simulator 0: Corporate Financial & Commercial Modeling Lab ─────────────
+  const [corpSimTab, setCorpSimTab] = useState<"pvm" | "3statement" | "workingcapital">("pvm");
+  const [pvmActPrice, setPvmActPrice] = useState(46); // ৳46 / unit (Base = ৳50)
+  const [pvmActVolume, setPvmActVolume] = useState(120000); // 120k units (Base = 100k)
+  const [pvmMixPremiumShift, setPvmMixPremiumShift] = useState(-0.05); // -5% mix tilt
+  const baseRevenue = 5.00; // ৳5.00M
+  const actRevenue = (pvmActVolume * pvmActPrice) / 1000000;
+  const deltaRevenue = actRevenue - baseRevenue;
+  const pvmPriceEffect = ((pvmActPrice - 50) * pvmActVolume) / 1000000;
+  const pvmVolumeEffect = ((pvmActVolume - 100000) * 50) / 1000000;
+  const pvmMixEffect = deltaRevenue - (pvmPriceEffect + pvmVolumeEffect);
 
-  // NPV Simulator state
-  const [initialInv, setInitialInv] = useState(100000);
-  const [discountRate, setDiscountRate] = useState(10);
-  const [calcNpv, setCalcNpv] = useState<number | null>(null);
+  // 3-Statement & Circularity Breaker state
+  const [simCapex, setSimCapex] = useState(40);
+  const [simDebtBorrow, setSimDebtBorrow] = useState(60);
+  const [circSwitchOn, setCircSwitchOn] = useState(true);
 
-  // Solver Simulator state
-  const [unitsA, setUnitsA] = useState(10);
-  const [unitsB, setUnitsB] = useState(20);
-  const [solverFeedback, setSolverFeedback] = useState("");
+  // Working Capital CCC state
+  const [wcDso, setWcDso] = useState(50);
+  const [wcDio, setWcDio] = useState(60);
+  const [wcDpo, setWcDpo] = useState(35);
+  const annualRevM = 1200;
+  const currentCcc = wcDso + wcDio - wcDpo;
+  const baseCcc = 85;
+  const cashUnlockedM = ((annualRevM * (baseCcc - currentCcc)) / 365).toFixed(1);
 
-  // Formula Console Simulator state (Universal for all lessons!)
-  const [userFormula, setUserFormula] = useState("=SUM(E2:E6)");
-  const [formulaOutput, setFormulaOutput] = useState<{ result: string; status: "success" | "error"; type: string }>({
-    result: "$144,500", status: "success", type: "Currency Aggregate"
+  // ── Simulator 1: Tool Decision Matrix (Video AI) ───────────────────────────
+  const toolMatrixScenarios = [
+    {
+      id: 1,
+      title: "Vertical Social Retention Cut",
+      prompt: "You have 2 hours of raw vlog footage and need to assemble a snappy 30-second cut with kinetic auto-captions and background music ducking.",
+      options: ["CapCut Desktop", "Google Gemini", "ElevenLabs", "Higgsfield AI"],
+      correct: "CapCut Desktop",
+      reason: "CapCut's magnetic timeline, AI auto-captions, and automatic audio ducking assemble social cuts 10x faster than any generative model."
+    },
+    {
+      id: 2,
+      title: "Commercial Treatment & Shot List",
+      prompt: "You need to reverse-engineer an unstructured 3-page brand brief into a two-column A/V script with camera directions and diffusion keywords.",
+      options: ["CapCut Desktop", "Google Gemini", "ElevenLabs", "Higgsfield AI"],
+      correct: "Google Gemini",
+      reason: "Gemini's large context window excels at parsing briefs and generating structured two-column A/V shot lists with precise camera directives."
+    },
+    {
+      id: 3,
+      title: "Multilingual Emotional Voiceover",
+      prompt: "You need an authentic voiceover with emotional inflection, customized pauses, and clean Bengali pronunciation.",
+      options: ["CapCut Desktop", "Google Gemini", "ElevenLabs", "Higgsfield AI"],
+      correct: "ElevenLabs",
+      reason: "ElevenLabs provides high-fidelity voice cloning, emotion sliders, and natural multilingual phoneme synthesis far superior to robotic TTS."
+    },
+    {
+      id: 4,
+      title: "Consistent Character Cinematic Video",
+      prompt: "You need to render a photorealistic 5-second cinematic shot with dynamic camera orbit while locking the character's facial identity across scenes.",
+      options: ["CapCut Desktop", "Google Gemini", "ElevenLabs", "Higgsfield AI"],
+      correct: "Higgsfield AI",
+      reason: "Higgsfield's Soul ID locks character facial features and appearance across multiple generations, paired with cinematic camera motion controls."
+    },
+  ];
+  const [currentScenarioIdx, setCurrentScenarioIdx] = useState(0);
+  const [selectedToolChoice, setSelectedToolChoice] = useState<string | null>(null);
+  const [matrixFeedback, setMatrixFeedback] = useState<{ isCorrect: boolean; text: string } | null>(null);
+
+  const handleSelectToolChoice = (tool: string) => {
+    setSelectedToolChoice(tool);
+    const scenario = toolMatrixScenarios[currentScenarioIdx];
+    const isCorrect = tool === scenario.correct;
+    setMatrixFeedback({
+      isCorrect,
+      text: isCorrect
+        ? `✅ Correct Tool Handoff! ${scenario.reason}`
+        : `❌ Suboptimal Choice. ${scenario.reason}`
+    });
+  };
+
+  // ── Simulator 2: Messy Data Gym (Excel) ────────────────────────────────────
+  const initialMessyRows = [
+    { id: "  EMP-001  ", name: "  Zubair Ahmed ", date: "2026/03/15", rawSales: "1,45,000 /=", region: "dhaka " },
+    { id: "EMP-002  ", name: "Anika Rahman  ", date: "15-Mar-2026", rawSales: "92,500 /=", region: "DHAKA" },
+    { id: "  EMP-003", name: "Farhan Kabir  ", date: "03.15.26", rawSales: "88,000 /=", region: " chittagong" },
+    { id: "EMP-004 ", name: "Nusrat Jahan ", date: "2026-03-15", rawSales: "1,12,000 /=", region: "Sylhet" },
+  ];
+  const [messyRows, setMessyRows] = useState(initialMessyRows);
+  const [appliedCleaning, setAppliedCleaning] = useState<Record<string, boolean>>({
+    trim: false,
+    dates: false,
+    currency: false,
+    region: false,
   });
 
-  // Email Builder Simulator state
-  const [emailType, setEmailType] = useState<"cold" | "complaint" | "update">("cold");
-  const [emailIndustry, setEmailIndustry] = useState<"consulting" | "tech" | "banking">("consulting");
-
-  // Resume Bullet Simulator state
-  const [resumeBullet, setResumeBullet] = useState("Responsible for managing databases and designing spreadsheets.");
-  const [bulletScore, setBulletScore] = useState<number | null>(null);
-  const [bulletAdvice, setBulletAdvice] = useState("");
-
-  // STAR Story Builder state
-  const [starS, setStarS] = useState("Our client onboarding rate dropped by 12% in Q1.");
-  const [starT, setStarT] = useState("I needed to redesign the intake questionnaire pipeline.");
-  const [starA, setStarA] = useState("I automated CRM integrations using Zapier, syncing profiles.");
-  const [starR, setStarR] = useState("Boosted onboarding conversions by 20% and saved 10 hours weekly.");
-  const [starScore, setStarScore] = useState<number | null>(null);
-  const [starAdvice, setStarAdvice] = useState("");
-
-  // Porter's Five Forces state
-  const [forceEntrants, setForceEntrants] = useState(3);
-  const [forceBuyers, setForceBuyers] = useState(4);
-  const [forceSuppliers, setForceSuppliers] = useState(2);
-  const [forceSubstitutes, setForceSubstitutes] = useState(3);
-  const [forceRivalry, setForceRivalry] = useState(4);
-  const [forcesScore, setForcesScore] = useState<number | null>(null);
-  const [forcesAdvice, setForcesAdvice] = useState("");
-
-  const handleRunLookup = () => {
-    const database = [
-      { id: "Emp-01", name: "Zubair Ahmed", role: "Financial Analyst", salary: 75000 },
-      { id: "Emp-02", name: "Anika Rahman", role: "Product Manager", salary: 92000 },
-      { id: "Emp-03", name: "Farhan Kabir", role: "Data Engineer", salary: 85000 }
-    ];
-    const match = database.find(item => item.id === lookupVal);
-    setLookupResult(match || null);
+  const handleCleanSpaces = () => {
+    setMessyRows(prev => prev.map(r => ({
+      ...r,
+      id: r.id.trim(),
+      name: r.name.trim(),
+      region: r.region.trim(),
+    })));
+    setAppliedCleaning(prev => ({ ...prev, trim: true }));
   };
 
-  const handleRunNpv = () => {
-    const cashflows = [30000, 40000, 50000];
-    let presentValueSum = 0;
-    cashflows.forEach((cf, idx) => {
-      presentValueSum += cf / Math.pow(1 + discountRate / 100, idx + 1);
-    });
-    setCalcNpv(Math.round(presentValueSum - initialInv));
+  const handleStandardizeDates = () => {
+    setMessyRows(prev => prev.map(r => ({
+      ...r,
+      date: "2026-03-15",
+    })));
+    setAppliedCleaning(prev => ({ ...prev, dates: true }));
   };
+
+  const handleParseCurrency = () => {
+    setMessyRows(prev => prev.map(r => ({
+      ...r,
+      rawSales: "৳ " + r.rawSales.replace(/[^0-9,]/g, "").trim(),
+    })));
+    setAppliedCleaning(prev => ({ ...prev, currency: true }));
+  };
+
+  const handleResetMessyData = () => {
+    setMessyRows(initialMessyRows);
+    setAppliedCleaning({ trim: false, dates: false, currency: false, region: false });
+  };
+
+  // ── Simulator 3: Export Quality Lab (Presentations) ────────────────────────
+  const [auditRunning, setAuditRunning] = useState(false);
+  const [auditCompleted, setAuditCompleted] = useState(false);
+  const [labFormat, setLabFormat] = useState<"gamma" | "canva" | "powerpoint">("gamma");
+
+  const runExportAudit = () => {
+    setAuditRunning(true);
+    setTimeout(() => {
+      setAuditRunning(false);
+      setAuditCompleted(true);
+    }, 600);
+  };
+
+  // ── Simulator 4: AI Verification Gym (AI for Work) ─────────────────────────
+  const [flaggedClaims, setFlaggedClaims] = useState<number[]>([]);
+  const claimsData = [
+    {
+      id: 1,
+      text: "Bangladesh Bank official disclosures reported mobile financial service transactions reached ৳1.2 Trillion monthly in late 2025.",
+      isHallucination: false,
+      note: "Grounded Fact: Matches official central bank monthly statistical bulletin."
+    },
+    {
+      id: 2,
+      text: "According to a 2024 Harvard Business Review paper by Dr. Kevin Sterling, 94.2% of South Asian FMCG companies have completely automated their supply chains using GPT-5.",
+      isHallucination: true,
+      note: "🚨 HALLUCINATION DETECTED: Fabricated author, non-existent study, and unrealistic 94.2% metric with an unreleased model."
+    },
+    {
+      id: 3,
+      text: "Leading apparel exporters in Bangladesh use automated inventory tracking systems to minimize supply lead times for European retail clients.",
+      isHallucination: false,
+      note: "Grounded Fact: Consistent with industry BGMEA automation reports."
+    },
+  ];
+
+  const handleToggleClaim = (id: number) => {
+    if (flaggedClaims.includes(id)) {
+      setFlaggedClaims(flaggedClaims.filter(c => c !== id));
+    } else {
+      setFlaggedClaims([...flaggedClaims, id]);
+    }
+  };
+
+  // ── Simulator 5: Error Log OS (GRE) ────────────────────────────────────────
+  const [selectedErrorCategory, setSelectedErrorCategory] = useState<string | null>(null);
+  const [errorLogged, setErrorLogged] = useState(false);
+
+  // Universal Formula Sandbox state
+  const [userFormula, setUserFormula] = useState("=XLOOKUP(\"EMP-001\", A2:A5, D2:D5)");
+  const [formulaOutput, setFormulaOutput] = useState<{ result: string; status: "success" | "error"; type: string }>({
+    result: "৳ 1,45,000", status: "success", type: "Lookup Match"
+  });
 
   const handleRunFormulaConsole = (formulaInput?: string) => {
     const input = formulaInput || userFormula;
     const clean = input.trim().toUpperCase();
-    
     if (clean.startsWith("=SUM")) {
-      setFormulaOutput({ result: "$144,500", status: "success", type: "Currency Aggregate (SUM)" });
-    } else if (clean.startsWith("=AVERAGE")) {
-      setFormulaOutput({ result: "270 Units", status: "success", type: "Numerical Mean (AVERAGE)" });
+      setFormulaOutput({ result: "৳ 4,37,500", status: "success", type: "Currency Aggregate (SUM)" });
     } else if (clean.startsWith("=XLOOKUP") || clean.startsWith("=VLOOKUP")) {
-      setFormulaOutput({ result: "Anika Rahman (Product Manager)", status: "success", type: "Lookup Array Match" });
-    } else if (clean.startsWith("=IF")) {
-      setFormulaOutput({ result: '"Target Exceeded"', status: "success", type: "Boolean Condition Evaluation" });
-    } else if (clean.startsWith("=MAX")) {
-      setFormulaOutput({ result: "$52,500 (Laptop Pro)", status: "success", type: "Maximum Value Search" });
-    } else if (clean.startsWith("=COUNT")) {
-      setFormulaOutput({ result: "5 Rows", status: "success", type: "Count Evaluation" });
+      setFormulaOutput({ result: "Zubair Ahmed (Sales: ৳ 1,45,000)", status: "success", type: "Lookup Match" });
+    } else if (clean.startsWith("=AVERAGE")) {
+      setFormulaOutput({ result: "৳ 1,09,375", status: "success", type: "Mean Average" });
     } else {
-      setFormulaOutput({ result: `=EVAL(${input}) → Calculated Value: 42.50`, status: "success", type: "General Cell Calculation" });
+      setFormulaOutput({ result: `=EVAL(${input}) → Success`, status: "success", type: "Formula Execution" });
     }
   };
 
-  useEffect(() => {
-    handleRunLookup();
-    handleRunNpv();
-    handleRunFormulaConsole();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lookupVal, initialInv, discountRate]);
+  const [isVerifyingQuiz, setIsVerifyingQuiz] = useState(false);
+  const [serverExplanation, setServerExplanation] = useState<string | null>(null);
 
-  const handleRunSolver = () => {
-    const laborUsed = unitsA * 3 + unitsB * 2;
-    if (laborUsed > 120) {
-      setSolverFeedback(`Error: Labor constraint violated! Used ${laborUsed} hours (Max limit is 120). Reduce production quantities.`);
-    } else {
-      const profit = unitsA * 45 + unitsB * 35;
-      setSolverFeedback(`Success! Solved optimal production. Profit generated: $${profit}. Total labor hours used: ${laborUsed}/120.`);
-    }
-  };
-
-  const handleAnalyzeBullet = () => {
-    const text = resumeBullet.toLowerCase();
-    let score = 40;
-    const actionVerbs = ["redesigned", "engineered", "implemented", "managed", "directed", "accelerated", "optimized"];
-    if (actionVerbs.some(verb => text.includes(verb))) score += 20;
-    if (/[0-9]/.test(text)) score += 20;
-    if (text.includes("by") || text.includes("as measured") || text.includes("resulting") || text.includes("saving")) score += 20;
-
-    setBulletScore(score);
-    setBulletAdvice(score >= 80 ? "All-Star Bullet! Outstanding use of action verbs, quantifiable metrics, and business outcomes." : "Add specific metrics (% or $) and Google XYZ structure.");
-  };
-
-  const handleAnalyzeStar = () => {
-    let score = 50;
-    if (starS.trim().length > 15) score += 10;
-    if (starT.trim().length > 15) score += 10;
-    if (starA.trim().length > 25) score += 15;
-    if (/[0-9]/.test(starR)) score += 15;
-    setStarScore(Math.min(score, 100));
-    setStarAdvice(score >= 80 ? "Outstanding STAR response! Structured and recruiter-approved." : "Add more specific action steps and quantifiable metrics.");
-  };
-
-  const handleAnalyzeForces = () => {
-    const avgScore = (forceEntrants + forceBuyers + forceSuppliers + forceSubstitutes + forceRivalry) / 5;
-    const attractiveness = Math.round((5 - avgScore) * 20);
-    setForcesScore(attractiveness);
-    setForcesAdvice(attractiveness >= 70 ? "Highly Attractive Market! High entry barriers and low substitute threats." : "Moderate/Challenging Market structure.");
-  };
-
-  const handleQuizSubmit = () => {
-    if (selectedAnswer === null) return;
+  const handleQuizSubmit = async () => {
+    if (selectedAnswer === null || isVerifyingQuiz) return;
+    setIsVerifyingQuiz(true);
     setQuizSubmitted(true);
-    const isCorrect = selectedAnswer === lesson.quiz.correctIdx;
-    setQuizSuccess(isCorrect);
-    if (isCorrect && !quizSuccess) {
-      addXP(lesson.xpReward, `Completed lesson: ${lesson.title}`);
-      addNotification({
-        type: "achievement",
-        title: "Lesson Completed 🎉",
-        message: `You earned ${lesson.xpReward} XP for completing ${lesson.title}.`
+
+    try {
+      const res = await fetch("/api/assessment/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonSlug,
+          selectedOption: selectedAnswer,
+        }),
       });
 
-      const currentCourse = state.courseProgress.find((c) => c.id === courseSlug);
-      const currentProgress = currentCourse ? currentCourse.progress : 0;
-      const nextProgress = Math.min(currentProgress + 25, 100);
-      updateCourseProgress(courseSlug, nextProgress);
+      if (res.ok) {
+        const data = await res.json();
+        const isCorrect = Boolean(data.isCorrect);
+        setQuizSuccess(isCorrect);
+        setServerExplanation(data.explanation || null);
 
-      const lessonMinutes = parseInt(lesson.duration) || 20;
-      recordStudyMinutes(lessonMinutes);
+        if (isCorrect && !quizSuccess) {
+          addNotification({
+            type: "achievement",
+            title: "Lesson Completed 🎉",
+            message: `You successfully completed ${lesson.title}. Recorded in Career Passport.`
+          });
 
-      setShowXPPopup(true);
+          const currentCourse = state.courseProgress.find((c) => c.id === courseSlug);
+          const currentProgress = currentCourse ? currentCourse.progress : 0;
+          const nextProgress = Math.min(currentProgress + 25, 100);
+          updateCourseProgress(courseSlug, nextProgress);
+
+          const lessonMinutes = parseInt(lesson.duration) || 20;
+          recordStudyMinutes(lessonMinutes);
+
+          setShowSuccessPopup(true);
+        }
+      } else {
+        const isCorrect = selectedAnswer === lesson.quiz.correctIdx;
+        setQuizSuccess(isCorrect);
+        setServerExplanation(lesson.quiz.explanation);
+      }
+    } catch {
+      const isCorrect = selectedAnswer === lesson.quiz.correctIdx;
+      setQuizSuccess(isCorrect);
+      setServerExplanation(lesson.quiz.explanation);
+    } finally {
+      setIsVerifyingQuiz(false);
     }
   };
 
+  const trackTitle = trackTitles[pathSlug] || pathSlug;
+
   return (
-    <div className="max-w-5xl mx-auto space-y-6 pb-12">
+    <div className="max-w-5xl mx-auto space-y-6 pb-16 px-4 sm:px-6">
+      
       {/* Navigation Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pt-2">
         <Link
           href={`/learn/${pathSlug}/${courseSlug}`}
-          className="inline-flex items-center gap-2 text-xs font-extrabold transition-colors text-corp-text-secondary hover:text-[#10b981]"
+          className="inline-flex items-center gap-2 text-xs font-extrabold transition-colors text-corp-text-secondary hover:text-[#10b981] font-mono"
         >
-          <ArrowLeft size={14} /> Back to Course Syllabus
+          <ArrowLeft size={14} /> Back to Stage Syllabus
         </Link>
 
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-extrabold bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-extrabold bg-[#10b981]/15 text-[#10b981] border border-[#10b981]/40 font-mono">
           <Sparkles size={13} className="text-amber-400" />
           +{lesson.xpReward} XP Reward
         </span>
@@ -650,7 +364,7 @@ Always maintain a clean separation between **Inputs** (Blue font), **Calculation
           {lesson.title}
         </h1>
         <p className="text-xs font-extrabold text-corp-text-secondary font-mono">
-          Estimated duration: {lesson.duration} · Track: {pathSlug === "excel-corporate" ? "Excel for Corporate Careers" : pathSlug}
+          Estimated duration: {lesson.duration} · Masterclass: {trackTitle}
         </p>
       </div>
 
@@ -660,10 +374,10 @@ Always maintain a clean separation between **Inputs** (Blue font), **Calculation
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-5 py-3 text-xs font-extrabold capitalize relative transition-all duration-200`}
+            className={`px-5 py-3 text-xs font-extrabold capitalize relative transition-all duration-200 font-mono`}
             style={{ color: activeTab === tab ? "#10b981" : "var(--corp-text-tertiary)" }}
           >
-            {tab === "simulation" ? "Interactive Simulator ⚡" : tab}
+            {tab === "simulation" ? "Interactive Practice Gym ⚡" : tab}
             {activeTab === tab && (
               <motion.div
                 layoutId="lesson-tab-indicator"
@@ -676,269 +390,781 @@ Always maintain a clean separation between **Inputs** (Blue font), **Calculation
 
       {/* Tab Contents */}
       <div className="min-h-[400px]">
+        
         {/* 1. Video Tab */}
         {activeTab === "video" && (
           <div className="space-y-4">
-            <div className="aspect-video w-full rounded-2xl overflow-hidden shadow-lg border" style={{ borderColor: "var(--corp-border)" }}>
+            <div className="aspect-video w-full rounded-2xl overflow-hidden shadow-lg border-2 border-corp-border" style={{ borderColor: "var(--corp-border)" }}>
               <video src={lesson.videoUrl} controls className="w-full h-full object-cover" />
             </div>
-            <p className="text-xs italic text-center" style={{ color: "var(--corp-text-tertiary)" }}>
-              Watch the full tutorial video, then complete the reading and interactive simulator tabs below.
+            <p className="text-xs text-center font-mono font-medium" style={{ color: "var(--corp-text-tertiary)" }}>
+              Watch the complete walkthrough demonstration, then inspect the deep tutorial notes and interactive gym.
             </p>
           </div>
         )}
 
-        {/* 2. GOATED Reading Tab */}
+        {/* 2. Reading Tab */}
         {activeTab === "reading" && (
-          <div className="p-6 md:p-8 rounded-3xl space-y-6 leading-relaxed shadow-sm border" style={{ background: "var(--corp-surface)", borderColor: "var(--corp-border)", color: "var(--corp-text)" }}>
-            <div className="prose dark:prose-invert max-w-none text-xs md:text-sm whitespace-pre-line leading-relaxed">
-              {lesson.notes}
-            </div>
+          <div className="p-6 md:p-8 rounded-xl space-y-6 leading-relaxed border-2 border-corp-border shadow-[4px_4px_0px_0px_rgba(16,185,129,0.15)]" style={{ background: "var(--corp-surface)", color: "var(--corp-text)" }}>
+            <RenderLessonNotes notes={lesson.notes} lessonSlug={lessonSlug} />
 
-            <div className="pt-4 border-t flex flex-col sm:flex-row justify-between gap-3" style={{ borderColor: "var(--corp-border)" }}>
-              <button
-                onClick={() => {
-                  const csvData = "Employee_ID,Name,Department,Region,Q1_Revenue,Q2_Revenue,Rating\nEmp-01,Zubair Ahmed,Finance,North,75000,82000,4.9\nEmp-02,Anika Rahman,Product,South,92000,98000,5.0\nEmp-03,Farhan Kabir,Analytics,East,85000,91000,4.8\nEmp-04,Nusrat Jahan,Operations,West,68000,74000,4.7";
-                  const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `INSYT_Practice_Dataset_${lessonSlug}.csv`;
-                  a.click();
-                  URL.revokeObjectURL(url);
-                }}
-                className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold hover:opacity-90 transition-opacity"
-                style={{ background: "var(--corp-bg-secondary)", color: "var(--corp-text-secondary)" }}
-              >
-                <Download size={14} /> Download Practice Dataset (.csv)
-              </button>
-              <button className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-corp-accent text-white hover:bg-corp-accent-hover transition-colors">
-                <Bookmark size={14} /> Save to Bookmarks
+            <div className="pt-4 border-t-2 border-corp-border flex flex-col sm:flex-row justify-between gap-3 font-mono">
+              {courseSlug.includes("modeling") ? (
+                <a
+                  href="/downloads/insyt-financial-commercial-master-model.xlsx"
+                  download
+                  className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-extrabold bg-emerald-600 text-white border-2 border-emerald-400 hover:bg-emerald-500 transition-colors shadow-sm"
+                >
+                  <Download size={14} /> Download Master Financial Model (.xlsx)
+                </a>
+              ) : (courseSlug.includes("business-intelligence") || courseSlug.includes("powerbi") || lessonSlug.startsWith("bi-")) ? (
+                <a
+                  href="/downloads/insyt-bi-capstone-starter.sql"
+                  download
+                  className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-extrabold bg-sky-600 text-white border-2 border-sky-400 hover:bg-sky-500 transition-colors shadow-sm"
+                >
+                  <Download size={14} /> Download Capstone DW Starter (.sql)
+                </a>
+              ) : (
+                <button
+                  onClick={() => {
+                    const isPy = courseSlug.includes("python") || lessonSlug.startsWith("py-");
+                    let fileData = "ID,Name,Role,Sales_BDT,Status\nEMP-001,Zubair Ahmed,Lead Analyst,145000,Active\nEMP-002,Anika Rahman,Product Manager,92500,Active\nEMP-003,Farhan Kabir,Data Engineer,88000,Active";
+                    let fileExt = ".csv";
+                    let mime = "text/csv;charset=utf-8;";
+
+                    if (isPy) {
+                      fileData = `# INSYT Corporate Starter — ${lesson.title}\n"""\nProduction starter script for ${lessonSlug}\n"""\nimport pandas as pd\nimport numpy as np\n\ndef main():\n    print("Starting ${lesson.title}...")\n\nif __name__ == '__main__':\n    main()\n`;
+                      fileExt = ".py";
+                      mime = "text/x-python;charset=utf-8;";
+                    }
+
+                    const blob = new Blob([fileData], { type: mime });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `INSYT_${lessonSlug}_Starter${fileExt}`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                  className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-extrabold bg-corp-bg-secondary text-corp-text border-2 border-corp-border hover:border-[#10b981] transition-colors"
+                >
+                  <Download size={14} /> Download Starter Material ({courseSlug.includes("python") || lessonSlug.startsWith("py-") ? ".py" : ".csv"})
+                </button>
+              )}
+              <button className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-extrabold bg-[#10b981] text-emerald-950 border-2 border-emerald-400 hover:bg-emerald-400 transition-colors">
+                <Bookmark size={14} /> Bookmark Lesson Notes
               </button>
             </div>
           </div>
         )}
 
-        {/* 3. Interactive Simulator Tab (NO MORE "No Simulator" BLOCK!) */}
+        {/* 3. Interactive Practice Gym Tab */}
         {activeTab === "simulation" && (
-          <div className="space-y-4">
+          <div className="space-y-6">
 
-            {/* Custom XLOOKUP Simulator */}
-            {lesson.hasSimulator === "lookup" && (
-              <div className="p-6 rounded-2xl space-y-4 border" style={{ background: "var(--corp-surface)", borderColor: "var(--corp-border)" }}>
-                <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
-                  <Calculator size={16} className="text-corp-accent" /> Interactive XLOOKUP Array Simulator
-                </h3>
-                <p className="text-xs" style={{ color: "var(--corp-text-secondary)" }}>
-                  Select an Employee ID to evaluate the XLOOKUP function execution in real-time.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {["Emp-01", "Emp-02", "Emp-03"].map((id) => (
-                    <button key={id} onClick={() => setLookupVal(id)}
-                      className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${lookupVal === id ? "bg-corp-accent text-white" : "bg-corp-bg-secondary text-corp-text-secondary"}`}>
-                      {id}
+            {/* GYM: APPLIED WORKPLACE AI & ENTERPRISE WORKFLOW AUTOMATION LAB */}
+            {(lesson.hasSimulator === "workflow-automation" || courseSlug.includes("automation") || lessonSlug.startsWith("auto-")) && (
+              <WorkflowAutomationStudio lessonSlug={lessonSlug} courseSlug={courseSlug} />
+            )}
+
+            {/* GYM: ENTERPRISE PYTHON ANALYTICS & PROCESS AUTOMATION LAB */}
+            {(lesson.hasSimulator === "python-analytics" || courseSlug.includes("python") || lessonSlug.startsWith("py-")) && (
+              <PythonAnalyticsStudio lessonSlug={lessonSlug} courseSlug={courseSlug} />
+            )}
+
+            {/* GYM: ENTERPRISE BUSINESS INTELLIGENCE: POWER BI & SQL STUDIO */}
+            {(lesson.hasSimulator === "bi-powerbi-sql" || courseSlug.includes("business-intelligence") || courseSlug.includes("powerbi") || lessonSlug.startsWith("bi-")) && (
+              <BIPowerBISqlStudio lessonSlug={lessonSlug} courseSlug={courseSlug} />
+            )}
+
+            {/* GYM: MTO RECRUITMENT & CASE CRACKING STUDIO */}
+            {(lesson.hasSimulator === "mto-recruitment" || courseSlug.includes("mto") || pathSlug === "mto-fast-track") && (
+              <MTORecruitmentStudio lessonSlug={lessonSlug} courseSlug={courseSlug} />
+            )}
+
+            {/* GYM 0: CORPORATE FINANCIAL & COMMERCIAL MODELING LAB */}
+            {(lesson.hasSimulator === "corporate-modeling" || ((courseSlug.includes("modeling") || pathSlug === "corporate-analyst") && !courseSlug.includes("python") && !courseSlug.includes("automation") && !courseSlug.includes("business-intelligence") && !courseSlug.includes("powerbi") && !lessonSlug.startsWith("py-") && !lessonSlug.startsWith("auto-") && !lessonSlug.startsWith("bi-"))) && (
+              <div className="p-6 md:p-8 rounded-xl border-2 border-emerald-500 shadow-[6px_6px_0px_0px_#047857] space-y-6" style={{ background: "var(--corp-surface)" }}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-corp-border pb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-md bg-emerald-600 text-white flex items-center justify-center font-bold">
+                      <Calculator size={16} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-extrabold font-mono uppercase" style={{ color: "var(--corp-text)" }}>
+                        Corporate Financial & Commercial Modeling Lab
+                      </h3>
+                      <p className="text-[11px] font-mono text-emerald-400 font-bold">
+                        FAST Standard Compliant · Dynamic PVM Engines & 3-Statement Integrity
+                      </p>
+                    </div>
+                  </div>
+                  {/* Mode Selector Tabs */}
+                  <div className="flex flex-wrap gap-1.5 bg-corp-bg-secondary p-1 rounded-lg border border-corp-border">
+                    <button
+                      onClick={() => setCorpSimTab("pvm")}
+                      className={`px-3 py-1 rounded text-xs font-mono font-extrabold transition-all ${corpSimTab === "pvm" ? "bg-emerald-600 text-white shadow-sm" : "text-corp-text hover:text-emerald-400"}`}
+                    >
+                      1. PVM Decomposition
                     </button>
-                  ))}
-                </div>
-                <div className="p-4 rounded-xl bg-corp-bg-secondary space-y-2 text-xs font-mono">
-                  <p className="font-bold text-corp-accent">=XLOOKUP(&quot;{lookupVal}&quot;, Employees[ID], Employees[Salary])</p>
-                  {lookupResult && (
-                    <p style={{ color: "var(--corp-text)" }}>Result: <strong>{lookupResult.name}</strong> ({lookupResult.role}, Salary: ${lookupResult.salary.toLocaleString()})</p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Custom NPV Simulator */}
-            {lesson.hasSimulator === "npv" && (
-              <div className="p-6 rounded-2xl space-y-4 border" style={{ background: "var(--corp-surface)", borderColor: "var(--corp-border)" }}>
-                <h3 className="text-sm font-bold" style={{ color: "var(--corp-text)" }}>Discounted Cash Flow (NPV) Calculator</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                  <div>
-                    <label className="block font-semibold mb-1" style={{ color: "var(--corp-text)" }}>Initial Outflow ($)</label>
-                    <input type="number" value={initialInv} onChange={(e) => setInitialInv(Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-xl border bg-corp-bg-secondary outline-none" style={{ color: "var(--corp-text)" }} />
-                  </div>
-                  <div>
-                    <label className="block font-semibold mb-1" style={{ color: "var(--corp-text)" }}>Discount Rate / WACC (%)</label>
-                    <input type="number" value={discountRate} onChange={(e) => setDiscountRate(Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-xl border bg-corp-bg-secondary outline-none" style={{ color: "var(--corp-text)" }} />
+                    <button
+                      onClick={() => setCorpSimTab("3statement")}
+                      className={`px-3 py-1 rounded text-xs font-mono font-extrabold transition-all ${corpSimTab === "3statement" ? "bg-emerald-600 text-white shadow-sm" : "text-corp-text hover:text-emerald-400"}`}
+                    >
+                      2. 3-Statement & Circularity
+                    </button>
+                    <button
+                      onClick={() => setCorpSimTab("workingcapital")}
+                      className={`px-3 py-1 rounded text-xs font-mono font-extrabold transition-all ${corpSimTab === "workingcapital" ? "bg-emerald-600 text-white shadow-sm" : "text-corp-text hover:text-emerald-400"}`}
+                    >
+                      3. Working Capital (CCC)
+                    </button>
                   </div>
                 </div>
-                <div className="p-4 rounded-xl bg-corp-bg-secondary text-xs space-y-1">
-                  <p className="font-bold">Calculated NPV: <span className="font-mono text-emerald-600 text-sm font-bold">${calcNpv?.toLocaleString()}</span></p>
-                  <p className="text-[11px]" style={{ color: "var(--corp-text-tertiary)" }}>{calcNpv && calcNpv > 0 ? "Viable project! Yields exceed cost of capital." : "Unviable project."}</p>
-                </div>
-              </div>
-            )}
 
-            {/* Custom Solver Simulator */}
-            {lesson.hasSimulator === "solver" && (
-              <div className="p-6 rounded-2xl space-y-4 border" style={{ background: "var(--corp-surface)", borderColor: "var(--corp-border)" }}>
-                <h3 className="text-sm font-bold" style={{ color: "var(--corp-text)" }}>Product Mix Solver Optimizer</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                  <div>
-                    <label className="block font-semibold mb-1" style={{ color: "var(--corp-text)" }}>Product A Quantity</label>
-                    <input type="number" value={unitsA} onChange={(e) => setUnitsA(Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-xl border bg-corp-bg-secondary outline-none" style={{ color: "var(--corp-text)" }} />
+                {/* Sub-Tab 1: PVM (Price-Volume-Mix) Decomposition */}
+                {corpSimTab === "pvm" && (
+                  <div className="space-y-5">
+                    <div className="p-3.5 rounded-lg bg-corp-bg-secondary border border-corp-border font-mono text-xs text-corp-text leading-relaxed">
+                      <span className="font-extrabold text-emerald-400 uppercase">Unilever / BAT Commercial Review Simulation:</span> Deconstruct corporate top-line growth. Adjust unit pricing, sales volume, and mix shift sliders below to see if profit growth is driven by organic volume or masked by aggressive price discounting.
+                    </div>
+
+                    {/* Interactive Parameter Controls */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
+                      <div className="p-3.5 rounded-lg border border-corp-border bg-corp-bg-secondary space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-corp-text font-bold">Realized Price:</span>
+                          <span className="font-extrabold text-emerald-400">৳ {pvmActPrice}.00 / unit</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="38"
+                          max="60"
+                          value={pvmActPrice}
+                          onChange={(e) => setPvmActPrice(Number(e.target.value))}
+                          className="w-full accent-emerald-500 cursor-pointer"
+                        />
+                        <div className="flex justify-between text-[10px] text-corp-text-tertiary">
+                          <span>Base: ৳50.00</span>
+                          <span>Δ Price: {pvmActPrice >= 50 ? `+৳${pvmActPrice - 50}` : `-৳${50 - pvmActPrice}`}</span>
+                        </div>
+                      </div>
+
+                      <div className="p-3.5 rounded-lg border border-corp-border bg-corp-bg-secondary space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-corp-text font-bold">Sales Volume:</span>
+                          <span className="font-extrabold text-emerald-400">{(pvmActVolume / 1000).toFixed(0)}k units</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="70000"
+                          max="150000"
+                          step="5000"
+                          value={pvmActVolume}
+                          onChange={(e) => setPvmActVolume(Number(e.target.value))}
+                          className="w-full accent-emerald-500 cursor-pointer"
+                        />
+                        <div className="flex justify-between text-[10px] text-corp-text-tertiary">
+                          <span>Base: 100k units</span>
+                          <span>Growth: {(((pvmActVolume - 100000) / 100000) * 100).toFixed(1)}%</span>
+                        </div>
+                      </div>
+
+                      <div className="p-3.5 rounded-lg border border-corp-border bg-corp-bg-secondary space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-corp-text font-bold">Premium Mix Shift:</span>
+                          <span className={`font-extrabold ${pvmMixPremiumShift >= 0 ? "text-emerald-400" : "text-amber-400"}`}>
+                            {(pvmMixPremiumShift * 100).toFixed(0)}%
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="-20"
+                          max="20"
+                          value={pvmMixPremiumShift * 100}
+                          onChange={(e) => setPvmMixPremiumShift(Number(e.target.value) / 100)}
+                          className="w-full accent-emerald-500 cursor-pointer"
+                        />
+                        <div className="flex justify-between text-[10px] text-corp-text-tertiary">
+                          <span>Economy Tilt (-20%)</span>
+                          <span>Premium Tilt (+20%)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Executive Waterfall Bridge Representation */}
+                    <div className="p-4 rounded-xl border-2 border-corp-border bg-corp-bg-secondary space-y-3 font-mono">
+                      <div className="flex items-center justify-between text-xs font-extrabold uppercase">
+                        <span className="text-corp-text">Price-Volume-Mix Mathematical Waterfall Bridge</span>
+                        <span className="text-emerald-400 text-[11px]">Δ Total Revenue: {deltaRevenue >= 0 ? `+৳${deltaRevenue.toFixed(2)}M` : `-৳${Math.abs(deltaRevenue).toFixed(2)}M`}</span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs pt-2">
+                        <div className="p-2.5 rounded bg-corp-surface border border-corp-border">
+                          <p className="text-[10px] text-corp-text-tertiary uppercase">Prior Year Rev</p>
+                          <p className="font-extrabold text-corp-text text-sm mt-1">৳ 5.00M</p>
+                        </div>
+                        <div className={`p-2.5 rounded border ${pvmVolumeEffect >= 0 ? "bg-emerald-500/10 border-emerald-500 text-emerald-400" : "bg-rose-500/10 border-rose-500 text-rose-400"}`}>
+                          <p className="text-[10px] uppercase font-bold">Volume Effect</p>
+                          <p className="font-extrabold text-sm mt-1">{pvmVolumeEffect >= 0 ? `+৳${pvmVolumeEffect.toFixed(2)}M` : `-৳${Math.abs(pvmVolumeEffect).toFixed(2)}M`}</p>
+                        </div>
+                        <div className={`p-2.5 rounded border ${pvmPriceEffect >= 0 ? "bg-emerald-500/10 border-emerald-500 text-emerald-400" : "bg-rose-500/10 border-rose-500 text-rose-400"}`}>
+                          <p className="text-[10px] uppercase font-bold">Price Effect</p>
+                          <p className="font-extrabold text-sm mt-1">{pvmPriceEffect >= 0 ? `+৳${pvmPriceEffect.toFixed(2)}M` : `-৳${Math.abs(pvmPriceEffect).toFixed(2)}M`}</p>
+                        </div>
+                        <div className={`p-2.5 rounded border ${pvmMixEffect >= 0 ? "bg-emerald-500/10 border-emerald-500 text-emerald-400" : "bg-amber-500/10 border-amber-500 text-amber-400"}`}>
+                          <p className="text-[10px] uppercase font-bold">Mix Effect</p>
+                          <p className="font-extrabold text-sm mt-1">{pvmMixEffect >= 0 ? `+৳${pvmMixEffect.toFixed(2)}M` : `-৳${Math.abs(pvmMixEffect).toFixed(2)}M`}</p>
+                        </div>
+                        <div className="p-2.5 rounded bg-corp-surface border border-corp-border">
+                          <p className="text-[10px] text-corp-text-tertiary uppercase">Realized Net Rev</p>
+                          <p className="font-extrabold text-emerald-400 text-sm mt-1">৳ {actRevenue.toFixed(2)}M</p>
+                        </div>
+                      </div>
+
+                      {/* Automated Commercial Diagnosis */}
+                      <div className="mt-3 p-3 rounded-lg bg-corp-surface border border-corp-border text-xs text-corp-text flex items-start gap-2">
+                        <CheckCircle2 size={16} className="text-emerald-400 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-bold text-emerald-400">Executive Commercial Synthesis:</p>
+                          <p className="text-[11px] text-corp-text-secondary mt-0.5">
+                            {pvmPriceEffect < 0 && pvmVolumeEffect > 0
+                              ? `Volume expansion (+৳${pvmVolumeEffect.toFixed(2)}M) was partially diluted by aggressive price discounting (-৳${Math.abs(pvmPriceEffect).toFixed(2)}M). Commercial recommendation: Enforce strict minimum price corridor on distributor accounts.`
+                              : pvmPriceEffect > 0 && pvmVolumeEffect >= 0
+                              ? `Premium pricing power realized! Both price effect (+৳${pvmPriceEffect.toFixed(2)}M) and unit growth drove superior margin expansion.`
+                              : `Review promotional subsidies. Gross margin is sensitive to ongoing volume changes.`}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block font-semibold mb-1" style={{ color: "var(--corp-text)" }}>Product B Quantity</label>
-                    <input type="number" value={unitsB} onChange={(e) => setUnitsB(Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-xl border bg-corp-bg-secondary outline-none" style={{ color: "var(--corp-text)" }} />
+                )}
+
+                {/* Sub-Tab 2: 3-Statement & Circularity Breaker Switch */}
+                {corpSimTab === "3statement" && (
+                  <div className="space-y-5 font-mono text-xs">
+                    <div className="p-3.5 rounded-lg bg-corp-bg-secondary border border-corp-border text-corp-text leading-relaxed">
+                      <span className="font-extrabold text-emerald-400 uppercase">FMI AFM Blank-Sheet Integrity Test:</span> Verify zero-plug balance sheet balancing. Toggle the circularity breaker switch to test how institutional models eliminate circular loop crashes without sacrificing average balance interest accuracy.
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Scenario Controls */}
+                      <div className="p-4 rounded-xl border border-corp-border bg-corp-bg-secondary space-y-4">
+                        <h4 className="font-extrabold uppercase text-corp-text">Balance Sheet Drivers:</h4>
+                        <div>
+                          <div className="flex justify-between mb-1">
+                            <span>Capex Additions (PP&E Roll-Forward):</span>
+                            <span className="font-bold text-emerald-400">৳ {simCapex}M</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="10"
+                            max="80"
+                            value={simCapex}
+                            onChange={(e) => setSimCapex(Number(e.target.value))}
+                            className="w-full accent-emerald-500 cursor-pointer"
+                          />
+                        </div>
+
+                        <div>
+                          <div className="flex justify-between mb-1">
+                            <span>Revolving Credit Facility Borrowing:</span>
+                            <span className="font-bold text-emerald-400">৳ {simDebtBorrow}M</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="20"
+                            max="120"
+                            value={simDebtBorrow}
+                            onChange={(e) => setSimDebtBorrow(Number(e.target.value))}
+                            className="w-full accent-emerald-500 cursor-pointer"
+                          />
+                        </div>
+
+                        {/* Circularity Breaker Switch */}
+                        <div className="pt-2 border-t border-corp-border flex items-center justify-between">
+                          <div>
+                            <p className="font-bold text-corp-text">Circularity Breaker Switch:</p>
+                            <p className="text-[10px] text-corp-text-tertiary">FAST Standard circuit breaker toggle</p>
+                          </div>
+                          <button
+                            onClick={() => setCircSwitchOn(!circSwitchOn)}
+                            className={`px-3 py-1.5 rounded-md font-bold uppercase transition-all border ${circSwitchOn ? "bg-emerald-600 text-white border-emerald-400 shadow-[2px_2px_0px_0px_#047857]" : "bg-amber-600 text-white border-amber-400 shadow-[2px_2px_0px_0px_#78350f]"}`}
+                          >
+                            {circSwitchOn ? "SWITCH = 1 (ON)" : "SWITCH = 0 (BYPASS)"}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Integrity Audit Block */}
+                      <div className="p-4 rounded-xl border border-corp-border bg-corp-bg-secondary space-y-3">
+                        <h4 className="font-extrabold uppercase text-corp-text">Statement Reconciliation Engine:</h4>
+                        <div className="space-y-2">
+                          <div className="flex justify-between p-2 rounded bg-corp-surface border border-corp-border">
+                            <span>Total Assets (Cash + AR + Inv + PP&E):</span>
+                            <span className="font-bold text-corp-text">৳ {(180 + simCapex).toFixed(1)}M</span>
+                          </div>
+                          <div className="flex justify-between p-2 rounded bg-corp-surface border border-corp-border">
+                            <span>Total Liabilities & Equity (Debt + AP + Equity):</span>
+                            <span className="font-bold text-corp-text">৳ {(180 + simCapex).toFixed(1)}M</span>
+                          </div>
+                          <div className="flex justify-between p-2 rounded bg-corp-surface border border-corp-border font-bold">
+                            <span>Reconciliation Balance Check (Assets - Liab - Eq):</span>
+                            <span className="text-emerald-400">৳ 0.000</span>
+                          </div>
+                          <div className="flex justify-between p-2 rounded bg-corp-surface border border-corp-border font-bold">
+                            <span>Interest Expense Calculation Mode:</span>
+                            <span className={circSwitchOn ? "text-emerald-400" : "text-amber-400"}>
+                              {circSwitchOn ? "Average Debt Balance (Iterative Active)" : "Beginning Debt Balance (Safe Bypass)"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-2.5 rounded bg-emerald-500/10 border border-emerald-500 text-emerald-300 font-bold text-center">
+                          ✔ ZERO-PLUG VERIFIED: Balance Sheet Balances Automatically
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <button onClick={handleRunSolver} className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-corp-accent hover:bg-corp-accent-hover transition-all">
-                  Run Optimization Solver
-                </button>
-                {solverFeedback && <div className="p-3.5 rounded-xl bg-corp-bg-secondary text-xs font-semibold">{solverFeedback}</div>}
+                )}
+
+                {/* Sub-Tab 3: Working Capital CCC Optimizer */}
+                {corpSimTab === "workingcapital" && (
+                  <div className="space-y-5 font-mono text-xs">
+                    <div className="p-3.5 rounded-lg bg-corp-bg-secondary border border-corp-border text-corp-text leading-relaxed">
+                      <span className="font-extrabold text-emerald-400 uppercase">Cash Conversion Cycle (CCC = DSO + DIO - DPO):</span> Quantify exact liquidity freed from corporate balance sheets. Adjust collection velocity, inventory turnover, and supplier trade terms to compute cash unlocked across ৳1,200M revenue.
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="p-3.5 rounded-lg border border-corp-border bg-corp-bg-secondary space-y-2">
+                        <div className="flex justify-between">
+                          <span className="font-bold text-corp-text">DSO (Receivables):</span>
+                          <span className="font-extrabold text-emerald-400">{wcDso} Days</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="30"
+                          max="90"
+                          value={wcDso}
+                          onChange={(e) => setWcDso(Number(e.target.value))}
+                          className="w-full accent-emerald-500 cursor-pointer"
+                        />
+                        <span className="text-[10px] text-corp-text-tertiary">Customer payment terms</span>
+                      </div>
+
+                      <div className="p-3.5 rounded-lg border border-corp-border bg-corp-bg-secondary space-y-2">
+                        <div className="flex justify-between">
+                          <span className="font-bold text-corp-text">DIO (Inventory):</span>
+                          <span className="font-extrabold text-emerald-400">{wcDio} Days</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="30"
+                          max="90"
+                          value={wcDio}
+                          onChange={(e) => setWcDio(Number(e.target.value))}
+                          className="w-full accent-emerald-500 cursor-pointer"
+                        />
+                        <span className="text-[10px] text-corp-text-tertiary">Warehouse shelf turnover</span>
+                      </div>
+
+                      <div className="p-3.5 rounded-lg border border-corp-border bg-corp-bg-secondary space-y-2">
+                        <div className="flex justify-between">
+                          <span className="font-bold text-corp-text">DPO (Payables):</span>
+                          <span className="font-extrabold text-emerald-400">{wcDpo} Days</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="20"
+                          max="60"
+                          value={wcDpo}
+                          onChange={(e) => setWcDpo(Number(e.target.value))}
+                          className="w-full accent-emerald-500 cursor-pointer"
+                        />
+                        <span className="text-[10px] text-corp-text-tertiary">Supplier trade credit</span>
+                      </div>
+                    </div>
+
+                    {/* Result Card */}
+                    <div className="p-4 rounded-xl border-2 border-corp-border bg-corp-bg-secondary flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div>
+                        <p className="text-[10px] text-corp-text-tertiary uppercase">Current Cash Conversion Cycle:</p>
+                        <p className="text-xl font-extrabold text-emerald-400">{currentCcc} Days <span className="text-xs font-normal text-corp-text-secondary">(DSO {wcDso} + DIO {wcDio} - DPO {wcDpo})</span></p>
+                      </div>
+                      <div className="p-3 rounded-lg bg-corp-surface border border-corp-border text-left sm:text-right">
+                        <p className="text-[10px] text-corp-text-tertiary uppercase">Balance Sheet Liquidity Unlocked:</p>
+                        <p className="text-lg font-extrabold text-emerald-400">
+                          {Number(cashUnlockedM) >= 0 ? `+৳${cashUnlockedM} Million` : `-৳${Math.abs(Number(cashUnlockedM))} Million`}
+                        </p>
+                        <p className="text-[10px] text-corp-text-secondary mt-0.5">Vs historical 85-day baseline across ৳1.2B revenue</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Custom Email Simulator */}
-            {lesson.hasSimulator === "email" && (
-              <div className="p-6 rounded-2xl space-y-4 border" style={{ background: "var(--corp-surface)", borderColor: "var(--corp-border)" }}>
-                <h3 className="text-sm font-bold" style={{ color: "var(--corp-text)" }}>Executive Email Template Generator</h3>
-                <div className="p-4 rounded-xl bg-corp-bg-secondary text-xs font-mono space-y-2">
-                  <p className="font-bold text-corp-accent">Subject: Collaboration Proposal ({emailIndustry.toUpperCase()})</p>
-                  <p style={{ color: "var(--corp-text)" }}>Dear Executive,<br /><br />I reviewed your team's work in {emailIndustry}. Our framework boosts efficiency by 22%.<br /><br />Do you have 10 minutes next Tuesday at 2 PM for a quick call?<br /><br />Best regards,<br />[Your Name]</p>
-                </div>
-              </div>
-            )}
-
-            {/* Custom Resume ATS Simulator */}
-            {lesson.hasSimulator === "resume" && (
-              <div className="p-6 rounded-2xl space-y-4 border" style={{ background: "var(--corp-surface)", borderColor: "var(--corp-border)" }}>
-                <h3 className="text-sm font-bold" style={{ color: "var(--corp-text)" }}>ATS Resume Bullet Optimizer</h3>
-                <textarea value={resumeBullet} onChange={(e) => setResumeBullet(e.target.value)}
-                  className="w-full h-20 p-3 rounded-xl text-xs outline-none bg-corp-bg-secondary border resize-none" style={{ color: "var(--corp-text)" }} />
-                <button onClick={handleAnalyzeBullet} className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-corp-accent">
-                  Analyze Bullet
-                </button>
-                {bulletScore !== null && <div className="p-3 rounded-xl bg-corp-bg-secondary text-xs">Score: <strong>{bulletScore}/100</strong> — {bulletAdvice}</div>}
-              </div>
-            )}
-
-            {/* Custom STAR Simulator */}
-            {lesson.hasSimulator === "star" && (
-              <div className="p-6 rounded-2xl space-y-4 border" style={{ background: "var(--corp-surface)", borderColor: "var(--corp-border)" }}>
-                <h3 className="text-sm font-bold" style={{ color: "var(--corp-text)" }}>STAR Interview Response Builder</h3>
-                <button onClick={handleAnalyzeStar} className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-corp-accent">
-                  Evaluate Response
-                </button>
-                {starScore !== null && <div className="p-3 rounded-xl bg-corp-bg-secondary text-xs">Score: <strong>{starScore}/100</strong> — {starAdvice}</div>}
-              </div>
-            )}
-
-            {/* Custom Five Forces Simulator */}
-            {lesson.hasSimulator === "forces" && (
-              <div className="p-6 rounded-2xl space-y-4 border" style={{ background: "var(--corp-surface)", borderColor: "var(--corp-border)" }}>
-                <h3 className="text-sm font-bold" style={{ color: "var(--corp-text)" }}>Porter's Five Forces Strategy Builder</h3>
-                <button onClick={handleAnalyzeForces} className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-corp-accent">
-                  Calculate Attractiveness Index
-                </button>
-                {forcesScore !== null && <div className="p-3 rounded-xl bg-corp-bg-secondary text-xs">Attractiveness: <strong>{forcesScore}/100</strong> — {forcesAdvice}</div>}
-              </div>
-            )}
-
-            {/* UNIVERSAL EXCEL FORMULA & COMMAND CONSOLE SIMULATOR (Used for all standard lessons so NO lesson shows empty!) */}
-            {(!lesson.hasSimulator || lesson.hasSimulator === "formula") && (
-              <div className="p-6 md:p-8 rounded-3xl space-y-5 border shadow-sm" style={{ background: "var(--corp-surface)", borderColor: "var(--corp-border)" }}>
+            {/* GYM 1: TOOL DECISION MATRIX (For Video AI) */}
+            {(lesson.hasSimulator === "tool-matrix" || pathSlug === "video-ai-production") && (
+              <div className="p-6 md:p-8 rounded-xl border-2 border-purple-500/50 shadow-[6px_6px_0px_0px_#7e22ce] space-y-6" style={{ background: "var(--corp-surface)" }}>
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
-                    <Terminal size={17} className="text-corp-accent" /> Live Interactive Excel Formula Sandbox
-                  </h3>
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600">
-                    Live Engine Active
-                  </span>
-                </div>
-                <p className="text-xs" style={{ color: "var(--corp-text-secondary)" }}>
-                  Type any Excel formula into the interactive formula bar below to execute calculations against the live corporate sample dataset.
-                </p>
-
-                {/* Sample Corporate Dataset Table */}
-                <div className="relative group">
-                  <div className="flex md:hidden items-center justify-between text-[10px] font-semibold text-corp-accent mb-1 px-1">
-                    <span>Dataset Table</span>
-                    <span>Scroll sideways ➔</span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-md bg-purple-600 text-white flex items-center justify-center font-bold">
+                      <Wand2 size={16} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-extrabold font-mono uppercase" style={{ color: "var(--corp-text)" }}>
+                        Tool Decision Matrix Gym
+                      </h3>
+                      <p className="text-[11px] font-mono text-purple-400 font-bold">
+                        Scenario {currentScenarioIdx + 1} of {toolMatrixScenarios.length} · Tool Handoff Logic
+                      </p>
+                    </div>
                   </div>
-                  <div className="overflow-x-auto border rounded-2xl touch-pan-x" style={{ borderColor: "var(--corp-border)" }}>
-                  <table className="w-full text-left text-xs">
-                    <thead style={{ background: "var(--corp-bg-secondary)" }}>
+                  <div className="flex gap-1">
+                    {toolMatrixScenarios.map((sc, i) => (
+                      <button
+                        key={sc.id}
+                        onClick={() => { setCurrentScenarioIdx(i); setSelectedToolChoice(null); setMatrixFeedback(null); }}
+                        className={`w-7 h-7 rounded-md text-xs font-mono font-extrabold border ${currentScenarioIdx === i ? "bg-purple-600 text-white border-purple-400" : "bg-corp-bg-secondary text-corp-text-secondary border-corp-border"}`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-lg bg-corp-bg-secondary border-2 border-corp-border space-y-2">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-amber-500 font-extrabold">
+                    Production Challenge: {toolMatrixScenarios[currentScenarioIdx].title}
+                  </span>
+                  <p className="text-xs font-medium leading-relaxed" style={{ color: "var(--corp-text)" }}>
+                    {toolMatrixScenarios[currentScenarioIdx].prompt}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-extrabold font-mono uppercase block" style={{ color: "var(--corp-text)" }}>
+                    Select the Most Efficient Tool for This Task:
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {toolMatrixScenarios[currentScenarioIdx].options.map((tool) => (
+                      <button
+                        key={tool}
+                        onClick={() => handleSelectToolChoice(tool)}
+                        className={`p-3 rounded-lg text-xs font-mono font-extrabold border-2 transition-all text-center ${selectedToolChoice === tool ? "bg-purple-600 text-white border-purple-400 shadow-[3px_3px_0px_0px_#4c1d95]" : "bg-corp-bg-secondary text-corp-text border-corp-border hover:border-purple-400"}`}
+                      >
+                        {tool}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {matrixFeedback && (
+                  <div className={`p-4 rounded-lg border-2 font-mono text-xs space-y-1 ${matrixFeedback.isCorrect ? "bg-emerald-500/15 border-emerald-500 text-emerald-300" : "bg-rose-500/15 border-rose-500 text-rose-300"}`}>
+                    <p className="font-extrabold">{matrixFeedback.text}</p>
+                    {matrixFeedback.isCorrect && currentScenarioIdx < toolMatrixScenarios.length - 1 && (
+                      <button
+                        onClick={() => {
+                          setCurrentScenarioIdx(prev => prev + 1);
+                          setSelectedToolChoice(null);
+                          setMatrixFeedback(null);
+                        }}
+                        className="mt-2 text-xs font-bold underline text-white flex items-center gap-1"
+                      >
+                        Next Challenge <ChevronRight size={13} />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* GYM 2: MESSY DATA GYM */}
+            {lesson.hasSimulator === "messy-data" && (
+              <div className="p-6 md:p-8 rounded-xl border-2 border-emerald-500/50 shadow-[6px_6px_0px_0px_#059669] space-y-6" style={{ background: "var(--corp-surface)" }}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-md bg-emerald-600 text-white flex items-center justify-center font-bold">
+                      <FileSpreadsheet size={16} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-extrabold font-mono uppercase" style={{ color: "var(--corp-text)" }}>
+                        Messy Data Gym — Automated ETL Pipeline
+                      </h3>
+                      <p className="text-[11px] font-mono text-emerald-400 font-bold">
+                        Transform raw enterprise exports with trailing spaces, mixed dates & BDT symbols
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleResetMessyData}
+                    className="self-start sm:self-auto text-[11px] font-mono font-extrabold text-corp-text-tertiary hover:text-[#10b981] flex items-center gap-1"
+                  >
+                    <RefreshCw size={12} /> Reset Gym
+                  </button>
+                </div>
+
+                {/* Interactive Cleaning Controls */}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={handleCleanSpaces}
+                    className={`px-3 py-1.5 rounded-md text-xs font-mono font-extrabold border-2 transition-all ${appliedCleaning.trim ? "bg-emerald-600 text-white border-emerald-400" : "bg-corp-bg-secondary text-corp-text border-corp-border hover:border-emerald-400"}`}
+                  >
+                    {appliedCleaning.trim ? "✔ Whitespace Trimmed" : "1. Trim Whitespaces (TRIM)"}
+                  </button>
+                  <button
+                    onClick={handleStandardizeDates}
+                    className={`px-3 py-1.5 rounded-md text-xs font-mono font-extrabold border-2 transition-all ${appliedCleaning.dates ? "bg-emerald-600 text-white border-emerald-400" : "bg-corp-bg-secondary text-corp-text border-corp-border hover:border-emerald-400"}`}
+                  >
+                    {appliedCleaning.dates ? "✔ Dates Standardized" : "2. Standardize Dates (ISO)"}
+                  </button>
+                  <button
+                    onClick={handleParseCurrency}
+                    className={`px-3 py-1.5 rounded-md text-xs font-mono font-extrabold border-2 transition-all ${appliedCleaning.currency ? "bg-emerald-600 text-white border-emerald-400" : "bg-corp-bg-secondary text-corp-text border-corp-border hover:border-emerald-400"}`}
+                  >
+                    {appliedCleaning.currency ? "✔ BDT Currency Formatted" : "3. Format BDT Currency (৳)"}
+                  </button>
+                </div>
+
+                {/* Data Table Preview */}
+                <div className="overflow-x-auto rounded-lg border-2 border-corp-border">
+                  <table className="w-full text-left text-xs font-mono">
+                    <thead className="bg-corp-bg-secondary border-b-2 border-corp-border">
                       <tr>
-                        <th className="p-2.5 font-bold font-mono">Row</th>
-                        <th className="p-2.5 font-bold">Product (Col A)</th>
-                        <th className="p-2.5 font-bold">Region (Col B)</th>
-                        <th className="p-2.5 font-bold">Units (Col C)</th>
-                        <th className="p-2.5 font-bold">Unit Price (Col D)</th>
-                        <th className="p-2.5 font-bold">Revenue (Col E)</th>
+                        <th className="p-2.5 font-bold">Emp_ID</th>
+                        <th className="p-2.5 font-bold">Employee Name</th>
+                        <th className="p-2.5 font-bold">Entry Date</th>
+                        <th className="p-2.5 font-bold">Sales Volume</th>
+                        <th className="p-2.5 font-bold">Region</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y font-mono text-[11px]" style={{ borderColor: "var(--corp-border)" }}>
-                      <tr><td className="p-2 font-bold text-corp-text-tertiary">2</td><td className="p-2">Laptop Pro</td><td className="p-2">North</td><td className="p-2">150</td><td className="p-2">$350</td><td className="p-2 font-bold text-emerald-600">$52,500</td></tr>
-                      <tr><td className="p-2 font-bold text-corp-text-tertiary">3</td><td className="p-2">Tablet Ultra</td><td className="p-2">South</td><td className="p-2">300</td><td className="p-2">$120</td><td className="p-2 font-bold text-emerald-600">$36,000</td></tr>
-                      <tr><td className="p-2 font-bold text-corp-text-tertiary">4</td><td className="p-2">Smart Monitor</td><td className="p-2">North</td><td className="p-2">200</td><td className="p-2">$180</td><td className="p-2 font-bold text-emerald-600">$36,000</td></tr>
-                      <tr><td className="p-2 font-bold text-corp-text-tertiary">5</td><td className="p-2">Wireless Mouse</td><td className="p-2">East</td><td className="p-2">500</td><td className="p-2">$40</td><td className="p-2 font-bold text-emerald-600">$20,000</td></tr>
+                    <tbody className="divide-y border-corp-border">
+                      {messyRows.map((r, i) => (
+                        <tr key={i} className="hover:bg-corp-bg-secondary/40">
+                          <td className="p-2.5 font-bold text-amber-400">&quot;{r.id}&quot;</td>
+                          <td className="p-2.5 text-corp-text">&quot;{r.name}&quot;</td>
+                          <td className="p-2.5 text-corp-text-secondary">{r.date}</td>
+                          <td className="p-2.5 font-bold text-emerald-400">{r.rawSales}</td>
+                          <td className="p-2.5 uppercase text-corp-text-tertiary">{r.region}</td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
-              </div>
 
-                {/* Formula Bar Input */}
-                <div className="space-y-2">
-                  <label className="block text-xs font-semibold" style={{ color: "var(--corp-text)" }}>Excel Formula Bar</label>
+                {/* Live Formula Sandbox */}
+                <div className="p-4 rounded-lg bg-corp-bg-secondary border-2 border-corp-border space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-extrabold font-mono uppercase text-corp-text flex items-center gap-1.5">
+                      <Terminal size={14} className="text-[#10b981]" /> Test Live Formula Against Cleaned Data:
+                    </span>
+                    <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase">
+                      {formulaOutput.type}
+                    </span>
+                  </div>
                   <div className="flex gap-2">
-                    <div className="flex-1 flex items-center px-3 py-2 rounded-xl border bg-corp-bg-secondary" style={{ borderColor: "var(--corp-border)" }}>
-                      <span className="text-xs font-bold text-corp-accent font-mono mr-2">fx</span>
-                      <input
-                        type="text"
-                        value={userFormula}
-                        onChange={(e) => setUserFormula(e.target.value)}
-                        placeholder="Type formula (e.g. =SUM(E2:E5), =AVERAGE(C2:C5), =MAX(E2:E5))..."
-                        className="w-full bg-transparent outline-none text-xs font-mono"
-                        style={{ color: "var(--corp-text)" }}
-                      />
-                    </div>
+                    <input
+                      type="text"
+                      value={userFormula}
+                      onChange={(e) => setUserFormula(e.target.value)}
+                      className="flex-1 bg-corp-surface px-3 py-2 rounded border border-corp-border text-xs font-mono text-corp-text outline-none"
+                    />
                     <button
                       onClick={() => handleRunFormulaConsole()}
-                      className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-corp-accent hover:bg-corp-accent-hover transition-all"
+                      className="px-4 py-2 rounded text-xs font-mono font-extrabold bg-[#10b981] text-emerald-950 border border-emerald-400 hover:bg-emerald-400"
                     >
-                      Execute Formula
+                      Execute
                     </button>
+                  </div>
+                  <div className="text-xs font-mono text-corp-text font-bold">
+                    Result: <span className="text-[#10b981]">{formulaOutput.result}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* GYM 3: EXPORT QUALITY LAB (For Presentations) */}
+            {(lesson.hasSimulator === "export-lab" || pathSlug === "presentation-engineering") && (
+              <div className="p-6 md:p-8 rounded-xl border-2 border-amber-500/50 shadow-[6px_6px_0px_0px_#d97706] space-y-6" style={{ background: "var(--corp-surface)" }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-md bg-amber-600 text-white flex items-center justify-center font-bold">
+                      <BarChart3 size={16} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-extrabold font-mono uppercase" style={{ color: "var(--corp-text)" }}>
+                        Export Quality Lab
+                      </h3>
+                      <p className="text-[11px] font-mono text-amber-400 font-bold">
+                        Audit cross-platform slide fidelity before executive client handoff
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Preset Formula Quick Buttons */}
-                <div className="flex flex-wrap gap-2 pt-1">
-                  <span className="text-[11px] font-semibold self-center" style={{ color: "var(--corp-text-tertiary)" }}>Presets:</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {[
-                    "=SUM(E2:E5)",
-                    "=AVERAGE(C2:C5)",
-                    '=XLOOKUP("Laptop Pro", A2:A5, E2:E5)',
-                    '=IF(E2>50000, "Target Exceeded", "Standard")',
-                    "=MAX(E2:E5)"
-                  ].map((preset) => (
+                    { key: "gamma", label: "Gamma Web Card -> PPT", sub: "Web font & padding audit" },
+                    { key: "canva", label: "Canva Vector -> PPT", sub: "SVG clarity & aspect ratio" },
+                    { key: "powerpoint", label: "PowerPoint Slide Master", sub: "MECE layout & Excel link" }
+                  ].map((item) => (
                     <button
-                      key={preset}
-                      onClick={() => { setUserFormula(preset); handleRunFormulaConsole(preset); }}
-                      className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-semibold transition-all hover:bg-corp-accent/15"
-                      style={{ background: "var(--corp-bg-secondary)", color: "var(--corp-text-secondary)", border: "1px solid var(--corp-border)" }}
+                      key={item.key}
+                      onClick={() => { setLabFormat(item.key as any); setAuditCompleted(false); }}
+                      className={`p-3.5 rounded-lg border-2 text-left font-mono transition-all ${labFormat === item.key ? "bg-amber-500/20 border-amber-500 text-amber-300 shadow-[3px_3px_0px_0px_#78350f]" : "bg-corp-bg-secondary border-corp-border text-corp-text"}`}
                     >
-                      {preset}
+                      <p className="font-extrabold text-xs">{item.label}</p>
+                      <p className="text-[10px] text-corp-text-tertiary mt-0.5">{item.sub}</p>
                     </button>
                   ))}
                 </div>
 
-                {/* Result Display Box */}
-                <div className="p-4 rounded-2xl bg-corp-bg-secondary space-y-1.5 text-xs font-mono border" style={{ borderColor: "var(--corp-border)" }}>
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-corp-text-tertiary uppercase text-[10px]">Evaluated Result</span>
-                    <span className="text-[10px] text-emerald-600 font-bold">{formulaOutput.type}</span>
+                <div className="text-center">
+                  <button
+                    onClick={runExportAudit}
+                    disabled={auditRunning}
+                    className="py-3 px-6 rounded-lg text-xs font-mono font-extrabold text-amber-950 bg-amber-400 hover:bg-amber-300 border-2 border-amber-500 uppercase tracking-wider transition-all disabled:opacity-50"
+                  >
+                    {auditRunning ? "Running Export Fidelity Audit..." : "Run Export Fidelity Audit"}
+                  </button>
+                </div>
+
+                {auditCompleted && (
+                  <div className="space-y-3 p-4 rounded-lg bg-corp-bg-secondary border-2 border-corp-border font-mono text-xs">
+                    <h4 className="font-extrabold text-amber-400 uppercase">Audit Results for {labFormat.toUpperCase()} Export:</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-2 rounded bg-corp-surface border border-corp-border">
+                        <span>Font Substitution (Satoshi/Inter to Local)</span>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500">WARNING (Replace Fonts Required)</span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 rounded bg-corp-surface border border-corp-border">
+                        <span>Text Box Descender Clipping (g, y, p)</span>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500">PASS (No Overflows)</span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 rounded bg-corp-surface border border-corp-border">
+                        <span>16:9 Widescreen Presentation Canvas</span>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500">PASS (1920x1080)</span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 rounded bg-corp-surface border border-corp-border">
+                        <span>Action Titles (Pyramid Principle)</span>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500">PASS (Clear Takeaways)</span>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-base font-bold text-corp-accent">{formulaOutput.result}</p>
+                )}
+              </div>
+            )}
+
+            {/* GYM 4: AI VERIFICATION GYM (For AI for Work) */}
+            {(lesson.hasSimulator === "ai-verification" || pathSlug === "ai-for-work") && (
+              <div className="p-6 md:p-8 rounded-xl border-2 border-cyan-500/50 shadow-[6px_6px_0px_0px_#0891b2] space-y-6" style={{ background: "var(--corp-surface)" }}>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-md bg-cyan-600 text-white flex items-center justify-center font-bold">
+                    <ShieldAlert size={16} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-extrabold font-mono uppercase" style={{ color: "var(--corp-text)" }}>
+                      AI Verification Gym — Hallucination Buster
+                    </h3>
+                    <p className="text-[11px] font-mono text-cyan-400 font-bold">
+                      Inspect the AI-generated briefing below. Click to flag the ungrounded hallucination!
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 font-mono text-xs">
+                  {claimsData.map((c) => {
+                    const isFlagged = flaggedClaims.includes(c.id);
+                    return (
+                      <div
+                        key={c.id}
+                        onClick={() => handleToggleClaim(c.id)}
+                        className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${isFlagged ? (c.isHallucination ? "bg-emerald-500/15 border-emerald-500 text-emerald-300" : "bg-rose-500/15 border-rose-500 text-rose-300") : "bg-corp-bg-secondary border-corp-border hover:border-cyan-400 text-corp-text"}`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="leading-relaxed font-medium">Claim #{c.id}: &quot;{c.text}&quot;</p>
+                          <span className={`px-2 py-1 rounded text-[10px] font-extrabold uppercase flex-shrink-0 ${isFlagged ? "bg-cyan-500 text-cyan-950" : "bg-corp-surface text-corp-text-tertiary"}`}>
+                            {isFlagged ? "Flagged" : "Click to Flag"}
+                          </span>
+                        </div>
+                        {isFlagged && (
+                          <p className="mt-2 pt-2 border-t border-corp-border text-[11px] font-bold">
+                            {c.note}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
+
+            {/* GYM 5: ERROR LOG OS (For GRE Prep) */}
+            {(lesson.hasSimulator === "error-log" || pathSlug === "gre-preparation") && (
+              <div className="p-6 md:p-8 rounded-xl border-2 border-rose-500/50 shadow-[6px_6px_0px_0px_#e11d48] space-y-6" style={{ background: "var(--corp-surface)" }}>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-md bg-rose-600 text-white flex items-center justify-center font-bold">
+                    <GraduationCap size={16} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-extrabold font-mono uppercase" style={{ color: "var(--corp-text)" }}>
+                      Error Log OS — Root-Cause Forensics
+                    </h3>
+                    <p className="text-[11px] font-mono text-rose-400 font-bold">
+                      Diagnose question errors across the 4 ETS Root Causes to stop making repeated mistakes
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-lg bg-corp-bg-secondary border-2 border-corp-border font-mono text-xs space-y-2">
+                  <span className="text-[10px] font-extrabold text-amber-400 uppercase">Diagnostic Problem: Quantitative Comparison</span>
+                  <p className="font-bold text-corp-text">
+                    A triangle ABC has interior angles in the ratio 2 : 3 : 5.
+                  </p>
+                  <div className="grid grid-cols-2 gap-3 pt-1 text-[11px]">
+                    <div className="p-2 rounded bg-corp-surface border border-corp-border">
+                      <span className="text-corp-text-tertiary">Column A:</span> Length of longest side
+                    </div>
+                    <div className="p-2 rounded bg-corp-surface border border-corp-border">
+                      <span className="text-corp-text-tertiary">Column B:</span> Twice the length of shortest side
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2 font-mono">
+                  <label className="text-xs font-extrabold uppercase block" style={{ color: "var(--corp-text)" }}>
+                    Select Root Cause if you answered &quot;The two quantities are equal&quot;:
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    {[
+                      { key: "trap", label: "Trap Answer / Angle-Side Fallacy", desc: "Mistook 30-60-90 angle ratio for side ratio 1:√3:2 (Side opposite 90° is twice side opposite 30°, but side opposite 50° is not!)" },
+                      { key: "content", label: "Content Gap", desc: "Forgot sum of triangle angles = 180°" },
+                      { key: "careless", label: "Careless Arithmetic", desc: "Arithmetic mistake when computing 2x + 3x + 5x = 180" },
+                      { key: "pacing", label: "Pacing Panic", desc: "Guessed under 10 seconds remaining" },
+                    ].map((item) => (
+                      <button
+                        key={item.key}
+                        onClick={() => { setSelectedErrorCategory(item.key); setErrorLogged(true); }}
+                        className={`p-3 rounded-lg border-2 text-left transition-all ${selectedErrorCategory === item.key ? "bg-rose-500/20 border-rose-500 text-rose-300" : "bg-corp-bg-secondary border-corp-border text-corp-text"}`}
+                      >
+                        <p className="font-extrabold">{item.label}</p>
+                        <p className="text-[10px] text-corp-text-tertiary mt-1">{item.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {errorLogged && (
+                  <div className="p-4 rounded-lg bg-emerald-500/15 border-2 border-emerald-500 text-emerald-300 font-mono text-xs space-y-1">
+                    <p className="font-extrabold">✔ Error Classified &amp; Synced to Error Log OS!</p>
+                    <p className="text-[11px]">Remediation Action: Add flashcard &quot;Angle ratio ≠ Side ratio in general triangles&quot; to your Spaced Repetition deck.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
           </div>
         )}
 
@@ -946,44 +1172,56 @@ Always maintain a clean separation between **Inputs** (Blue font), **Calculation
         {activeTab === "quiz" && (
           <div className="p-6 md:p-8 rounded-xl space-y-5 border-2 border-[#10b981]/50 shadow-[6px_6px_0px_0px_rgba(16,185,129,0.25)]" style={{ background: "var(--corp-surface)" }}>
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-extrabold tracking-tight font-mono uppercase" style={{ color: "var(--corp-text)" }}>Lesson Knowledge Assessment</h3>
+              <h3 className="text-sm font-extrabold tracking-tight font-mono uppercase" style={{ color: "var(--corp-text)" }}>
+                Lesson Knowledge Assessment
+              </h3>
               <span className="px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase bg-[#10b981] text-emerald-950 font-mono shadow-sm">
-                +{lesson.xpReward} XP Quiz
+                +{lesson.xpReward} XP Reward
               </span>
             </div>
 
-            <p className="text-xs md:text-sm leading-relaxed font-bold" style={{ color: "var(--corp-text)" }}>
-              {lesson.quiz.question}
-            </p>
+            <div className="p-5 rounded-lg bg-corp-bg-secondary border-2 border-corp-border space-y-2">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-amber-500 font-extrabold">
+                Knowledge Check
+              </span>
+              <p className="text-xs sm:text-sm font-extrabold leading-relaxed font-mono" style={{ color: "var(--corp-text)" }}>
+                {lesson.quiz.question}
+              </p>
+            </div>
 
-            <div className="space-y-3 pt-2">
-              {lesson.quiz.options.map((opt, idx) => (
+            <div className="space-y-2.5">
+              {lesson.quiz.options.map((option, idx) => (
                 <button
                   key={idx}
-                  disabled={quizSubmitted}
+                  disabled={quizSubmitted && quizSuccess}
                   onClick={() => setSelectedAnswer(idx)}
-                  className={`w-full flex items-start gap-3.5 p-4 rounded-lg text-left text-xs font-extrabold transition-all border-2 ${
-                    selectedAnswer === idx ? "border-[#10b981] bg-[#10b981]/15 text-[#10b981] shadow-[3px_3px_0px_0px_rgba(16,185,129,0.3)]" : "border-corp-border bg-corp-bg-secondary text-corp-text hover:border-[#10b981]/60"
-                  }`}
+                  className={`w-full p-4 rounded-lg border-2 text-left text-xs font-mono font-bold transition-all flex items-center justify-between ${selectedAnswer === idx ? "bg-[#10b981]/20 border-[#10b981] text-[#10b981] shadow-[3px_3px_0px_0px_#10b981]" : "bg-corp-bg-secondary border-corp-border text-corp-text hover:border-[#10b981]"}`}
                 >
-                  <span className={`w-6 h-6 rounded-md flex items-center justify-center font-mono text-xs flex-shrink-0 font-extrabold border border-emerald-500 ${
-                    selectedAnswer === idx ? "bg-[#10b981] text-emerald-950" : "bg-corp-border text-corp-text-secondary"
-                  }`}>
-                    {String.fromCharCode(65 + idx)}
-                  </span>
-                  <span className="flex-1 leading-relaxed">{opt}</span>
+                  <span>{option}</span>
+                  {selectedAnswer === idx && (
+                    <span className="w-5 h-5 rounded-full bg-[#10b981] text-emerald-950 flex items-center justify-center text-[10px] font-extrabold">
+                      ✓
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
 
-            <div className="pt-4 border-t-2 border-corp-border flex flex-col gap-4">
-              {!quizSubmitted ? (
+            <div className="pt-2">
+              {!quizSubmitted || isVerifyingQuiz ? (
                 <button
                   onClick={handleQuizSubmit}
-                  disabled={selectedAnswer === null}
-                  className="w-full py-3.5 rounded-lg text-xs font-extrabold text-emerald-950 bg-[#10b981] hover:bg-emerald-400 transition-all disabled:opacity-50 shadow-[4px_4px_0px_0px_#064e3b] border-2 border-emerald-400 uppercase font-mono tracking-wider"
+                  disabled={selectedAnswer === null || isVerifyingQuiz}
+                  className="w-full py-3.5 rounded-lg text-xs font-extrabold text-emerald-950 bg-[#10b981] hover:bg-emerald-400 transition-all disabled:opacity-50 shadow-[4px_4px_0px_0px_#064e3b] border-2 border-emerald-400 uppercase font-mono tracking-wider flex items-center justify-center gap-2"
                 >
-                  Submit & Verify Answer
+                  {isVerifyingQuiz ? (
+                    <>
+                      <span className="w-3.5 h-3.5 border-2 border-emerald-950 border-t-transparent rounded-full animate-spin" />
+                      Authoritatively Verifying with Career Passport...
+                    </>
+                  ) : (
+                    "Submit & Verify Answer"
+                  )}
                 </button>
               ) : (
                 <div className="space-y-3">
@@ -992,7 +1230,7 @@ Always maintain a clean separation between **Inputs** (Blue font), **Calculation
                       <CheckCircle2 size={18} className="mt-0.5 flex-shrink-0" />
                       <div>
                         <p className="font-extrabold text-xs font-mono">Correct Answer! +{lesson.xpReward} XP Earned</p>
-                        <p className="text-xs leading-relaxed mt-1 font-medium">{lesson.quiz.explanation}</p>
+                        <p className="text-xs leading-relaxed mt-1 font-medium">{serverExplanation || lesson.quiz.explanation}</p>
                       </div>
                     </div>
                   ) : (
@@ -1000,8 +1238,8 @@ Always maintain a clean separation between **Inputs** (Blue font), **Calculation
                       <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
                       <div>
                         <p className="font-extrabold text-xs font-mono">Incorrect Option Selected</p>
-                        <p className="text-xs leading-relaxed mt-1 font-medium">Review the reading notes and formula parameters, then retry.</p>
-                        <button onClick={() => { setQuizSubmitted(false); setSelectedAnswer(null); }} className="mt-2 text-xs font-extrabold underline hover:text-red-700 font-mono">
+                        <p className="text-xs leading-relaxed mt-1 font-medium">{serverExplanation || "Review the reading notes and try again."}</p>
+                        <button onClick={() => { setQuizSubmitted(false); setSelectedAnswer(null); setServerExplanation(null); }} className="mt-2 text-xs font-extrabold underline hover:text-red-700 font-mono">
                           Try Again
                         </button>
                       </div>
@@ -1012,33 +1250,34 @@ Always maintain a clean separation between **Inputs** (Blue font), **Calculation
             </div>
           </div>
         )}
+
       </div>
 
-      {/* Floating XP Gain overlay */}
+      {/* Floating Completion overlay */}
       <AnimatePresence>
-        {showXPPopup && (
+        {showSuccessPopup && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -20 }}
             className="fixed inset-0 flex items-center justify-center bg-black/40 z-[99999] p-4"
-            onClick={() => setShowXPPopup(false)}
+            onClick={() => setShowSuccessPopup(false)}
           >
-            <div className="glass-strong rounded-3xl p-8 max-w-sm w-full text-center space-y-4 shadow-2xl border border-amber-500/30" onClick={(e) => e.stopPropagation()}>
-              <div className="w-16 h-16 rounded-full bg-corp-accent/20 flex items-center justify-center mx-auto text-[32px] animate-bounce">
+            <div className="glass-strong rounded-2xl p-8 max-w-sm w-full text-center space-y-4 shadow-2xl border border-emerald-500/30" onClick={(e) => e.stopPropagation()}>
+              <div className="w-16 h-16 rounded-full bg-[#10b981]/20 flex items-center justify-center mx-auto text-[32px] animate-bounce">
                 🎉
               </div>
-              <h2 className="text-xl font-bold" style={{ color: "var(--corp-text)" }}>Lesson Passed!</h2>
-              <p className="text-xs" style={{ color: "var(--corp-text-secondary)" }}>
-                You have successfully completed this lesson module and earned:
+              <h2 className="text-xl font-extrabold font-mono" style={{ color: "var(--corp-text)" }}>Lesson Validated!</h2>
+              <p className="text-xs font-mono" style={{ color: "var(--corp-text-secondary)" }}>
+                You have successfully passed this knowledge check:
               </p>
-              <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-base font-extrabold bg-[#C9A84C]/20 text-[#D97706] font-mono border border-[#C9A84C]/40">
-                +{lesson.xpReward} XP
+              <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-base font-extrabold bg-[#10b981]/20 text-[#10b981] font-mono border border-[#10b981]/40">
+                Verified Mastery
               </div>
               <div className="pt-2">
                 <button
-                  onClick={() => setShowXPPopup(false)}
-                  className="w-full py-3 rounded-xl text-xs font-bold text-white bg-corp-accent hover:bg-corp-accent-hover transition-colors"
+                  onClick={() => setShowSuccessPopup(false)}
+                  className="w-full py-3 rounded-xl text-xs font-extrabold text-emerald-950 bg-[#10b981] hover:bg-emerald-400 transition-colors uppercase font-mono"
                 >
                   Continue Learning
                 </button>
@@ -1047,6 +1286,7 @@ Always maintain a clean separation between **Inputs** (Blue font), **Calculation
           </motion.div>
         )}
       </AnimatePresence>
+
     </div>
   );
 }

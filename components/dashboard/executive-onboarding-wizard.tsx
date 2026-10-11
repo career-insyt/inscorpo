@@ -10,15 +10,15 @@ export function ExecutiveOnboardingWizard() {
   const { state } = useUser();
   const [dismissed, setDismissed] = useState(false);
 
-  // Show onboarding wizard if user has low XP (<500) or incomplete profile
-  const isNewUser = state.xp < 500 || state.enrolledPathSlugs.length === 0;
+  // Show onboarding wizard if user has incomplete profile
+  const isNewUser = state.enrolledPathSlugs.length === 0;
   if (!isNewUser || dismissed) return null;
 
   const steps = [
     {
       id: "enroll",
       title: "1. Enroll in an Executive Track",
-      desc: "Choose from 8+ corporate learning paths",
+      desc: "Choose from our corporate learning academies",
       completed: state.enrolledPathSlugs.length > 0,
       href: "/learn",
       cta: "Explore Paths",
@@ -27,7 +27,7 @@ export function ExecutiveOnboardingWizard() {
     {
       id: "lesson",
       title: "2. Complete Your First Module",
-      desc: "Earn +150 XP and start your learning streak",
+      desc: "Start your continuous learning habit streak",
       completed: state.courseProgress.some((c) => c.progress > 0),
       href: state.enrolledPathSlugs[0] ? `/learn/${state.enrolledPathSlugs[0]}` : "/learn",
       cta: "Start Lesson",

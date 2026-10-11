@@ -1,40 +1,73 @@
 export type PaymentMethod = "bkash" | "nagad" | "sslcommerz" | "stripe";
 
 export interface PaymentPlan {
-  id: "pro" | "enterprise";
+  id: "starter" | "single_course" | "flagship_path" | "pro" | "enterprise";
   name: string;
   priceBDT: number;
   priceUSD: number;
-  period: "monthly" | "annual";
+  period: "monthly" | "annual" | "lifetime";
   features: string[];
 }
 
 export const PLANS: Record<string, PaymentPlan> = {
+  single_course: {
+    id: "single_course",
+    name: "একক কোর্স পাস (Single Course Pass)",
+    priceBDT: 499,
+    priceUSD: 5,
+    period: "lifetime",
+    features: [
+      "নির্বাচিত ১টি মাস্টার কোর্সে আজীবন অ্যাক্সেস",
+      "ইন্টারেক্টিভ ফর্মুলা স্যান্ডবক্স ও এক্সারসাইজ",
+      "কোর্স সমাপ্তি ভেরিফাইড সার্টিফিকেট",
+    ],
+  },
+  flagship_path: {
+    id: "flagship_path",
+    name: "ফ্ল্যাগশিপ ট্র্যাক পাস (Flagship Track Pass)",
+    priceBDT: 1999,
+    priceUSD: 19,
+    period: "lifetime",
+    features: [
+      "সম্পূর্ণ ৪-কোর্স লার্নিং ট্র্যাকে আজীবন অ্যাক্সেস",
+      "এসএইচএল ও কর্পোরেট অ্যাসেসমেন্ট কেস সলভার",
+      "ভেরিফাইড ক্যারিয়ার পাসপোর্ট স্পেশালিস্ট ব্যাজ",
+    ],
+  },
+  pro: {
+    id: "pro",
+    name: "প্রো অল-অ্যাক্সেস মেম্বারশিপ (INSYT Pro)",
+    priceBDT: 799,
+    priceUSD: 8,
+    period: "monthly",
+    features: [
+      "সমস্ত লার্নিং ট্র্যাকে আনলিমিটেড অ্যাক্সেস",
+      "১২টি এআই ক্যারিয়ার টুলসের অল-অ্যাক্সেস সুট",
+      "আনলিমিটেড টাইমড মক টেস্ট ও সলিউশন",
+    ],
+  },
   pro_monthly: {
     id: "pro",
     name: "Pro Monthly",
-    priceBDT: 999,
-    priceUSD: 9,
+    priceBDT: 799,
+    priceUSD: 8,
     period: "monthly",
     features: [
-      "Access to all 8+ Learning Paths & Masterclasses",
-      "Unlimited AI Career Assistants & Resume Tools",
-      "Verifiable High-DPI PDF Certificates",
-      "Direct 1-Click Job Application Dispatch",
-      "Priority Community & Mentor Q&A",
+      "সমস্ত লার্নিং ট্র্যাকে আনলিমিটেড অ্যাক্সেস",
+      "১২টি এআই ক্যারিয়ার টুলসের অল-অ্যাক্সেস সুট",
+      "আনলিমিটেড টাইমড মক টেস্ট ও সলিউশন",
     ],
   },
   pro_annual: {
     id: "pro",
-    name: "Pro Annual (Save 20%)",
-    priceBDT: 7990,
-    priceUSD: 75,
+    name: "Pro Annual (Save 48%)",
+    priceBDT: 4999,
+    priceUSD: 48,
     period: "annual",
     features: [
-      "All Pro Monthly features for 12 months",
-      "2 Months Free (Save ৳1,998)",
-      "Exclusive Executive Network Lounge Access",
-      "Free 1-on-1 CV Audit Session",
+      "সমস্ত লার্নিং ট্র্যাকে আনলিমিটেড অ্যাক্সেস",
+      "১২টি এআই ক্যারিয়ার টুলসের অল-অ্যাক্সেস সুট",
+      "আনলিমিটেড টাইমড মক টেস্ট ও সলিউশন",
     ],
   },
 };

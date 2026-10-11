@@ -70,7 +70,7 @@ export function StreakExplainerModal({ isOpen, onClose, state }: StreakExplainer
               <span>{state.streak}-DAY ACTIVE STREAK</span>
             </h2>
             <p className="text-xs font-sans font-bold text-slate-700 leading-relaxed">
-              Log in daily and complete lessons or drills to keep your streak active. Unlocks bonus XP multipliers and exclusive rank badges.
+              Complete your Daily Quests &amp; tasks to advance and protect your streak. Streaks exclusively count when daily tasks are completed! Unlocks bonus XP multipliers and exclusive rank badges.
             </p>
           </div>
 
@@ -119,6 +119,42 @@ export function StreakExplainerModal({ isOpen, onClose, state }: StreakExplainer
                   {day.isActive ? <CheckCircle2 size={16} /> : day.dayNum}
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Economic Utility Perks (Consensus.md / Khaldi et al. 2023) */}
+          <div className="p-4 rounded-2xl border-2 border-emerald-600 bg-emerald-50 text-emerald-950 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5 text-emerald-900">
+                <Trophy size={15} className="text-emerald-600" /> Economic Streak Rewards
+              </span>
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-200 text-emerald-900 border border-emerald-400">
+                {state.streak >= 5 ? "Unlocked" : `${Math.max(1, 5 - state.streak)} Days to Unlock`}
+              </span>
+            </div>
+
+            <p className="text-[11px] font-sans font-medium text-emerald-800 leading-snug">
+              Consistent deliberate practice pays off. Reaching a 5-day streak unlocks an instant 20% discount voucher for all corporate 5-Day Sprints & Flagship Track Capstones.
+            </p>
+
+            <div className="flex items-center justify-between p-2.5 rounded-xl border-2 border-dashed border-emerald-600 bg-white">
+              <div>
+                <p className="text-[9px] font-mono uppercase text-emerald-700 font-bold">20% Sprint Discount Voucher</p>
+                <p className="text-sm font-mono font-black text-emerald-900 tracking-wider">
+                  {state.streak >= 5 ? "STREAK5PRO" : "LOCKED (Requires 5-Day Streak)"}
+                </p>
+              </div>
+              {state.streak >= 5 && (
+                <button
+                  onClick={() => {
+                    navigator.clipboard?.writeText("STREAK5PRO");
+                    alert("Coupon code STREAK5PRO copied to clipboard! Apply at sprint checkout.");
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-mono font-black uppercase shadow-sm cursor-pointer"
+                >
+                  Copy Code
+                </button>
+              )}
             </div>
           </div>
 

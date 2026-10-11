@@ -608,30 +608,21 @@ export function analyzeCvFit(
   const missingStr = missingSkills.join(" ").toLowerCase();
   const jobTitleLower = job.title.toLowerCase();
 
-  if (missingStr.includes("excel") || missingStr.includes("data") || missingStr.includes("statistics")) {
+  if (missingStr.includes("presentation") || missingStr.includes("data") || missingStr.includes("report")) {
     recommendedCourses.push({
-      title: "Excel Financial Modeling & Data Masterclass",
-      slug: "excel-corporate",
-      url: "/learn/excel-corporate",
-      reason: "Master data cleaning, advanced formulas, and quantitative reporting required for screening.",
-    });
-  }
-
-  if (missingStr.includes("power_bi") || missingStr.includes("statistics_data") || jobTitleLower.includes("analyst")) {
-    recommendedCourses.push({
-      title: "Power BI & Business Intelligence Analytics",
-      slug: "power-bi",
-      url: "/learn/power-bi",
-      reason: "Learn dashboard creation and automated reporting for research institute data units.",
+      title: "Presentation Engineering (Gamma + Canva + PowerPoint)",
+      slug: "presentation-engineering",
+      url: "/learn/presentation-engineering",
+      reason: "Master visual storytelling, executive reporting, and professional presentation decks.",
     });
   }
 
   if (jobTitleLower.includes("officer") || job.grade <= 10 || missingStr.includes("research")) {
     recommendedCourses.push({
-      title: "Corporate Management Trainee & Officer Prep Track",
-      slug: "corporate-mto",
-      url: "/learn/corporate-mto",
-      reason: "Comprehensive written exam, case solving, and viva interview mastery.",
+      title: "GRE Preparation & Analytical Reasoning Masterclass",
+      slug: "gre-preparation",
+      url: "/learn/gre-preparation",
+      reason: "Comprehensive quantitative reasoning, verbal aptitude, and analytical writing.",
     });
   }
 

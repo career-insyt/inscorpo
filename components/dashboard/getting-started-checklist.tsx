@@ -57,8 +57,8 @@ export function GettingStartedChecklist() {
       },
       {
         id: "path-enrollment",
-        label: "Enroll in Executive Career Track",
-        description: "Select Management Trainee (MTO), Analytics, or Finance track",
+        label: "Enroll in Professional Course",
+        description: "Select Video Editing, Presentation Engineering, or AI track",
         xp: 50,
         href: "/learn",
         isCompleted: completedIds.includes("path-enrollment"),
@@ -98,7 +98,7 @@ export function GettingStartedChecklist() {
 
     if (item.isCompleted) return;
 
-    const success = completeChecklistTask(item.id, item.label, item.xp);
+    const success = completeChecklistTask(item.id, item.label);
     if (success) {
       setCelebratedId(item.id);
       setTimeout(() => setCelebratedId(null), 3000);

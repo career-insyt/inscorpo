@@ -9,7 +9,7 @@ const faqs = [
   {
     category: "Platform",
     question: "What is INSYT Corporate?",
-    answer: "INSYT Corporate is The Career Operating System — a premium platform for professional development. It combines structured learning paths, mock tests, AI tools, gamification, and career tracking into one platform. We prepare users for private banking, Bangladesh Bank, corporate Management Trainee (MTO) roles, business analytics, and executive skills.",
+    answer: "INSYT Corporate is The Career Operating System — a premium platform for professional development. It combines structured learning paths, interactive simulators, AI tools, gamification, and career tracking into one platform. We prepare users for digital media production, presentation engineering, AI automation, and global graduate tracks.",
   },
   {
     category: "Platform",
@@ -29,7 +29,7 @@ const faqs = [
   {
     category: "Certificates",
     question: "Are the certificates verified?",
-    answer: "Yes. Every certificate has a unique verification URL and QR code. Employers and institutions can verify your credentials instantly. Our architecture is blockchain-ready for future immutable verification.",
+    answer: "Yes. Every certificate has a unique verification URL and QR code. Employers and institutions can verify your credentials instantly. Our credential architecture is designed for future cryptographic verification.",
   },
   {
     category: "Career",

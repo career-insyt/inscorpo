@@ -4,9 +4,10 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ChevronLeft, Send, Mic, PlayCircle, Bot, User, Award, Sparkles, CheckCircle2,
-  AlertCircle, Trophy, BarChart3, X, ArrowRight, ShieldCheck, Camera, Maximize2,
-  Minimize2, AlertTriangle, Eye, UserCheck, RefreshCw, Lock, Video, LogOut, Loader2
+  ChevronLeft, Send, PlayCircle, Bot, User, Award, CheckCircle2,
+  X, ArrowRight, ShieldCheck, Camera, Maximize2,
+  Minimize2, AlertTriangle, UserCheck, Video, LogOut, Loader2,
+  Sparkles, BarChart3, Trophy, RefreshCw, Eye
 } from "lucide-react";
 import { interviewScenarios } from "@/lib/data/interviews";
 import { cn } from "@/lib/utils";
@@ -18,24 +19,31 @@ interface Message {
   content: string;
 }
 
+const INTERVIEW_STAGES = [
+  { round: 1, name: "Strategic Framing & Root Cause Diagnostic" },
+  { round: 2, name: "Quantitative Trade-offs & Unit Economics" },
+  { round: 3, name: "Macro Shock Stress-Test (Inflation & FX Pressure)" },
+  { round: 4, name: "Cross-Functional Conflict & Operational Pushback" },
+  { round: 5, name: "Executive Board Defense & Strategic Synthesis" },
+];
+
 export default function MockInterviewChatPage() {
   const { id } = useParams();
   const router = useRouter();
-  const { state, addXP, addNotification } = useUser();
+  const { addNotification } = useUser();
   const scenario = interviewScenarios.find((s) => s.id === id);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [interviewStarted, setInterviewStarted] = useState(false);
-  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(-1);
+  const [currentRound, setCurrentRound] = useState(1);
   const [interviewFinished, setInterviewFinished] = useState(false);
 
   // Fullscreen & WebCam Proctoring State
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraLoading, setCameraLoading] = useState(false);
-  const [cameraError, setCameraError] = useState(false);
   const [cameraErrorMessage, setCameraErrorMessage] = useState<string | null>(null);
   const [isSimulatedCamera, setIsSimulatedCamera] = useState(false);
 
@@ -56,6 +64,7 @@ export default function MockInterviewChatPage() {
     criticalFlaw: string;
     proctoringIntegrity: number;
     tabSwitches: number;
+    roundsCompleted: number;
   } | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -76,55 +85,67 @@ export default function MockInterviewChatPage() {
 
     try {
       if (typeof window === "undefined" || !navigator?.mediaDevices?.getUserMedia) {
-        setCameraError(true);
-        setCameraErrorMessage("Camera API not supported in browser context.");
-        setCameraLoading(false);
-        return;
+        throw new Error("Camera API not supported in browser context.");
       }
 
-      let stream: MediaStream;
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 640 }, height: { ideal: 480 } },
-          audio: false,
-        });
-      } catch {
-        // Fallback to default video constraint
-        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      // Stop any existing stream tracks first
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach((t) => t.stop());
       }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          facingMode: "user",
+        },
+        audio: false,
+      });
 
       if (videoRef.current) {
-        videoRef.current.muted = true;
         videoRef.current.srcObject = stream;
-        await videoRef.current.play().catch(() => {});
-        setCameraActive(true);
-        setCameraError(false);
-        setIsSimulatedCamera(false);
-        setCameraLoading(false);
-      } else {
-        setTimeout(startCamera, 300);
-      }
-    } catch (err: any) {
-      console.warn("WebCam Access Error:", err);
-      setCameraError(true);
-      setCameraActive(false);
-      setCameraLoading(false);
+        videoRef.current.muted = true;
+        videoRef.current.playsInline = true;
+        videoRef.current.setAttribute("playsinline", "true");
+        videoRef.current.setAttribute("muted", "true");
+        videoRef.current.setAttribute("autoplay", "true");
 
+        try {
+          await videoRef.current.play();
+        } catch (e) {
+          console.warn("Autoplay promise prevented:", e);
+        }
+      }
+
+      setCameraActive(true);
+      setIsSimulatedCamera(false);
+      setCameraLoading(false);
+      setCameraErrorMessage(null);
+    } catch (err: any) {
+      console.warn("Hardware Camera Error, auto-engaging AI Vision Matrix:", err);
+      // Auto-fallback to simulated AI vision matrix so candidate is never blocked
+      setIsSimulatedCamera(true);
+      setCameraActive(true);
+      setCameraLoading(false);
       if (err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError") {
-        setCameraErrorMessage("Permission denied. Click camera icon in browser bar to allow access.");
-      } else if (err?.name === "NotFoundError" || err?.name === "DevicesNotFoundError") {
-        setCameraErrorMessage("No camera hardware found. Activating AI Vision Matrix.");
+        setCameraErrorMessage("Browser camera permission denied. AI Vision Matrix engaged.");
       } else {
-        setCameraErrorMessage("Camera unavailable. Activating AI Vision Matrix.");
+        setCameraErrorMessage("Webcam hardware unavailable. AI Vision Matrix engaged.");
       }
     }
   }, []);
 
   const enableSimulatedCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach((t) => t.stop());
+      videoRef.current.srcObject = null;
+    }
     setIsSimulatedCamera(true);
     setCameraActive(true);
-    setCameraError(false);
     setCameraErrorMessage(null);
+    setCameraLoading(false);
   };
 
   const stopCamera = useCallback(() => {
@@ -155,7 +176,7 @@ export default function MockInterviewChatPage() {
       if (document.hidden) {
         setTabSwitchCount((prev) => {
           const newCount = prev + 1;
-          setProctorWarningToast(`⚠️ TAB SWITCH DETECTED! Warning #${newCount}: External window focus lost.`);
+          setProctorWarningToast(`TAB SWITCH DETECTED! Warning #${newCount}: External window focus lost.`);
           setTimeout(() => setProctorWarningToast(null), 5000);
           return newCount;
         });
@@ -184,7 +205,7 @@ export default function MockInterviewChatPage() {
       const rand = Math.random();
       if (rand < 0.12) {
         setGazeStatus("Looking Away");
-        setProctorWarningToast("⚠️ Gaze Warning: Candidate looking away from screen.");
+        setProctorWarningToast("Gaze Warning: Candidate looking away from screen.");
         setTimeout(() => {
           setGazeStatus("Verified");
           setProctorWarningToast(null);
@@ -233,6 +254,24 @@ export default function MockInterviewChatPage() {
     );
   }
 
+  // Generate realistic, contemporary opening dilemma based on role & company
+  const getInitialScenarioPrompt = () => {
+    const baseQuestion = scenario.questions?.[0];
+    if (scenario.company.toLowerCase().includes("unilever")) {
+      return `Unilever Bangladesh is facing an 11% gross margin contraction in regional distribution hubs due to fuel inflation, currency devaluation, and aggressive price undercutting by local FMCG competitors. Key distributor associations are demanding an 8% increase in wholesale trade commissions while threatening to delay bulk seasonal orders. As our incoming ${scenario.role}, walk me through how you will re-engineer our inventory buffer policy, negotiate with distributor heads, and protect gross margins without triggering retail stockouts.`;
+    }
+    if (scenario.company.toLowerCase().includes("bat") || scenario.company.toLowerCase().includes("tobacco")) {
+      return `BAT is experiencing a 7% down-trading volume shift across Tier-1 retail outlets toward discount brands, driven by erosion in consumer purchasing power and recent excise tariff hikes. The Sales Director wants to launch an emergency rebate campaign, but Corporate Finance warns this will permanently impair brand equity. As our ${scenario.role}, how do you evaluate the price-elasticity curve, structure your volume defense strategy, and lead the cross-functional trade-off alignment?`;
+    }
+    if (scenario.company.toLowerCase().includes("brac") || scenario.company.toLowerCase().includes("bank")) {
+      return `BRAC Bank is scaling digital SME working capital underwriting, but non-performing loan (NPL) early indicators have ticked up by 140 basis points amid tight macro liquidity and escalating borrowing rates. Executive leadership demands a 20% portfolio expansion while strictly capping default exposure. As our ${scenario.role}, how do you redesign the analytical risk-scoring model, validate proxy cash-flow signals, and defend your credit sanction thresholds before the Risk Management Committee?`;
+    }
+    if (baseQuestion) {
+      return `${baseQuestion} Contextualize your answer against contemporary business conditions, supply chain friction, and measurable bottom-line returns.`;
+    }
+    return `As the incoming ${scenario.role} at ${scenario.company}, you are faced with a strategic turnaround challenge: operating margins have compressed by 12% over the last two quarters amid heightened competitive pressure and raw material inflation. Walk me through your diagnostic issue tree, your top 3 prioritized interventions, and the specific metrics you will track in your 90-day execution plan.`;
+  };
+
   const startInterview = () => {
     setInterviewStarted(true);
     setIsTyping(true);
@@ -242,13 +281,14 @@ export default function MockInterviewChatPage() {
       document.documentElement.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
     }
 
-    const greeting = `Welcome to the Executive Placement Assessment for the ${scenario.role} position at ${scenario.company}. I am your Senior Partner & Lead Interviewer.\n\nAI WebCam Proctoring & Tab-Switch Lock is ACTIVE.\n\nLet's begin with Scenario Question 1:\n\n"${scenario.questions[0]}"`;
+    const initialScenario = getInitialScenarioPrompt();
+    const greeting = `Welcome to the Executive Placement Assessment for the ${scenario.role} position at ${scenario.company}.\n\nI am your Senior Partner & Lead Hiring Director. This interview is adaptive and unforgiving—I will directly probe your numbers, challenge your operational assumptions, and evaluate how you navigate real-world corporate complexity.\n\nAI WebCam Proctoring & Focus Lock are ACTIVE.\n\n── ROUND 1: STRATEGIC FRAMING & ROOT CAUSE ──\n\n"${initialScenario}"`;
 
     setTimeout(() => {
       setMessages([{ role: "assistant", content: greeting }]);
-      setCurrentQuestionIdx(0);
+      setCurrentRound(1);
       setIsTyping(false);
-    }, 800);
+    }, 700);
   };
 
   // Helper to extract non-rounded scores from AI outputs (0 answers = 0 score)
@@ -267,12 +307,13 @@ export default function MockInterviewChatPage() {
         criticalFlaw: "Candidate ended the interview with 0 answered questions.",
         proctoringIntegrity: 100,
         tabSwitches: tabSwitchCount,
+        roundsCompleted: 0,
       };
     }
 
     const extractedScores: number[] = [];
     let lastCritique = "Solid baseline scenario response with structured situational clarity.";
-    let lastFlaw = "Ensure you state explicit BDT revenue figures or percentage gains in the results section.";
+    let lastFlaw = "Ensure you state explicit BDT revenue figures, margin percentages, or headcount metrics in the execution plan.";
 
     chatHistory.forEach((msg) => {
       if (msg.role === "assistant") {
@@ -296,7 +337,7 @@ export default function MockInterviewChatPage() {
     const rawScore =
       extractedScores.length > 0
         ? Math.round(extractedScores.reduce((a, b) => a + b, 0) / extractedScores.length)
-        : 65;
+        : 67;
 
     const proctoringIntegrity = Math.max(60, 100 - tabSwitchCount * 8);
     const overallScore = Math.round(rawScore * (proctoringIntegrity / 100));
@@ -316,6 +357,7 @@ export default function MockInterviewChatPage() {
       criticalFlaw: lastFlaw,
       proctoringIntegrity,
       tabSwitches: tabSwitchCount,
+      roundsCompleted: userMsgCount,
     };
   };
 
@@ -337,18 +379,16 @@ export default function MockInterviewChatPage() {
     setShowScorecardModal(true);
 
     if (card.overallScore > 0) {
-      const xpEarned = 150;
-      addXP(xpEarned, `Completed AI Mock Interview: ${scenario.role} (${card.overallScore}/100)`);
       addNotification({
         type: "achievement",
-        title: "Mock Interview Scorecard Ready! 🎤",
-        message: `Scored ${card.overallScore}/100 on ${scenario.role} simulation (Integrity: ${card.proctoringIntegrity}%). +150 XP awarded!`,
+        title: "Adaptive Mock Interview Scorecard Ready",
+        message: `Scored ${card.overallScore}/100 across ${card.roundsCompleted} adaptive rounds for ${scenario.role} (Integrity: ${card.proctoringIntegrity}%). Verified in Career Passport.`,
       });
     } else {
       addNotification({
         type: "system",
         title: "Interview Terminated Early",
-        message: `Interview ended with 0 questions answered. Score: 0/100 (0 XP).`,
+        message: `Interview ended with 0 questions answered. Score: 0/100.`,
       });
     }
   };
@@ -362,39 +402,46 @@ export default function MockInterviewChatPage() {
     setInput("");
     setIsTyping(true);
 
+    const nextRound = currentRound + 1;
+    const isFinalRound = nextRound > 5;
+    const stageInfo = INTERVIEW_STAGES.find((s) => s.round === nextRound) || INTERVIEW_STAGES[4];
+
+    const promptPayload = `[Role: ${scenario.role} at ${scenario.company} (${scenario.industry})]
+[Current Round Completed: ${currentRound} of 5]
+[Stage: ${stageInfo.name}]
+
+Candidate's Answer:
+"${userMsg}"
+
+INTERVIEWER DIRECTIVES:
+1. Conduct an authentic, high-caliber corporate interview.
+2. Interrogate the candidate's actual statements, specific numbers, and logic.
+3. Test their proposal against real-world friction: margin compression, inflation, distributor pushback, working capital DSO constraints, FX shifts, and cross-functional politics.
+4. Output Format:
+**Executive Critique:** (2-3 sentences. Direct, sharp critique dissecting their specific proposal and trade-offs)
+
+**STAR Score: XX/100** (Exact granular non-rounded score, e.g. 71/100, 68/100, 79/100, 83/100)
+• Situation & Task: X/25
+• Action Specificity: X/25
+• Quantified Result: X/25
+• Executive Presence: X/25
+
+**Critical Flaw:** (The single biggest risk or vulnerability in what they just proposed)
+
+${
+  isFinalRound
+    ? `**Executive Verdict:** (Summarize final candidate readiness and overall assessment conclusion)`
+    : `**Next Probing Question:** (Formulate an incisive, highly adaptive follow-up scenario question challenging their solution with unexpected friction or operational constraints)`
+}`;
+
     try {
-      const nextIdx = currentQuestionIdx + 1;
-      const isLast = nextIdx >= scenario.questions.length;
-      const currentQuestion = scenario.questions[currentQuestionIdx];
-
-      const promptPayload = isLast
-        ? `[Role: ${scenario.role} at ${scenario.company}]
-Candidate was asked: "${currentQuestion}"
-Candidate Answer: "${userMsg}"
-
-This is the FINAL question. Provide:
-1. Executive Critique (2-3 sentences, direct, sharp)
-2. STAR Score: XX/100 (Exact non-rounded score, e.g. 73/100, 68/100, 81/100)
-3. Breakdown out of 25 for: Situation & Task, Action Specificity, Quantified Result, Executive Presence
-4. Critical Flaw in candidate's response
-5. Concluding executive remark`
-        : `[Role: ${scenario.role} at ${scenario.company}]
-Candidate was asked: "${currentQuestion}"
-Candidate Answer: "${userMsg}"
-
-Provide:
-1. Executive Critique (2-3 sentences, direct, sharp)
-2. STAR Score: XX/100 (Exact non-rounded score, e.g. 74/100, 69/100)
-3. Breakdown out of 25 for: Situation & Task, Action Specificity, Quantified Result, Executive Presence
-4. Critical Flaw in candidate's response
-5. Next Probing Scenario Question: "${scenario.questions[nextIdx]}"`;
-
       const response = await fetch("/api/ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: promptPayload,
           context: "mock-interview",
+          history: updatedMessages.slice(-6),
         }),
       });
 
@@ -406,37 +453,41 @@ Provide:
           const newHistory: Message[] = [...updatedMessages, { role: "assistant", content: aiReply }];
           setMessages(newHistory);
 
-          if (isLast) {
+          if (isFinalRound) {
             setIsTyping(false);
             finishInterview(newHistory);
           } else {
-            setCurrentQuestionIdx(nextIdx);
+            setCurrentRound(nextRound);
             setIsTyping(false);
           }
           return;
         }
       }
 
-      // Fallback response
-      const fallbackReply = `**Executive Critique:** Candidate presented clear situational context, but lacked explicit financial metrics in the result section.
+      // Smart Fallback if API is offline
+      const fallbackReply = `**Executive Critique:** Candidate articulated clear situational priorities, but left key working capital and distributor credit assumptions unquantified.
 
-**STAR Score: 73/100**
-• Situation & Task: 19/25
+**STAR Score: 72/100**
+• Situation & Task: 20/25
 • Action Specificity: 19/25
 • Quantified Result: 16/25
-• Executive Presence: 19/25
+• Executive Presence: 17/25
 
-**Critical Flaw:** Missing monetary figures or percentage gains.
-${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""}`;
+**Critical Flaw:** Lacked specific BDT figures or percentage margin buffers to absorb unexpected supplier price increases.
+${
+  isFinalRound
+    ? `\n**Executive Verdict:** Candidate demonstrated foundational analytical competency, with opportunities for greater financial rigor.`
+    : `\n**Next Probing Question:** "If your primary distributor consortium refuses your credit revision and initiates a 10-day ordering freeze, how do you sustain retail shelf share without diluting brand pricing?"`
+}`;
 
       const fallbackHistory: Message[] = [...updatedMessages, { role: "assistant", content: fallbackReply }];
       setMessages(fallbackHistory);
 
-      if (isLast) {
+      if (isFinalRound) {
         setIsTyping(false);
         finishInterview(fallbackHistory);
       } else {
-        setCurrentQuestionIdx(nextIdx);
+        setCurrentRound(nextRound);
         setIsTyping(false);
       }
     } catch {
@@ -450,6 +501,8 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
       handleSend();
     }
   };
+
+  const currentStageName = INTERVIEW_STAGES.find((s) => s.round === currentRound)?.name || "Live Executive Defense";
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-90px)] font-sans pb-6 relative">
@@ -476,7 +529,7 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
         <div className="flex items-center gap-3">
           <button
             onClick={handleExitInterview}
-            className="p-1.5 rounded-lg text-corp-text-secondary hover:text-corp-text hover:bg-corp-bg-secondary transition-all border border-corp-border"
+            className="p-1.5 rounded-lg text-corp-text-secondary hover:text-corp-text hover:bg-corp-bg-secondary transition-all border border-corp-border cursor-pointer"
             title="Exit Interview & Return to Hub"
           >
             <ChevronLeft size={18} />
@@ -486,7 +539,7 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
               {scenario.companyLogo}
             </div>
             <div>
-              <h1 className="font-extrabold text-sm sm:text-base uppercase leading-tight" style={{ color: "var(--corp-text)" }}>
+              <h1 className="font-extrabold text-sm sm:text-base uppercase leading-tight text-corp-text">
                 {scenario.role} Assessment
               </h1>
               <div className="flex items-center gap-2 text-xs font-bold text-corp-text-tertiary">
@@ -500,7 +553,7 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
           {/* Fullscreen Mode Toggle */}
           <button
             onClick={toggleFullscreen}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-extrabold border-2 border-corp-border bg-corp-bg-secondary text-corp-text hover:bg-corp-surface transition-all"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-extrabold border-2 border-corp-border bg-corp-bg-secondary text-corp-text hover:bg-corp-surface transition-all cursor-pointer"
             title="Toggle Full Screen Assessment Mode"
           >
             {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
@@ -510,16 +563,16 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
           {interviewStarted && !interviewFinished && (
             <button
               onClick={() => finishInterview()}
-              className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-mono font-extrabold uppercase bg-rose-600 hover:bg-rose-700 text-white border-2 border-rose-400 shadow-[2px_2px_0px_0px_#881337] transition-all flex items-center gap-1.5"
+              className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-mono font-extrabold uppercase bg-rose-600 hover:bg-rose-700 text-white border-2 border-rose-400 shadow-[2px_2px_0px_0px_#881337] transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <Trophy size={14} /> End &amp; Scorecard
+              <Trophy size={14} /> Conclude &amp; Scorecard
             </button>
           )}
 
           {interviewFinished && (
             <button
               onClick={() => setShowScorecardModal(true)}
-              className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-mono font-extrabold uppercase bg-amber-400 text-amber-950 border-2 border-amber-500 shadow-[2px_2px_0px_0px_#78350f] transition-all flex items-center gap-1.5"
+              className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-mono font-extrabold uppercase bg-amber-400 text-amber-950 border-2 border-amber-500 shadow-[2px_2px_0px_0px_#78350f] transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Award size={14} /> Scorecard ({finalScorecard?.overallScore ?? 0}/100)
             </button>
@@ -528,7 +581,7 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
           {/* Prominent Exit Button */}
           <button
             onClick={handleExitInterview}
-            className="px-3 py-1.5 rounded-xl text-xs font-mono font-extrabold uppercase border-2 border-corp-border bg-corp-surface hover:bg-corp-bg-secondary text-corp-text transition-all flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-xl text-xs font-mono font-extrabold uppercase border-2 border-corp-border bg-corp-surface hover:bg-corp-bg-secondary text-corp-text transition-all flex items-center gap-1.5 cursor-pointer"
             title="Close Assessment & Return to Hub"
           >
             <X size={14} className="text-rose-500" />
@@ -540,11 +593,13 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
       {/* Main Body */}
       <div className="flex flex-col lg:flex-row flex-1 overflow-hidden gap-4 items-stretch">
         {/* Chat Area */}
-        <div className="flex-1 flex flex-col relative rounded-xl border-2 border-corp-border shadow-[5px_5px_0px_0px_#2563eb] overflow-hidden min-h-[450px]" style={{ background: "var(--corp-surface)" }}>
-
+        <div
+          className="flex-1 flex flex-col relative rounded-xl border-2 border-corp-border shadow-[5px_5px_0px_0px_#2563eb] overflow-hidden min-h-[450px]"
+          style={{ background: "var(--corp-surface)" }}
+        >
           {/* Start Screen Overlay */}
           {!interviewStarted && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/70 backdrop-blur-md z-10 font-mono p-4">
+            <div className="absolute inset-0 flex items-center justify-center bg-black/75 backdrop-blur-md z-10 font-mono p-4">
               <div
                 className="max-w-md w-full p-6 sm:p-8 rounded-2xl border-4 border-[#2563eb] bg-white text-slate-900 shadow-[8px_8px_0px_0px_#1e3a8a] text-center space-y-4"
               >
@@ -552,23 +607,23 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
                   <PlayCircle size={32} />
                 </div>
                 <div>
-                  <h2 className="text-xl font-black text-slate-900 uppercase">Begin Executive Simulation</h2>
+                  <h2 className="text-xl font-black text-slate-900 uppercase">Adaptive Executive Simulation</h2>
                   <p className="text-xs text-slate-600 font-sans font-medium mt-1">
-                    Unforgiving AI Hiring Director. WebCam AI Proctoring &amp; Tab-Lock Active.
+                    Dynamic, real-world questions that adapt to your exact answers. WebCam AI Proctoring active.
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-xs text-slate-700 font-bold space-y-1.5 text-left">
                   <div>· Position: <span className="text-[#2563eb]">{scenario.role}</span></div>
                   <div>· Company: <span className="text-[#2563eb]">{scenario.company}</span></div>
-                  <div>· WebCam Proctoring: <span className="text-emerald-600 font-black">ACTIVE</span></div>
-                  <div>· Tab Lock: <span className="text-rose-600 font-black">Google Check Penalized</span></div>
-                  <div>· XP Reward: <span className="text-amber-600">+150 XP</span></div>
+                  <div>· Mode: <span className="text-emerald-600 font-black">Multi-Turn Adaptive AI</span></div>
+                  <div>· Real-World Context: <span className="text-[#2563eb] font-bold">Inflation &amp; FX Stress-Testing</span></div>
+                  <div>· WebCam Proctoring: <span className="text-emerald-600 font-black">Hardware + AI Vision</span></div>
                 </div>
 
                 <button
                   onClick={startInterview}
-                  className="w-full py-3.5 rounded-xl text-xs font-mono font-extrabold uppercase text-amber-950 bg-amber-400 hover:bg-amber-300 transition-all border-2 border-amber-500 shadow-[4px_4px_0px_0px_#78350f]"
+                  className="w-full py-3.5 rounded-xl text-xs font-mono font-extrabold uppercase text-amber-950 bg-amber-400 hover:bg-amber-300 transition-all border-2 border-amber-500 shadow-[4px_4px_0px_0px_#78350f] cursor-pointer"
                 >
                   Start Live Assessment (Full Screen)
                 </button>
@@ -576,7 +631,24 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
             </div>
           )}
 
-          {/* Chat Messages List (HIGH CONTRAST PURE WHITE/AMBER FONTS) */}
+          {/* Current Stage Indicator Banner */}
+          {interviewStarted && (
+            <div className="px-4 py-2 bg-corp-bg-secondary border-b-2 border-corp-border flex items-center justify-between text-xs font-mono">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-[#2563eb] text-white">
+                  Round {currentRound} of 5
+                </span>
+                <span className="font-extrabold text-corp-text truncate max-w-[320px] sm:max-w-none">
+                  {currentStageName}
+                </span>
+              </div>
+              <span className="hidden sm:inline text-[10px] font-bold text-corp-text-tertiary">
+                Real-Time Adaptive Model Active
+              </span>
+            </div>
+          )}
+
+          {/* Chat Messages List */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5 font-mono">
             {messages.map((msg, i) => (
               <motion.div
@@ -599,7 +671,6 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
                   {msg.role === "assistant" ? <Bot size={18} /> : <User size={18} />}
                 </div>
 
-                {/* HIGH-CONTRAST CHAT BUBBLE TYPOGRAPHY */}
                 <div
                   className={cn(
                     "p-4 rounded-2xl text-xs font-mono leading-relaxed whitespace-pre-wrap border-2 shadow-md max-w-2xl",
@@ -626,7 +697,7 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
                   <div className="w-2 h-2 bg-[#2563eb] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
                   <div className="w-2 h-2 bg-[#2563eb] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
                   <div className="w-2 h-2 bg-[#2563eb] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                  <span className="text-xs font-bold text-corp-text ml-2">Director evaluating response &amp; checking STAR dimensions...</span>
+                  <span className="text-xs font-bold text-corp-text ml-2">Director analyzing response &amp; formulating adaptive counter-scenario...</span>
                 </div>
               </motion.div>
             )}
@@ -641,7 +712,11 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={interviewFinished ? "Assessment completed. Click 'View Scorecard' above." : "Type your response using STAR framework..."}
+                  placeholder={
+                    interviewFinished
+                      ? "Assessment completed. Click 'View Scorecard' above."
+                      : "Defend your approach using STAR metrics (quantified numbers, specific actions, tradeoffs)..."
+                  }
                   disabled={!interviewStarted || interviewFinished || isTyping}
                   rows={2}
                   className="w-full p-3.5 pr-14 rounded-xl text-xs font-mono font-extrabold border-2 border-corp-border focus:border-[#2563eb] focus:outline-none bg-corp-bg-secondary text-corp-text disabled:opacity-50"
@@ -649,7 +724,7 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || !interviewStarted || interviewFinished || isTyping}
-                  className="absolute right-2.5 bottom-3 px-3.5 py-2 rounded-lg bg-amber-400 text-amber-950 font-mono font-extrabold uppercase hover:bg-amber-300 border border-amber-500 shadow-sm disabled:opacity-50 transition-all flex items-center gap-1 text-xs"
+                  className="absolute right-2.5 bottom-3 px-3.5 py-2 rounded-lg bg-amber-400 text-amber-950 font-mono font-extrabold uppercase hover:bg-amber-300 border border-amber-500 shadow-sm disabled:opacity-50 transition-all flex items-center gap-1 text-xs cursor-pointer"
                 >
                   <Send size={14} />
                 </button>
@@ -659,7 +734,7 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
             <div className="text-center mt-2 flex items-center justify-between text-[10px] font-mono font-bold text-corp-text-tertiary px-2">
               <span>Press Enter to submit response</span>
               <span className="flex items-center gap-1 text-emerald-500">
-                <ShieldCheck size={12} /> AI WebCam Proctor &amp; Tab-Switch Lock Active
+                <ShieldCheck size={12} /> Dynamic AI Adaptation &amp; WebCam Proctor Active
               </span>
             </div>
           </div>
@@ -677,11 +752,11 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
                 <Camera size={13} className="text-amber-400 animate-pulse" /> AI WebCam Proctor
               </span>
               <span className={cameraActive ? "px-2 py-0.5 rounded text-[9px] font-black uppercase bg-emerald-500 text-white" : "px-2 py-0.5 rounded text-[9px] font-black uppercase bg-amber-500 text-amber-950"}>
-                {cameraActive ? (isSimulatedCamera ? "AI SIMULATED" : "LIVE CAMERA") : "SCANNER STANDBY"}
+                {cameraActive ? (isSimulatedCamera ? "AI VISION MATRIX" : "LIVE WEBCAM") : "SCANNER STANDBY"}
               </span>
             </div>
 
-            <div className="w-full h-36 rounded-xl bg-slate-900 border-2 border-slate-700 overflow-hidden relative flex items-center justify-center">
+            <div className="w-full h-40 rounded-xl bg-slate-900 border-2 border-slate-700 overflow-hidden relative flex items-center justify-center">
               {/* Real Physical WebCam Stream */}
               <video
                 ref={videoRef}
@@ -690,18 +765,50 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
                 muted
                 className={cn(
                   "w-full h-full object-cover transform -scale-x-100 transition-opacity duration-300",
-                  cameraActive && !isSimulatedCamera ? "opacity-100" : "opacity-0 absolute inset-0"
+                  cameraActive && !isSimulatedCamera ? "opacity-100" : "opacity-0 absolute inset-0 pointer-events-none"
                 )}
               />
 
-              {/* AI Vision Simulated Avatar HUD (Active if Camera Permission is Denied/Blocked) */}
-              {cameraActive && isSimulatedCamera && (
-                <div className="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center p-2 text-center space-y-1">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-emerald-400 animate-pulse">
-                    <UserCheck size={24} />
+              {/* Hardware Video Cybernetic HUD Overlay */}
+              {cameraActive && !isSimulatedCamera && (
+                <div className="absolute inset-0 pointer-events-none p-2 flex flex-col justify-between">
+                  <div className="flex justify-between items-center text-[9px] font-mono text-emerald-400 bg-black/60 px-2 py-0.5 rounded">
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" /> REC LIVE
+                    </span>
+                    <span>1080P PROCTOR</span>
                   </div>
-                  <span className="text-[10px] font-extrabold text-emerald-400">AI Vision Matrix Active</span>
-                  <span className="text-[9px] text-slate-400">Scanning Candidate Gaze &amp; Posture</span>
+                  {/* Face targeting frame */}
+                  <div className="w-24 h-24 mx-auto border-2 border-dashed border-emerald-400/70 rounded-lg flex items-center justify-center">
+                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  </div>
+                  <div className="text-[8px] font-mono text-center text-emerald-300 bg-black/60 rounded py-0.5">
+                    GAZE: {gazeStatus} · POSTURE: {postureStatus}
+                  </div>
+                </div>
+              )}
+
+              {/* AI Vision Matrix HUD (Active if Camera Permission is Denied/Blocked or Simulated) */}
+              {cameraActive && isSimulatedCamera && (
+                <div className="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center p-3 text-center space-y-1.5 overflow-hidden">
+                  {/* Scanline Animation */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-500/10 to-transparent animate-pulse pointer-events-none" />
+
+                  <div className="relative">
+                    <div className="w-14 h-14 rounded-full bg-emerald-500/15 border-2 border-emerald-400 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                      <UserCheck size={28} className="animate-pulse" />
+                    </div>
+                    <span className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 border border-slate-900 animate-ping" />
+                  </div>
+
+                  <div className="space-y-0.5 z-10">
+                    <span className="text-[10px] font-black text-emerald-400 uppercase tracking-wider block">
+                      AI Vision Matrix Active
+                    </span>
+                    <span className="text-[9px] text-slate-300 font-mono">
+                      Face &amp; Gaze Tracking Online
+                    </span>
+                  </div>
                 </div>
               )}
 
@@ -713,34 +820,50 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
                   </div>
 
                   <p className="text-[10px] font-bold text-emerald-300">
-                    {cameraLoading ? "Requesting Camera Access..." : (cameraErrorMessage || "AI Vision Proctor Ready")}
+                    {cameraLoading ? "Connecting Camera Stream..." : (cameraErrorMessage || "AI Vision Proctor Ready")}
                   </p>
 
                   <div className="flex flex-col gap-1.5 pt-1">
                     <button
                       onClick={startCamera}
                       disabled={cameraLoading}
-                      className="w-full py-1.5 rounded-lg bg-[#2563eb] text-white text-[10px] font-extrabold uppercase border border-blue-400 hover:bg-blue-600 transition-all flex items-center justify-center gap-1 shadow-md disabled:opacity-50"
+                      className="w-full py-1.5 rounded-lg bg-[#2563eb] text-white text-[10px] font-extrabold uppercase border border-blue-400 hover:bg-blue-600 transition-all flex items-center justify-center gap-1 shadow-md disabled:opacity-50 cursor-pointer"
                     >
                       <Video size={12} /> {cameraLoading ? "Connecting..." : "Enable WebCam Hardware"}
                     </button>
 
                     <button
                       onClick={enableSimulatedCamera}
-                      className="w-full py-1 rounded-lg bg-emerald-700/60 text-emerald-200 text-[9px] font-bold uppercase border border-emerald-500/50 hover:bg-emerald-600 transition-all"
+                      className="w-full py-1 rounded-lg bg-emerald-700/60 text-emerald-200 text-[9px] font-bold uppercase border border-emerald-500/50 hover:bg-emerald-600 transition-all cursor-pointer"
                     >
-                      Use AI Simulated Vision
+                      Use AI Vision Matrix
                     </button>
                   </div>
                 </div>
               )}
-
-              {cameraActive && (
-                <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/70 text-[9px] font-bold text-emerald-400 border border-emerald-400/50 flex items-center gap-1 z-20">
-                  <UserCheck size={10} /> Face Tracking Verified
-                </div>
-              )}
             </div>
+
+            {/* Camera Mode Toggles (Allow switching anytime) */}
+            {cameraActive && (
+              <div className="flex items-center gap-2 pt-1">
+                {isSimulatedCamera ? (
+                  <button
+                    onClick={startCamera}
+                    disabled={cameraLoading}
+                    className="flex-1 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[9px] font-black uppercase transition-all flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <Video size={11} /> Connect Hardware Cam
+                  </button>
+                ) : (
+                  <button
+                    onClick={enableSimulatedCamera}
+                    className="flex-1 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 text-[9px] font-black uppercase transition-all flex items-center justify-center gap-1 border border-slate-700 cursor-pointer"
+                  >
+                    <UserCheck size={11} /> Switch to AI Vision
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Proctoring HUD Metrics */}
             <div className="grid grid-cols-2 gap-2 text-[10px] font-bold">
@@ -762,16 +885,19 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
           {/* Progress */}
           <div className="p-4 border-b-2 border-corp-border space-y-1 flex-shrink-0">
             <h3 className="text-xs font-extrabold uppercase text-corp-text-tertiary">
-              Assessment Progress
+              Adaptive Interview Progress
             </h3>
             <p className="text-xl font-black text-[#2563eb]">
-              {Math.max(0, currentQuestionIdx + 1)} <span className="text-xs font-bold text-corp-text-tertiary">/ {scenario.questions.length} Scenarios</span>
+              Round {Math.min(currentRound, 5)} <span className="text-xs font-bold text-corp-text-tertiary">/ 5 Rounds</span>
+            </p>
+            <p className="text-[10px] font-bold text-corp-text-secondary truncate">
+              Stage: {currentStageName}
             </p>
           </div>
 
           {/* STAR Metrics Checklist */}
           <div className="p-4 space-y-3 flex-shrink-0">
-            <h4 className="text-xs font-extrabold uppercase text-corp-text">STAR Rigor Checklist</h4>
+            <h4 className="text-xs font-extrabold uppercase text-corp-text">STAR Evaluation Dimensions</h4>
             <ul className="space-y-2 text-xs font-bold text-corp-text-secondary">
               <li className="flex items-center gap-2">
                 <CheckCircle2 size={13} className="text-[#2563eb]" /> Situation &amp; Context (/25)
@@ -791,14 +917,14 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
               <div className="pt-3 border-t border-corp-border space-y-2">
                 <button
                   onClick={() => finishInterview()}
-                  className="w-full py-2.5 rounded-xl text-xs font-mono font-extrabold uppercase bg-rose-600 hover:bg-rose-700 text-white border-2 border-rose-400 shadow-[2px_2px_0px_0px_#881337] transition-all flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 rounded-xl text-xs font-mono font-extrabold uppercase bg-rose-600 hover:bg-rose-700 text-white border-2 border-rose-400 shadow-[2px_2px_0px_0px_#881337] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  <Trophy size={14} /> End &amp; Score Now
+                  <Trophy size={14} /> Conclude &amp; Scorecard
                 </button>
               </div>
             )}
 
-            {/* Assessment Complete Card with Close & Scorecard Buttons */}
+            {/* Assessment Complete Card */}
             {interviewFinished && (
               <div className="mt-3 p-4 rounded-xl bg-amber-400/20 border-2 border-amber-400 text-center space-y-3 shadow-md">
                 <Award size={32} className="mx-auto text-amber-500" />
@@ -814,14 +940,14 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
                 <div className="space-y-2 pt-1">
                   <button
                     onClick={() => setShowScorecardModal(true)}
-                    className="w-full py-2 rounded-xl bg-amber-400 text-amber-950 text-xs font-mono font-extrabold uppercase border border-amber-500 shadow-sm hover:bg-amber-300 transition-all flex items-center justify-center gap-1.5"
+                    className="w-full py-2 rounded-xl bg-amber-400 text-amber-950 text-xs font-mono font-extrabold uppercase border border-amber-500 shadow-sm hover:bg-amber-300 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Award size={14} /> View Scorecard
                   </button>
 
                   <button
                     onClick={handleExitInterview}
-                    className="w-full py-2 rounded-xl bg-slate-900 text-white text-xs font-mono font-extrabold uppercase border border-slate-700 shadow-sm hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5"
+                    className="w-full py-2 rounded-xl bg-slate-900 text-white text-xs font-mono font-extrabold uppercase border border-slate-700 shadow-sm hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <LogOut size={14} /> Close &amp; Return to Hub
                   </button>
@@ -832,7 +958,7 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
         </div>
       </div>
 
-      {/* ── Executive Performance Scorecard Modal (FIXED 100% VISIBLE SCREEN FIT & SCROLLING) ── */}
+      {/* ── Executive Performance Scorecard Modal ── */}
       <AnimatePresence>
         {showScorecardModal && finalScorecard && (
           <motion.div
@@ -863,7 +989,7 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
                     {scenario.role} Simulation
                   </h2>
                   <p className="text-xs font-bold text-amber-300">
-                    Evaluated for {scenario.company}
+                    Evaluated for {scenario.company} ({finalScorecard.roundsCompleted} Adaptive Rounds)
                   </p>
                 </div>
 
@@ -952,7 +1078,7 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/80 border border-emerald-400/60">
                   <ShieldCheck size={16} className="text-emerald-400" />
                   <span className="text-xs font-black text-emerald-400">
-                    {finalScorecard.overallScore > 0 ? "+150 XP Credited" : "0 XP (Terminated Early)"}
+                    {finalScorecard.overallScore > 0 ? "Verified Credential Recorded" : "Incomplete (Terminated Early)"}
                   </span>
                 </div>
 
@@ -965,7 +1091,7 @@ ${!isLast ? `\n**Next Probing Question:** "${scenario.questions[nextIdx]}"` : ""
                   </Link>
                   <button
                     onClick={handleExitInterview}
-                    className="px-4 py-2.5 rounded-xl text-xs font-black uppercase bg-amber-400 text-amber-950 border-2 border-amber-500 shadow-[2px_2px_0px_0px_#78350f]"
+                    className="px-4 py-2.5 rounded-xl text-xs font-black uppercase bg-amber-400 text-amber-950 border-2 border-amber-500 shadow-[2px_2px_0px_0px_#78350f] cursor-pointer"
                   >
                     Exit to Hub
                   </button>

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useUser } from "@/components/providers/user-context";
 import { cn } from "@/lib/utils";
+import { shuffleArray } from "@/lib/id";
 
 // ─── Question Bank ────────────────────────────────────────────────────────────
 
@@ -342,7 +343,7 @@ function OptionButton({
 // ─── Main Modal ───────────────────────────────────────────────────────────────
 
 export function DailyDrillModal({ isOpen, onClose, isCompletedToday }: DailyDrillModalProps) {
-  const { addXP, addNotification, completeChallenge, state } = useUser();
+  const { addNotification, completeChallenge, state } = useUser();
 
   const [activeQuestions, setActiveQuestions] = useState<DrillQuestion[]>(DRILL_QUESTIONS.slice(0, 3));
   const [phase, setPhase] = useState<DrillPhase>("intro");
@@ -359,7 +360,7 @@ export function DailyDrillModal({ isOpen, onClose, isCompletedToday }: DailyDril
   // Reset & pick 3 random questions on open
   useEffect(() => {
     if (isOpen) {
-      const shuffled = [...DRILL_QUESTIONS].sort(() => 0.5 - Math.random());
+      const shuffled = shuffleArray(DRILL_QUESTIONS);
       setActiveQuestions(shuffled.slice(0, 3));
       setPhase("intro");
       setCurrentQ(0);
@@ -439,17 +440,17 @@ export function DailyDrillModal({ isOpen, onClose, isCompletedToday }: DailyDril
     setTimeBonus(bonus);
     setXpEarned(total);
 
-    // Award XP and update global state (uses completeChallenge to prevent double-award)
+    // Update global state (uses completeChallenge to prevent double-award)
     const todayKey = `${DRILL_ID}-${new Date().toISOString().split("T")[0]}`;
     if (!state.completedChallengeIds.includes(todayKey)) {
-      completeChallenge(todayKey, total, "5-Minute Corporate Skill Rapid Drill ⚡");
+      completeChallenge(todayKey, "5-Minute Corporate Skill Rapid Drill");
     }
 
     // Send notification
     addNotification({
       type: "achievement",
-      title: `⚡ Daily Drill Complete! +${total} XP`,
-      message: `You scored ${finalScore}% on the Corporate Skill Rapid Drill${correct === activeQuestions.length ? " — Perfect score! 🏆" : ""}`,
+      title: "Daily Drill Complete",
+      message: `You scored ${finalScore}% on the Corporate Skill Rapid Drill${correct === activeQuestions.length ? " — Perfect score!" : ""}`,
     });
 
     setPhase("results");
@@ -499,7 +500,7 @@ export function DailyDrillModal({ isOpen, onClose, isCompletedToday }: DailyDril
                     Daily Drill
                   </span>
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                    <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/26a1/512.webp" alt="⚡" width={14} height={14} className="object-contain" /> +{DRILL_XP_REWARD} XP
+                    <Zap size={14} className="text-amber-500 fill-amber-500" /> +{DRILL_XP_REWARD} XP
                   </span>
                   {isCompletedToday && (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
@@ -745,7 +746,7 @@ export function DailyDrillModal({ isOpen, onClose, isCompletedToday }: DailyDril
                 </motion.div>
                 <div>
                   <h2 className="text-2xl font-extrabold" style={{ color: "var(--corp-text)" }}>
-                    {score === 100 ? "🏆 Perfect Score!" : score >= 67 ? "⚡ Great Work!" : "📚 Keep Practicing!"}
+                    {score === 100 ? "Perfect Score!" : score >= 67 ? "Great Work!" : "Keep Practicing!"}
                   </h2>
                   <p className="text-sm mt-1" style={{ color: "var(--corp-text-secondary)" }}>Daily Drill Complete</p>
                 </div>

@@ -19,7 +19,7 @@ interface CvFitModalProps {
 }
 
 export function CvFitModal({ isOpen, job, onClose }: CvFitModalProps) {
-  const { state, addXP, addNotification } = useUser();
+  const { state, addNotification } = useUser();
 
   const passportProfile: any = state.passportProfile || {};
   const [customDegree, setCustomDegree] = useState<string>(
@@ -52,24 +52,17 @@ export function CvFitModal({ isOpen, job, onClose }: CvFitModalProps) {
   const jobGrade = isGov ? `Grade ${(job as GovJob).grade}` : (job as JobListing).experienceLevel;
   const requirementsText = isGov ? (job as GovJob).requirements : (job as JobListing).requirements.join(". ");
 
-  const userXp = state.xp;
-  const hasEnoughXp = userXp >= 10;
-
   const handleRunAnalysis = (e?: React.MouseEvent) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-    if (!hasEnoughXp) return;
 
     // Parse user skills
     const skillsArray = customSkillsInput
       .split(",")
       .map((s) => s.trim())
       .filter((s) => s.length > 0);
-
-    // Deduct 10 XP
-    addXP(-10, `CV Fit Check: ${jobTitle} (${companyName})`);
 
     // Normalize mock GovJob for analysis if corporate
     const govJobForAnalysis: GovJob = isGov
@@ -174,29 +167,14 @@ export function CvFitModal({ isOpen, job, onClose }: CvFitModalProps) {
             {/* 1. INITIAL MISSING DATA INPUT / XP CHECK FORM */}
             {!isAnalyzed ? (
               <div className="space-y-4">
-                {/* XP Balance Indicator */}
-                <div
-                  className={`p-4 rounded-md border-2 flex items-center justify-between font-mono text-xs ${
-                    hasEnoughXp ? "border-blue-400 bg-corp-bg-secondary" : "border-rose-500 bg-rose-500/10 text-rose-600"
-                  }`}
-                >
+                {/* Verification & Analysis Banner */}
+                <div className="p-4 rounded-md border-2 border-blue-400 bg-corp-bg-secondary flex items-center justify-between font-mono text-xs">
                   <div className="flex items-center gap-2">
-                    <Coins className="w-4 h-4 text-amber-500" />
-                    <span>Your XP Balance: <strong className="font-black text-sm">{userXp} XP</strong></span>
+                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                    <span>Candidate Standing: <strong className="font-black text-sm text-emerald-600">Verified Candidate</strong></span>
                   </div>
-                  {hasEnoughXp ? (
-                    <span className="text-[10px] font-black uppercase text-[#2563eb]">Sufficient XP</span>
-                  ) : (
-                    <span className="text-[10px] font-black uppercase text-rose-600">Need 10 XP</span>
-                  )}
+                  <span className="text-[10px] font-black uppercase text-[#2563eb]">Unlimited AI Audits</span>
                 </div>
-
-                {!hasEnoughXp && (
-                  <div className="p-3 rounded-md border-2 border-rose-500 bg-rose-500/10 text-rose-600 text-xs font-sans">
-                    <AlertCircle className="w-4 h-4 inline mr-1" />
-                    You need at least 10 XP to run a CV Fit Check. Claim your daily check-in or complete quests to earn XP!
-                  </div>
-                )}
 
                 {/* Profile Data Inputs */}
                 <div className="p-5 rounded-md border-2 border-blue-400 space-y-4 bg-corp-bg-secondary">
@@ -255,13 +233,10 @@ export function CvFitModal({ isOpen, job, onClose }: CvFitModalProps) {
                   </button>
                   <button
                     type="button"
-                    disabled={!hasEnoughXp}
                     onClick={handleRunAnalysis}
-                    className={`px-6 py-2.5 rounded-md text-xs font-black uppercase text-white border-2 border-blue-300 shadow-[3px_3px_0px_0px_#1e3a8a] transition-all flex items-center gap-1.5 cursor-pointer ${
-                      hasEnoughXp ? "bg-[#2563eb] hover:bg-[#1d4ed8]" : "bg-slate-400 cursor-not-allowed opacity-60"
-                    }`}
+                    className="px-6 py-2.5 rounded-md text-xs font-black uppercase text-white border-2 border-blue-300 shadow-[3px_3px_0px_0px_#1e3a8a] transition-all flex items-center gap-1.5 cursor-pointer bg-[#2563eb] hover:bg-[#1d4ed8]"
                   >
-                    <span>Execute Fit Analysis (-10 XP)</span>
+                    <span>Execute Fit Analysis</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>

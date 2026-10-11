@@ -5,77 +5,45 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  LayoutDashboard, BookOpen, FileText, ClipboardList, X,
-  Award, Users, Trophy, Flame, Settings, HelpCircle,
-  Briefcase, Calendar, Sun, Moon, LogOut, Compass, Mic, Zap,
-  Presentation, Layers, Crown, ChevronRight
+  LayoutDashboard, BookOpen, ClipboardList, FileText, Briefcase,
+  X, Award, Settings, HelpCircle, Sun, Moon, LogOut, Mic, Zap, Target, Layers
 } from "lucide-react";
 import { useTheme } from "@/components/providers/theme-provider";
 import { useUser } from "@/components/providers/user-context";
 import { useAuth } from "@/components/providers/auth-provider";
-import { getRankInfo, RankBadge } from "@/components/ui/rank-badge";
 
 const FIRE_EMOJI_URL = "https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.webp";
 
+// 5 Canonical Pillars per Section 2 of the Supermassive Implementation Plan
 const primaryTabs = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: BookOpen,        label: "Learn",     href: "/learn" },
-  { icon: Layers,          label: "Courses",   href: "/courses" },
-  { icon: FileText,        label: "Passport",  href: "/career-passport" },
+  { icon: ClipboardList,   label: "Evaluate",  href: "/evaluate" },
+  { icon: FileText,        label: "Passport",  href: "/passport" },
+  { icon: Briefcase,       label: "Jobs",      href: "/opportunities" },
 ];
 
 function buildMobileCommandSections() {
   return [
     {
-      label: "Overview & Growth",
+      label: "Applied Practice & Tools",
       items: [
-        { icon: LayoutDashboard, label: "Dashboard & Roadmap",  href: "/dashboard" },
-        { icon: Crown,           label: "INSYT Pro Pass",       href: "/subscription" },
-      ],
-    },
-    {
-      label: "Academy & Skills",
-      items: [
-        { icon: BookOpen,      label: "Learning Tracks",   href: "/learn" },
-        { icon: Layers,        label: "Individual Courses", href: "/courses" },
-        { icon: Award,         label: "Certificates",       href: "/certificates" },
-      ],
-    },
-    {
-      label: "Career Studio",
-      items: [
-        { icon: FileText,  label: "Career Passport",  href: "/career-passport" },
-        { icon: Mic,       label: "AI Mock Interviews", href: "/mock-interviews" },
-        { icon: Briefcase, label: "Jobs & Circulars",  href: "/jobs" },
-      ],
-    },
-    {
-      label: "Practice & Rankings",
-      items: [
-        { icon: ClipboardList, label: "Practice Tests",  href: "/mock-tests" },
-        { icon: Zap,           label: "Skill Challenges", href: "/challenges" },
-        { icon: Trophy,        label: "Leaderboard",      href: "/leaderboard" },
-      ],
-    },
-    {
-      label: "Events & Guidance",
-      items: [
-        { icon: Calendar,     label: "Events & Competitions", href: "/events" },
-        { icon: Presentation, label: "Live Workshops",        href: "/workshops" },
-        { icon: Compass,      label: "Career Blueprint Hub",  href: "/career-hub" },
+        { icon: Mic,    label: "AI Mock Interviews",  href: "/mock-interviews" },
+        { icon: Target, label: "Career Strategy Hub", href: "/career-hub" },
+        { icon: Zap,    label: "Case Challenges",     href: "/challenges" },
+        { icon: Award,  label: "Verified Credentials", href: "/certificates" },
       ],
     },
   ];
 }
 
 const utilityItems = [
-  { icon: Settings,   label: "Settings",       href: "/settings" },
-  { icon: HelpCircle, label: "Help & Support", href: "/help" },
+  { icon: HelpCircle, label: "Help Center", href: "/help" },
 ];
 
 export function MobileBottomNav() {
-  const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const { state } = useUser();
   const { logout } = useAuth();
@@ -83,28 +51,50 @@ export function MobileBottomNav() {
   const commandSections = useMemo(() => buildMobileCommandSections(), []);
 
   const isActive = (href: string) => {
-    if (href === "/dashboard") return pathname === "/dashboard";
+    if (href === "/mock-interviews") {
+      return pathname === "/mock-interviews" || pathname.startsWith("/mock-interviews/") || pathname === "/evaluate/interviews" || pathname.startsWith("/evaluate/interviews/");
+    }
+    if (href === "/cockpit" || href === "/dashboard") {
+      return pathname === "/dashboard" || pathname === "/cockpit";
+    }
+    if (href === "/prepare" || href === "/learn") {
+      return pathname === "/prepare" || pathname.startsWith("/prepare/") || pathname === "/learn" || pathname.startsWith("/learn/");
+    }
+    if (href === "/evaluate" || href === "/mock-tests") {
+      if (pathname.startsWith("/mock-interviews") || pathname.startsWith("/evaluate/interviews")) {
+        return false;
+      }
+      return pathname === "/evaluate" || pathname === "/mock-tests" || pathname.startsWith("/mock-tests/");
+    }
+    if (href === "/passport" || href === "/career-passport") {
+      return pathname === "/passport" || pathname.startsWith("/passport/") || pathname === "/career-passport" || pathname.startsWith("/career-passport/");
+    }
+    if (href === "/opportunities" || href === "/jobs") {
+      return pathname === "/opportunities" || pathname.startsWith("/opportunities/") || pathname === "/jobs" || pathname.startsWith("/jobs/");
+    }
     return pathname === href || pathname.startsWith(href + "/");
   };
 
-  const { current: rankData } = getRankInfo(state.xp);
-
   return (
     <>
-      {/* ─── Floating Bottom Navigation Pill ─── */}
+      {/* ─── Bottom Navigation Bar (Mobile Only) ─── */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-center font-mono"
-        style={{ paddingBottom: "calc(8px + env(safe-area-inset-bottom, 0px))", paddingTop: "6px" }}
+        className="md:hidden fixed bottom-0 inset-x-0 z-50 font-mono border-t-2 select-none"
+        style={{
+          background: "var(--corp-surface)",
+          borderColor: "var(--corp-border)",
+          boxShadow: "0 -4px 16px rgba(0,0,0,0.12)",
+        }}
+        aria-label="Mobile Navigation"
       >
         <div
-          className="flex items-center justify-around px-2 mx-4 w-full max-w-md rounded-sm border-2 border-corp-border shadow-2xl"
+          className="flex items-center justify-around px-1"
           style={{
-            background: "var(--corp-surface)",
-            height: "60px",
-            boxShadow: "0 8px 30px rgba(0,0,0,0.25), 0 4px 10px rgba(37,99,235,0.15)",
+            height: "calc(3.75rem + env(safe-area-inset-bottom, 0px))",
+            paddingBottom: "env(safe-area-inset-bottom, 0px)",
           }}
         >
-          {/* 4 Primary Navigation Tabs */}
+          {/* 5 Canonical Navigation Tabs */}
           {primaryTabs.map((item) => {
             const active = isActive(item.href);
             const Icon = item.icon;
@@ -112,46 +102,40 @@ export function MobileBottomNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center justify-center flex-1 h-full text-[10px] font-black uppercase transition-all min-h-[44px] ${
+                className={`flex flex-col items-center justify-center flex-1 h-full text-[9px] font-black uppercase transition-all min-h-[44px] ${
                   active ? "text-[#2563eb]" : "text-corp-text-tertiary"
                 }`}
               >
                 <div
-                  className={`flex items-center justify-center w-9 h-9 rounded-xl transition-all ${
+                  className={`flex items-center justify-center w-8 h-8 rounded-xl transition-all ${
                     active ? "bg-[#2563eb] text-white border border-blue-400 shadow-[2px_2px_0px_0px_#1e3a8a]" : ""
                   }`}
                 >
-                  <Icon size={18} style={{ color: active ? "#fff" : "inherit" }} />
+                  <Icon size={16} style={{ color: active ? "#fff" : "inherit" }} />
                 </div>
-                <span className="text-[9px] font-black mt-0.5">{item.label}</span>
+                <span className="text-[8.5px] font-black mt-0.5 tracking-tight truncate max-w-[58px]">
+                  {item.label}
+                </span>
               </Link>
             );
           })}
 
-          {/* "More" Command Drawer Trigger */}
+          {/* Contextual Drawer Button */}
           <button
             onClick={() => setDrawerOpen(true)}
-            className={`flex flex-col items-center justify-center flex-1 h-full text-[10px] font-black uppercase transition-all min-h-[44px] ${
+            className={`flex flex-col items-center justify-center w-10 h-full text-[9px] font-black uppercase transition-all min-h-[44px] ${
               drawerOpen ? "text-[#2563eb]" : "text-corp-text-tertiary"
             }`}
+            aria-label="Open More Menu"
           >
             <div
-              className={`flex items-center justify-center w-9 h-9 rounded-xl transition-all ${
+              className={`flex items-center justify-center w-8 h-8 rounded-xl transition-all ${
                 drawerOpen ? "bg-[#2563eb] text-white border border-blue-400 shadow-[2px_2px_0px_0px_#1e3a8a]" : ""
               }`}
             >
-              <div className="flex flex-col gap-1 items-center justify-center">
-                <div className="flex gap-1">
-                  <div className="w-1 h-1 rounded-full" style={{ background: drawerOpen ? "#fff" : "currentColor" }} />
-                  <div className="w-1 h-1 rounded-full" style={{ background: drawerOpen ? "#fff" : "currentColor" }} />
-                </div>
-                <div className="flex gap-1">
-                  <div className="w-1 h-1 rounded-full" style={{ background: drawerOpen ? "#fff" : "currentColor" }} />
-                  <div className="w-1 h-1 rounded-full" style={{ background: drawerOpen ? "#fff" : "currentColor" }} />
-                </div>
-              </div>
+              <Layers size={16} />
             </div>
-            <span className="text-[9px] font-black mt-0.5">More</span>
+            <span className="text-[8.5px] font-black mt-0.5">More</span>
           </button>
         </div>
       </nav>
@@ -190,11 +174,11 @@ export function MobileBottomNav() {
                 <div className="w-12 h-1 rounded-full mx-auto mb-3 bg-corp-border" />
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-black uppercase text-corp-text flex items-center gap-2">
-                    <Layers size={16} className="text-[#2563eb]" /> Navigation &amp; Features
+                    <Layers size={16} className="text-[#2563eb]" /> Secondary Practice &amp; Account
                   </h2>
                   <button
                     onClick={() => setDrawerOpen(false)}
-                    className="p-1.5 rounded-xl bg-corp-surface hover:bg-corp-bg-secondary text-corp-text-secondary border border-corp-border min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    className="p-1.5 rounded-xl bg-corp-surface hover:bg-corp-bg-secondary text-corp-text-secondary border border-corp-border min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
                   >
                     <X size={16} />
                   </button>
@@ -203,25 +187,30 @@ export function MobileBottomNav() {
 
               {/* User Profile Summary Card inside Drawer */}
               <div
-                className="flex-shrink-0 mx-4 my-3 p-3.5 rounded-xl border-2 border-corp-border bg-corp-bg-secondary flex items-center justify-between gap-3 shadow-sm"
+                className="mx-4 mt-4 p-4 rounded-2xl border-2 flex items-center justify-between shadow-sm bg-corp-bg-secondary"
+                style={{ borderColor: "var(--corp-border)" }}
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-black text-xs border border-white/30"
-                    style={{ background: rankData.gradient }}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black text-white flex-shrink-0 border-2 border-blue-400 bg-[#2563eb] overflow-hidden"
                   >
-                    <RankBadge rank={rankData} size="xs" />
+                    {state.passportProfile?.photoUrl ? (
+                      <img
+                        src={state.passportProfile.photoUrl}
+                        alt={state.name || "Candidate"}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      state.name ? state.name.substring(0, 2).toUpperCase() : "EX"
+                    )}
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-black uppercase text-corp-text truncate">
-                      {state.name}
+                      {state.name || "Executive Candidate"}
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] font-black uppercase text-[#2563eb]">
-                        {rankData.name} Rank
-                      </span>
-                      <span className="text-[10px] font-bold text-amber-500 flex items-center gap-0.5">
-                        <Zap size={11} className="fill-amber-500" /> {state.xp.toLocaleString()} XP
+                      <span className="text-[10px] font-black uppercase text-emerald-600 bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.5 rounded">
+                        Corporate Scholar
                       </span>
                     </div>
                   </div>
@@ -236,7 +225,7 @@ export function MobileBottomNav() {
               </div>
 
               {/* Scrollable Command Sections */}
-              <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-6 space-y-5">
+              <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-6 space-y-5 pt-4">
                 {commandSections.map((section) => (
                   <div key={section.label} className="space-y-2">
                     <p className="text-[10px] font-black uppercase tracking-wider text-corp-text-tertiary px-1">
@@ -266,7 +255,7 @@ export function MobileBottomNav() {
                   </div>
                 ))}
 
-                {/* Utilities */}
+                {/* Preferences & Utilities */}
                 <div className="space-y-2 pt-2 border-t-2 border-corp-border">
                   <p className="text-[10px] font-black uppercase tracking-wider text-corp-text-tertiary px-1">
                     Preferences &amp; Account
@@ -293,7 +282,7 @@ export function MobileBottomNav() {
                     })}
                     <button
                       onClick={toggleTheme}
-                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-black uppercase transition-all border-2 border-corp-border bg-corp-bg-secondary text-corp-text hover:bg-corp-surface active:scale-95 min-h-[44px]"
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-black uppercase transition-all border-2 border-corp-border bg-corp-bg-secondary text-corp-text hover:bg-corp-surface active:scale-95 min-h-[44px] cursor-pointer"
                     >
                       {theme === "dark"
                         ? <Sun size={15} className="text-amber-400 fill-amber-400" />
@@ -302,7 +291,7 @@ export function MobileBottomNav() {
                     </button>
                     <button
                       onClick={() => { setDrawerOpen(false); logout(); }}
-                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-black uppercase transition-all border-2 border-rose-500/40 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 active:scale-95 min-h-[44px]"
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-black uppercase transition-all border-2 border-rose-500/40 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 active:scale-95 min-h-[44px] cursor-pointer"
                     >
                       <LogOut size={15} />
                       <span>Sign Out</span>

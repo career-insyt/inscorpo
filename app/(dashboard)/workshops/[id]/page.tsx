@@ -10,24 +10,58 @@ import {
 } from "lucide-react";
 import { useUser } from "@/components/providers/user-context";
 import { useAuth } from "@/components/providers/auth-provider";
-import { fetchUserWorkshopBookings } from "@/lib/db";
-import { WORKSHOPS_DATA, getWorkshopById, WorkshopDetail, normalizeWorkshopId } from "@/lib/data/workshops";
+import { fetchUserWorkshopBookings, fetchWorkshops } from "@/lib/db";
+import { WorkshopDetail, normalizeWorkshopId } from "@/lib/data/workshops";
 import { WorkshopRegistrationModal } from "@/components/workshops/workshop-registration-modal";
 import Link from "next/link";
 
 const container = { hidden: {}, visible: { transition: { staggerChildren: 0.05 } } };
 const item = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3 } } };
 
+function mapDbWorkshop(w: any): WorkshopDetail {
+  return {
+    id: w.$id || w.id || w.workshopId || "",
+    title: w.title || "Live Workshop",
+    tagline: w.description || w.tagline || "",
+    category: w.category || "Career & Skills",
+    level: (w.level as any) || "Intermediate",
+    date: w.date || "Upcoming",
+    time: w.time || "TBD",
+    duration: w.duration || "2.0 Hours",
+    status: w.status || "upcoming",
+    spotsRemaining: typeof w.spots === "number" ? w.spots : (w.spotsRemaining ?? 50),
+    totalCapacity: w.totalCapacity || 100,
+    xpReward: w.xpReward || 150,
+    examXpReward: w.examXpReward || 200,
+    hostOrg: w.host || w.hostOrg || "INSYT Live",
+    registrationUrl: w.registrationUrl || "",
+    instructor: {
+      name: w.instructorName || w.instructor?.name || w.host || "Instructor",
+      role: w.instructorRole || w.instructor?.role || "Mentor",
+      company: w.instructorCompany || w.instructor?.company || "INSYT",
+      avatar: w.instructorAvatar || w.instructor?.avatar || "",
+      bio: w.instructorBio || w.instructor?.bio || "",
+    },
+    venue: w.venue || "Online Live Session",
+    description: w.description || "",
+    agenda: Array.isArray(w.agenda) ? w.agenda : [],
+    learningOutcomes: Array.isArray(w.learningOutcomes) ? w.learningOutcomes : [],
+    credentialName: w.credentialName || (w.title ? `${w.title} Certificate` : "Workshop Credential"),
+    examQuestions: Array.isArray(w.examQuestions) ? w.examQuestions : [],
+  };
+}
+
 export default function IndividualWorkshopPage() {
   const params = useParams();
   const router = useRouter();
-  const { addXP, addNotification, state } = useUser();
+  const { addNotification, state } = useUser();
   const { user } = useAuth();
 
   const rawId = Array.isArray(params.id) ? params.id[0] : params.id;
-  const workshopId = typeof rawId === "string" ? normalizeWorkshopId(rawId) : "cv-writing-linkedin-hacks";
-  const workshop = getWorkshopById(workshopId) || WORKSHOPS_DATA[0];
+  const workshopId = typeof rawId === "string" ? normalizeWorkshopId(rawId) : "";
 
+  const [workshop, setWorkshop] = useState<WorkshopDetail | null>(null);
+  const [isLoadingWorkshop, setIsLoadingWorkshop] = useState(true);
   const [isRegistered, setIsRegistered] = useState(false);
   const [ticketCode, setTicketCode] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,9 +73,35 @@ export default function IndividualWorkshopPage() {
   const [examScore, setExamScore] = useState<number>(0);
   const [passedExam, setPassedExam] = useState(false);
 
+  // Fetch workshop from database
+  useEffect(() => {
+    async function loadWorkshop() {
+      if (!workshopId) {
+        setIsLoadingWorkshop(false);
+        return;
+      }
+      setIsLoadingWorkshop(true);
+      try {
+        const dbWorkshops = await fetchWorkshops();
+        const found = dbWorkshops.find((w: any) => (w.$id || w.id || w.workshopId) === workshopId);
+        if (found) {
+          setWorkshop(mapDbWorkshop(found));
+        } else {
+          setWorkshop(null);
+        }
+      } catch {
+        setWorkshop(null);
+      } finally {
+        setIsLoadingWorkshop(false);
+      }
+    }
+    loadWorkshop();
+  }, [workshopId]);
+
   // Check if user is registered for this workshop from Appwrite DB / Local state
   useEffect(() => {
     async function checkRegistration() {
+      if (!workshop) return;
       let booked = false;
       let code = "";
       if (user) {
@@ -49,14 +109,14 @@ export default function IndividualWorkshopPage() {
         const match = bookings.find((b: any) => normalizeWorkshopId(b.workshopId) === workshop.id);
         if (match) {
           booked = true;
-          code = match.ticketCode || `BAUBC-${workshop.id.substring(0, 4).toUpperCase()}-VERIFIED`;
+          code = match.ticketCode || `INSYT-${workshop.id.substring(0, 4).toUpperCase()}-VERIFIED`;
         }
       }
       try {
         const storedIds: string[] = JSON.parse(localStorage.getItem("insyt_booked_workshops") || "[]");
         if (storedIds.some((id) => normalizeWorkshopId(id) === workshop.id)) {
           booked = true;
-          if (!code) code = `BAUBC-${workshop.id.substring(0, 4).toUpperCase()}-VERIFIED`;
+          if (!code) code = `INSYT-${workshop.id.substring(0, 4).toUpperCase()}-VERIFIED`;
         }
       } catch {
         /* fallback */
@@ -68,15 +128,15 @@ export default function IndividualWorkshopPage() {
       }
     }
     checkRegistration();
-  }, [user, workshop.id]);
+  }, [user, workshop]);
 
   const handleOptionSelect = (questionId: number, optionIdx: number) => {
-    if (isExamSubmitted) return;
+    if (isExamSubmitted || !workshop) return;
     setUserAnswers((prev) => ({ ...prev, [questionId]: optionIdx }));
   };
 
   const handleExamSubmit = () => {
-    if (isExamSubmitted) return;
+    if (isExamSubmitted || !workshop || !workshop.examQuestions?.length) return;
 
     let correctCount = 0;
     workshop.examQuestions.forEach((q) => {
@@ -91,15 +151,11 @@ export default function IndividualWorkshopPage() {
 
     if (scorePercentage >= 70) {
       setPassedExam(true);
-      const alreadyClaimed = state.xpLogs.some((log) => log.reason.includes(`Passed exam for ${workshop.title}`));
-      if (!alreadyClaimed) {
-        addXP(workshop.examXpReward, `Passed exam for ${workshop.title}`);
-        addNotification({
-          type: "achievement",
-          title: "BAUBC Credential Unlocked!",
-          message: `Congratulations! You scored ${scorePercentage}% on the ${workshop.title} post-workshop exam. +${workshop.examXpReward} XP awarded!`,
-        });
-      }
+      addNotification({
+        type: "achievement",
+        title: "Credential Unlocked!",
+        message: `Congratulations! You scored ${scorePercentage}% on the ${workshop.title} post-workshop exam. Verified Credential Issued!`,
+      });
       setExamTab("credential");
     } else {
       setPassedExam(false);
@@ -112,6 +168,30 @@ export default function IndividualWorkshopPage() {
     setExamScore(0);
     setPassedExam(false);
   };
+
+  if (isLoadingWorkshop) {
+    return (
+      <div className="max-w-5xl mx-auto py-20 text-center font-mono">
+        <p className="text-xs font-extrabold text-corp-text-tertiary">Loading workshop details...</p>
+      </div>
+    );
+  }
+
+  if (!workshop) {
+    return (
+      <div className="max-w-5xl mx-auto py-20 text-center font-mono space-y-4">
+        <AlertCircle size={40} className="text-amber-500 mx-auto" />
+        <h2 className="text-lg font-black uppercase text-corp-text">Workshop Not Found</h2>
+        <p className="text-xs text-corp-text-secondary">This workshop may have ended or is no longer listed in the database.</p>
+        <Link
+          href="/workshops"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-mono font-extrabold uppercase bg-[#2563eb] text-white border-2 border-blue-400 shadow-[3px_3px_0px_0px_#1e3a8a]"
+        >
+          <ArrowLeft size={14} /> Back to Live Workshops
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -159,8 +239,8 @@ export default function IndividualWorkshopPage() {
               </span>
             </div>
 
-            <div className="px-3 py-1 rounded-md text-xs font-black uppercase bg-amber-400 text-amber-950 border border-amber-500 flex items-center gap-1.5">
-              <Sparkles size={14} /> +{workshop.xpReward} XP Reward
+            <div className="px-3 py-1 rounded-md text-xs font-black uppercase bg-emerald-400 text-emerald-950 border border-emerald-500 flex items-center gap-1.5">
+              <Award size={14} /> Verified Credential
             </div>
           </div>
 
@@ -231,7 +311,7 @@ export default function IndividualWorkshopPage() {
               : "text-corp-text border-corp-border bg-corp-surface hover:bg-corp-bg-secondary"
           }`}
         >
-          <HelpCircle size={14} /> Post-Workshop Exam (+{workshop.examXpReward} XP)
+          <HelpCircle size={14} /> Post-Workshop Exam (Credential Assessment)
         </button>
 
         {passedExam && (
@@ -488,7 +568,7 @@ export default function IndividualWorkshopPage() {
               <div className="bg-slate-950/80 border-2 border-amber-400 p-3 rounded-xl text-right flex-shrink-0 shadow-md">
                 <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest block">CREDENTIAL ID</span>
                 <span className="text-sm font-black text-white tracking-wider">
-                  {ticketCode || `BAUBC-MTO-${Math.floor(1000 + Math.random() * 9000)}-2026`}
+                  {ticketCode || `INSYT-CERT-${Math.floor(1000 + Math.random() * 9000)}-2026`}
                 </span>
               </div>
             </div>
@@ -508,8 +588,8 @@ export default function IndividualWorkshopPage() {
                 <span className="text-sm font-black text-emerald-400">{examScore}% PASSED ✓</span>
               </div>
               <div className="space-y-0.5">
-                <span className="text-[10px] font-black uppercase text-amber-300 tracking-wider block">XP Awarded</span>
-                <span className="text-sm font-black text-amber-300">+{workshop.examXpReward} XP</span>
+                <span className="text-[10px] font-black uppercase text-amber-300 tracking-wider block">Credential Standing</span>
+                <span className="text-sm font-black text-emerald-300">W3C Verified ✓</span>
               </div>
             </div>
 

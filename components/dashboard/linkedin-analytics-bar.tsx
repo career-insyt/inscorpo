@@ -24,17 +24,18 @@ export function LinkedInAnalyticsBar({
 
   const analyticsItems = [
     {
-      id: "xp",
-      emojiUrl: LIGHTNING_EMOJI_URL,
-      emojiAlt: "XP lightning",
-      accentColor: "#F59E0B",        // gold for XP
+      id: "readiness",
+      icon: <Award size={28} className="text-[#F59E0B]" />,
+      emojiUrl: null,
+      emojiAlt: "",
+      accentColor: "#F59E0B",
       bgColor: "rgba(245,158,11,0.08)",
       borderColor: "rgba(245,158,11,0.3)",
-      value: `${state.xp.toLocaleString()} XP`,
-      label: "Learning Velocity",
-      subtext: "Top 5% in Leaderboard",
-      onClick: onOpenXpModal,
-      href: "/leaderboard",
+      value: "94% Match",
+      label: "Recruiter Index",
+      subtext: "Top 5% Talent Pool",
+      onClick: undefined,
+      href: "/career-passport",
     },
     {
       id: "streak",

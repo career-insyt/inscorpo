@@ -56,7 +56,7 @@ export default function MockInterviewsHub() {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#2563eb]" />
           <input
             type="text"
-            placeholder="Search roles or companies (e.g., Unilever, MTO)..."
+            placeholder="Search roles or companies (e.g., Grameenphone, BRAC)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-mono font-extrabold outline-none border-2 border-blue-400 focus:border-[#2563eb] transition-all bg-corp-surface text-corp-text shadow-sm"

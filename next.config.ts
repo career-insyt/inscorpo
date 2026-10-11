@@ -12,7 +12,22 @@ const nextConfig: NextConfig = {
       "node-appwrite",
     ],
   },
-  // Security headers are also applied in middleware; this adds CSP
+  // Canonical route rewrites implementing Section 49 of the Supermassive Implementation Plan
+  async rewrites() {
+    return [
+      { source: "/cockpit", destination: "/dashboard" },
+      { source: "/prepare", destination: "/learn" },
+      { source: "/prepare/:path*", destination: "/learn/:path*" },
+      { source: "/evaluate", destination: "/mock-tests" },
+      { source: "/evaluate/interviews", destination: "/mock-interviews" },
+      { source: "/evaluate/interviews/:path*", destination: "/mock-interviews/:path*" },
+      { source: "/passport", destination: "/career-passport" },
+      { source: "/passport/:path*", destination: "/career-passport/:path*" },
+      { source: "/opportunities", destination: "/jobs" },
+      { source: "/opportunities/:path*", destination: "/jobs/:path*" },
+    ];
+  },
+  // Primary security headers are applied in middleware.ts / proxy.ts
   async headers() {
     return [
       {
@@ -21,10 +36,6 @@ const nextConfig: NextConfig = {
           {
             key: "X-DNS-Prefetch-Control",
             value: "on",
-          },
-          {
-            key: "X-XSS-Protection",
-            value: "1; mode=block",
           },
         ],
       },

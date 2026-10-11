@@ -6,13 +6,13 @@ import { Trophy, Star, Zap, Crown, Diamond, Flame, Award, ArrowRight } from "luc
 import Link from "next/link";
 
 const ranks = [
-  { name: "Bronze", xp: "0", icon: Award, color: "#CD7F32", bgColor: "rgba(205,127,50,0.08)", slug: "excel-corporate", desc: "Start your journey" },
-  { name: "Silver", xp: "2,500", icon: Star, color: "#A0AEC0", bgColor: "rgba(160,174,192,0.08)", slug: "corporate-mto", desc: "Build your foundation" },
-  { name: "Gold", xp: "7,500", icon: Trophy, color: "#D97706", bgColor: "rgba(217,119,6,0.08)", slug: "power-bi", desc: "Master core skills" },
-  { name: "Platinum", xp: "15,000", icon: Zap, color: "#6366F1", bgColor: "rgba(99,102,241,0.08)", slug: "ai-automation", desc: "Advanced expertise" },
-  { name: "Diamond", xp: "30,000", icon: Diamond, color: "#0891B2", bgColor: "rgba(8,145,178,0.08)", slug: "supply-chain", desc: "Executive level" },
-  { name: "Elite", xp: "50,000", icon: Flame, color: "#DC2626", bgColor: "rgba(220,38,38,0.08)", slug: "business-comm", desc: "Industry leader" },
-  { name: "Legend", xp: "100,000", icon: Crown, color: "#D97706", bgColor: "rgba(217,119,6,0.12)", slug: "project-management", desc: "Career legend" },
+  { name: "Bronze", xp: "0", icon: Award, color: "#CD7F32", bgColor: "rgba(205,127,50,0.08)", slug: "video-ai-production", desc: "Start your journey" },
+  { name: "Silver", xp: "2,500", icon: Star, color: "#A0AEC0", bgColor: "rgba(160,174,192,0.08)", slug: "presentation-engineering", desc: "Build your foundation" },
+  { name: "Gold", xp: "7,500", icon: Trophy, color: "#D97706", bgColor: "rgba(217,119,6,0.08)", slug: "ai-for-work", desc: "Master core skills" },
+  { name: "Platinum", xp: "15,000", icon: Zap, color: "#6366F1", bgColor: "rgba(99,102,241,0.08)", slug: "gre-preparation", desc: "Advanced expertise" },
+  { name: "Diamond", xp: "30,000", icon: Diamond, color: "#0891B2", bgColor: "rgba(8,145,178,0.08)", slug: "video-ai-production", desc: "Executive level" },
+  { name: "Elite", xp: "50,000", icon: Flame, color: "#DC2626", bgColor: "rgba(220,38,38,0.08)", slug: "ai-for-work", desc: "Industry leader" },
+  { name: "Legend", xp: "100,000", icon: Crown, color: "#D97706", bgColor: "rgba(217,119,6,0.12)", slug: "gre-preparation", desc: "Career legend" },
 ];
 
 export function CareerRoadmap() {

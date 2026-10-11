@@ -22,7 +22,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.reviews": "Company Reviews",
     "nav.pricing": "Pricing",
     "hero.title": "The Career Operating System",
-    "hero.subtitle": "Level up your career with INSYT Corporate. Master banking, MTO tracks, business analytics, corporate skills, and AI productivity.",
+    "hero.subtitle": "Level up your skills with INSYT Corporate. Master video editing, presentation engineering, AI productivity, and GRE preparation.",
     "hero.cta_start": "Start Free",
     "hero.cta_learn": "See How It Works",
     "jobs.title": "Corporate Job Board & Placements",
@@ -31,6 +31,7 @@ const translations: Record<Language, Record<string, string>> = {
     "drill.title": "5-Minute Corporate Skill Rapid Drill",
     "drill.start": "Start 5-Minute Drill",
     "passport.title": "Professional Identity & Career Passport",
+    "dashboard.welcome": "Welcome",
   },
   bn: {
     "nav.dashboard": "ড্যাশবোর্ড",
@@ -52,6 +53,7 @@ const translations: Record<Language, Record<string, string>> = {
     "drill.title": "৫-মিনিটের কর্পোরেট স্কিল র‍্যাপিড ড্রিল",
     "drill.start": "৫-মিনিটের ড্রিল শুরু করুন",
     "passport.title": "প্রফেশনাল আইডেন্টিটি ও ক্যারিয়ার পাসপোর্ট",
+    "dashboard.welcome": "স্বাগতম",
   },
 };
 

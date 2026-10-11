@@ -258,9 +258,9 @@
   --corp-surface-hover: #1F2840;
   --corp-border: #262F45;
   --corp-border-active: #5B7CF6;
-  --corp-text: #E8ECF4;
-  --corp-text-secondary: #A0ABBC;
-  --corp-text-tertiary: #626C80;
+  --corp-text: #FFFFFF;
+  --corp-text-secondary: #F8FAFC;
+  --corp-text-tertiary: #E2E8F0;
 
   --corp-accent: #5B7CF6;
   --corp-accent-hover: #7090FF;
@@ -297,6 +297,54 @@
   --shadow-game-green:  0 6px 20px rgba(61, 170, 120, 0.25);
   --shadow-game-teal:   0 6px 20px rgba(91, 124, 246, 0.28);
   --shadow-game-purple: 0 6px 20px rgba(91, 124, 246, 0.28);
+}
+
+/* ─── Ultra High-Contrast Dark Mode Rules ─────────────────────── */
+/* In dark mode: zero black or deep text on dark backgrounds; all text is super bright almost white */
+.dark body {
+  color: #FFFFFF;
+}
+
+.dark :is(.text-slate-950, .text-slate-900, .text-gray-950, .text-gray-900, .text-zinc-950, .text-zinc-900, .text-black, .text-neutral-950, .text-neutral-900):not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-amber-"] *):not([class*="bg-yellow-"] *):not(.bg-white *):not(.bg-white) {
+  color: #FFFFFF !important;
+}
+
+.dark :is(.text-slate-800, .text-gray-800, .text-zinc-800, .text-neutral-800):not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-amber-"] *):not([class*="bg-yellow-"] *):not(.bg-white *):not(.bg-white) {
+  color: #F8FAFC !important;
+}
+
+.dark :is(.text-slate-700, .text-gray-700, .text-zinc-700, .text-neutral-700):not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-amber-"] *):not([class*="bg-yellow-"] *):not(.bg-white *):not(.bg-white) {
+  color: #F1F5F9 !important;
+}
+
+.dark :is(.text-slate-600, .text-gray-600, .text-zinc-600, .text-neutral-600):not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-amber-"] *):not([class*="bg-yellow-"] *):not(.bg-white *):not(.bg-white) {
+  color: #E2E8F0 !important;
+}
+
+.dark :is(.text-slate-500, .text-gray-500, .text-zinc-500, .text-neutral-500):not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-amber-"] *):not([class*="bg-yellow-"] *):not(.bg-white *):not(.bg-white) {
+  color: #CBD5E1 !important;
+}
+
+/* ─── Notification Target Element Ultra-Glow ─────────────────── */
+@keyframes highlight-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 4px #F59E0B, 0 0 25px 6px rgba(245, 158, 11, 0.65);
+    transform: scale(1.008);
+  }
+  50% {
+    box-shadow: 0 0 0 6px #3B82F6, 0 0 35px 10px rgba(59, 130, 246, 0.75);
+    transform: scale(1.015);
+  }
+}
+
+.highlight-target-glow {
+  animation: highlight-pulse-glow 1.1s ease-in-out infinite !important;
+  outline: 3px solid #F59E0B !important;
+  outline-offset: 4px !important;
+  border-radius: 12px !important;
+  transition: all 0.3s ease !important;
+  z-index: 20 !important;
+  position: relative !important;
 }
 
 
@@ -891,5 +939,14 @@ input[type="reset"],
 .progress-pill-fill {
   border-radius: 9999px !important;
 }
+
+/* ─── Volte Bangla Typography Enforcement ─── */
+.font-bangla,
+[lang="bn"],
+.bangla-text {
+  font-family: "Volte Bangla", var(--font-volte-bangla), sans-serif !important;
+  line-height: 1.7;
+}
+
 
 

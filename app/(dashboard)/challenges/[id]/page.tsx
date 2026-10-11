@@ -185,13 +185,12 @@ export default function ChallengeWorkspacePage() {
         setEvaluationResult(evalRes);
         setActiveTab("evaluation");
 
-        const earnedXp = evalRes.score >= 80 ? 250 : 150;
-        completeChallenge(challenge.id, earnedXp, challenge.title);
+        completeChallenge(challenge.id, challenge.title);
 
         addNotification({
           type: "achievement",
           title: `Challenge Evaluated: Score ${evalRes.score}/100`,
-          message: `Your submission for "${challenge.title}" was benchmarked by AI. Earned +${earnedXp} XP.`,
+          message: `Your submission for "${challenge.title}" was benchmarked by AI with a score of ${evalRes.score}/100.`,
         });
 
         localStorage.setItem(
@@ -291,8 +290,8 @@ Verification Hash: INSYT-CERT-${challenge.id.toUpperCase()}-${Date.now()}
               <CheckCircle2 size={16} /> Completed ({evaluationResult?.score ?? 100}/100)
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-500/10 text-amber-600 font-bold text-xs border border-amber-500/20">
-              <Award size={15} /> Reward: +250 XP
+            <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-blue-500/10 text-blue-600 font-bold text-xs border border-blue-500/20">
+              <Award size={15} /> Evaluated Challenge
             </div>
           )}
         </div>
@@ -674,7 +673,7 @@ Example Structure:
                   ) : (
                     <>
                       <Send size={15} />
-                      <span>Submit for AI Evaluation &amp; Award (+250 XP)</span>
+                      <span>Submit for AI Evaluation &amp; Feedback</span>
                     </>
                   )}
                 </button>
@@ -764,7 +763,7 @@ Example Structure:
                     <span className="text-4xl font-black text-emerald-500">{evaluationResult.score}/100</span>
                     <span className="text-xs font-extrabold text-corp-text-tertiary uppercase mt-1">Grade {evaluationResult.grade}</span>
                     <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 mt-2 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-md">
-                      +250 XP Awarded
+                      Evaluated &amp; Certified
                     </span>
                   </div>
                 </div>
@@ -954,7 +953,7 @@ Example Structure:
 
                 <div className={cn("flex items-center gap-2 transition-opacity", evalStep >= 4 ? "opacity-100 text-corp-text" : "opacity-40 text-corp-text-tertiary")}>
                   {evalStep >= 4 ? <Check size={14} className="text-emerald-500" /> : <Clock size={14} />}
-                  <span>4. Finalizing score &amp; XP rewards</span>
+                  <span>4. Finalizing score &amp; evaluation report</span>
                 </div>
               </div>
             </motion.div>

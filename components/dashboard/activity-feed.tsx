@@ -117,14 +117,10 @@ function deterministicOffset(seed: string, maxHours: number): number {
 }
 
 function synthesizeFeed(
-  xpLogs: UserState["xpLogs"],
   courseProgress: UserState["courseProgress"],
   recentBadges: UserState["recentBadges"],
   enrolledPathSlugs: UserState["enrolledPathSlugs"],
   completedChallengeIds: UserState["completedChallengeIds"],
-  leaderboard: UserState["leaderboard"],
-  xp: number,
-  level: number,
   streak: number,
 ): FeedItem[] {
   const items: FeedItem[] = [];
@@ -133,12 +129,7 @@ function synthesizeFeed(
   courseProgress
     .filter((c) => c.progress === 100)
     .forEach((c) => {
-      const matchingLog = xpLogs.find(
-        (log) => log.reason.includes(c.title) || log.reason.includes(c.id)
-      );
-      const date = matchingLog
-        ? new Date(matchingLog.date)
-        : new Date(now - deterministicOffset(c.id, 72));
+      const date = new Date(now - deterministicOffset(c.id, 72));
       items.push({
         id: `feed-course-${c.id}`,
         type: "course_complete",
@@ -147,7 +138,6 @@ function synthesizeFeed(
         timestamp: date,
         link: "/certificates",
         linkLabel: "View Certificate",
-        xpReward: 300,
       });
     });
 
@@ -155,39 +145,11 @@ function synthesizeFeed(
     items.push({
       id: `feed-badge-${badge.name}`,
       type: "badge_earned",
-      title: `Earned "${badge.name}" Badge ${badge.icon}`,
-      description: "Achievement unlocked — keep pushing forward!",
+      title: `Earned "${badge.name}" Badge`,
+      description: "Platform honor unlocked and illuminated on profile",
       timestamp: new Date(now - deterministicOffset(badge.name, 48)),
     });
   });
-
-  const milestones = [1000, 2500, 5000, 7500, 10000, 15000, 25000, 50000, 100000];
-  const achievedMilestones = milestones.filter((m) => xp >= m);
-  achievedMilestones.slice(-2).forEach((m) => {
-    const matchingLog = xpLogs.find(
-      (log) => log.reason.includes("milestone") || (log.amount > 0 && log.amount + (xp - log.amount) >= m)
-    );
-    items.push({
-      id: `feed-xp-${m}`,
-      type: "xp_milestone",
-      title: `Reached ${m.toLocaleString()} XP!`,
-      description: "Milestone achieved — climbing the ranks",
-      timestamp: matchingLog
-        ? new Date(matchingLog.date)
-        : new Date(now - deterministicOffset(`xp-${m}`, 168)),
-    });
-  });
-
-  if (level > 1) {
-    const recentLog = xpLogs[0];
-    items.push({
-      id: `feed-level-${level}`,
-      type: "level_up",
-      title: `Leveled Up to Level ${level}!`,
-      description: "Executive rank progression",
-      timestamp: recentLog ? new Date(recentLog.date) : new Date(now - 1000 * 60 * 60 * 2),
-    });
-  }
 
   const streakMilestones = [3, 7, 14, 30, 60, 100];
   const achievedStreaks = streakMilestones.filter((s) => streak >= s);
@@ -196,7 +158,7 @@ function synthesizeFeed(
     items.push({
       id: `feed-streak-${topStreak}`,
       type: "streak_milestone",
-      title: `🔥 ${topStreak}-Day Learning Streak!`,
+      title: `${topStreak}-Day Learning Streak Achieved!`,
       description: `Maintained ${topStreak} consecutive days of learning`,
       timestamp: new Date(now - 1000 * 60 * 60 * 24 * (streak - topStreak)),
     });
@@ -219,22 +181,23 @@ function synthesizeFeed(
   });
 
   completedChallengeIds.forEach((challengeId) => {
-    const matchingLog = xpLogs.find((log) => log.reason.includes(challengeId) || log.reason.includes("Challenge"));
     items.push({
       id: `feed-challenge-${challengeId}`,
       type: "challenge_won",
       title: `Completed Challenge: ${challengeId.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}`,
       description: "Challenge mastered!",
-      timestamp: matchingLog
-        ? new Date(matchingLog.date)
-        : new Date(now - deterministicOffset(challengeId, 120)),
+      timestamp: new Date(now - deterministicOffset(challengeId, 120)),
     });
   });
 
-  const peerNames = leaderboard.filter((u) => !u.isUser).slice(0, 3);
+  const peerNames = [
+    { id: "cand-1", name: "Tanvir Hasan" },
+    { id: "cand-2", name: "Anika Rahman" },
+    { id: "cand-3", name: "Farhan Ahmed" },
+  ];
   const communityEvents = [
-    { verb: "just reached", suffix: "XP milestone", idx: 0 },
-    { verb: "completed a new", suffix: "course track", idx: 1 },
+    { verb: "just verified their", suffix: "Career Passport", idx: 0 },
+    { verb: "completed a new", suffix: "skill simulation", idx: 1 },
     { verb: "earned a", suffix: "badge", idx: 2 },
   ];
   communityEvents.forEach((evt) => {
@@ -244,7 +207,7 @@ function synthesizeFeed(
         id: `feed-community-${peer.id}-${evt.idx}`,
         type: "community",
         title: `${peer.name} ${evt.verb} ${evt.suffix}`,
-        description: `Level ${peer.level} · ${peer.xp.toLocaleString()} XP`,
+        description: "Corporate Candidate · Active Scholar",
         timestamp: new Date(now - deterministicOffset(peer.id + evt.idx, 24)),
       });
     }
@@ -282,25 +245,17 @@ export function ActivityFeed({ state }: ActivityFeedProps) {
   const feedItems = useMemo(
     () =>
       synthesizeFeed(
-        state.xpLogs,
         state.courseProgress,
         state.recentBadges,
         state.enrolledPathSlugs,
         state.completedChallengeIds,
-        state.leaderboard,
-        state.xp,
-        state.level,
         state.streak,
       ),
     [
-      state.xpLogs,
       state.courseProgress,
       state.recentBadges,
       state.enrolledPathSlugs,
       state.completedChallengeIds,
-      state.leaderboard,
-      state.xp,
-      state.level,
       state.streak,
     ]
   );
@@ -323,10 +278,10 @@ export function ActivityFeed({ state }: ActivityFeedProps) {
           </h2>
         </div>
         <Link
-          href="/leaderboard"
+          href="/career-hub"
           className="text-xs font-extrabold text-[#2563eb] hover:underline flex items-center gap-0.5 uppercase"
         >
-          Leaderboard <ChevronRight size={12} />
+          Career Hub <ChevronRight size={12} />
         </Link>
       </div>
 

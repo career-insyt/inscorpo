@@ -1,0 +1,326 @@
+[
+  {
+    "title": "STAGE 0: Orientation",
+    "stageId": 0,
+    "description": "Master orientation workflows: Teach editing before teaching software — master shot grammar, A-roll vs B-roll, pacing, rhythm, viewer attention, and what separates amateur cuts from...",
+    "duration": "4h 15m",
+    "exercisesCount": 3,
+    "lessons": [
+      {
+        "slug": "module-01-understanding-video-editing",
+        "title": "Module 01: Understanding Video Editing",
+        "duration": "45m",
+        "type": "video",
+        "xp": 100
+      },
+      {
+        "slug": "module-02-video-fundamentals",
+        "title": "Module 02: Video Fundamentals",
+        "duration": "40m",
+        "type": "video",
+        "xp": 100
+      },
+      {
+        "slug": "module-03-the-capcut-ecosystem",
+        "title": "Module 03: The CapCut Ecosystem",
+        "duration": "50m",
+        "type": "simulation",
+        "xp": 100
+      }
+    ]
+  },
+  {
+    "title": "STAGE 1: Editing Foundations",
+    "stageId": 1,
+    "description": "Master editing foundations workflows: Master media bins, folder hierarchies, naming conventions, asset versioning, and non-destructive editable project structures....",
+    "duration": "4h 15m",
+    "exercisesCount": 6,
+    "lessons": [
+      {
+        "slug": "module-04-media-management-project-organization",
+        "title": "Module 04: Media Management & Project Organization",
+        "duration": "45m",
+        "type": "assessment",
+        "xp": 120
+      },
+      {
+        "slug": "module-05-timeline-mastery",
+        "title": "Module 05: Timeline Mastery",
+        "duration": "55m",
+        "type": "video",
+        "xp": 120
+      },
+      {
+        "slug": "module-06-cutting-trimming-precision-editing",
+        "title": "Module 06: Cutting, Trimming & Precision Editing",
+        "duration": "1h 10m",
+        "type": "simulation",
+        "xp": 150
+      },
+      {
+        "slug": "module-07-editing-grammar",
+        "title": "Module 07: Editing Grammar",
+        "duration": "50m",
+        "type": "video",
+        "xp": 120
+      },
+      {
+        "slug": "module-08-transform-crop-framing",
+        "title": "Module 08: Transform, Crop & Framing",
+        "duration": "45m",
+        "type": "assessment",
+        "xp": 120
+      },
+      {
+        "slug": "module-09-first-complete-video",
+        "title": "Module 09: First Complete Video",
+        "duration": "1h 15m",
+        "type": "simulation",
+        "xp": 180
+      }
+    ]
+  },
+  {
+    "title": "STAGE 2: Visual & Audio Design",
+    "stageId": 2,
+    "description": "Master visual & audio design workflows: Master audio waveforms, track hierarchy, gain staging, fade envelopes, volume normalization, and de-linking audio tracks....",
+    "duration": "4h 15m",
+    "exercisesCount": 7,
+    "lessons": [
+      {
+        "slug": "module-10-audio-fundamentals",
+        "title": "Module 10: Audio Fundamentals",
+        "duration": "50m",
+        "type": "video",
+        "xp": 120
+      },
+      {
+        "slug": "module-11-audio-cleanup-voice-processing",
+        "title": "Module 11: Audio Cleanup & Voice Processing",
+        "duration": "55m",
+        "type": "video",
+        "xp": 140
+      },
+      {
+        "slug": "module-12-sound-design",
+        "title": "Module 12: Sound Design",
+        "duration": "1h 15m",
+        "type": "assessment",
+        "xp": 160
+      },
+      {
+        "slug": "module-13-typography",
+        "title": "Module 13: Typography",
+        "duration": "45m",
+        "type": "video",
+        "xp": 120
+      },
+      {
+        "slug": "module-14-captions-transcript-based-editing",
+        "title": "Module 14: Captions & Transcript-Based Editing",
+        "duration": "1h 10m",
+        "type": "video",
+        "xp": 160
+      },
+      {
+        "slug": "module-15-transitions",
+        "title": "Module 15: Transitions",
+        "duration": "45m",
+        "type": "simulation",
+        "xp": 120
+      },
+      {
+        "slug": "module-16-effects-filters-stickers-overlays",
+        "title": "Module 16: Effects, Filters, Stickers & Overlays",
+        "duration": "45m",
+        "type": "assessment",
+        "xp": 120
+      }
+    ]
+  },
+  {
+    "title": "STAGE 3: Advanced Motion & Compositing",
+    "stageId": 3,
+    "description": "Master advanced motion & compositing workflows: Master multi-layer timeline architecture, Picture-in-Picture (PiP), reaction layouts, Compound Clips, and execute PROJECT 04....",
+    "duration": "4h 15m",
+    "exercisesCount": 7,
+    "lessons": [
+      {
+        "slug": "module-17-layers-pip-compositing",
+        "title": "Module 17: Layers, PiP & Compositing",
+        "duration": "1h 10m",
+        "type": "video",
+        "xp": 160
+      },
+      {
+        "slug": "module-18-keyframe-animation",
+        "title": "Module 18: Keyframe Animation",
+        "duration": "1h 00m",
+        "type": "simulation",
+        "xp": 150
+      },
+      {
+        "slug": "module-19-speed-control-speed-ramping",
+        "title": "Module 19: Speed Control & Speed Ramping",
+        "duration": "1h 10m",
+        "type": "video",
+        "xp": 160
+      },
+      {
+        "slug": "module-20-masking",
+        "title": "Module 20: Masking",
+        "duration": "55m",
+        "type": "assessment",
+        "xp": 140
+      },
+      {
+        "slug": "module-21-chroma-key-background-removal",
+        "title": "Module 21: Chroma Key & Background Removal",
+        "duration": "1h 10m",
+        "type": "simulation",
+        "xp": 160
+      },
+      {
+        "slug": "module-22-motion-tracking",
+        "title": "Module 22: Motion Tracking",
+        "duration": "1h 10m",
+        "type": "video",
+        "xp": 160
+      },
+      {
+        "slug": "module-23-stabilization-enhancement-relighting",
+        "title": "Module 23: Stabilization, Enhancement & Relighting",
+        "duration": "50m",
+        "type": "video",
+        "xp": 140
+      }
+    ]
+  },
+  {
+    "title": "STAGE 4: Professional Post-Production",
+    "stageId": 4,
+    "description": "Master professional post-production workflows: Master technical color correction: exposure balancing, contrast, highlights, shadows, white balance, tint, HSL sliders, and curve graphs....",
+    "duration": "4h 15m",
+    "exercisesCount": 5,
+    "lessons": [
+      {
+        "slug": "module-24-color-correction",
+        "title": "Module 24: Color Correction",
+        "duration": "1h 00m",
+        "type": "assessment",
+        "xp": 150
+      },
+      {
+        "slug": "module-25-color-grading",
+        "title": "Module 25: Color Grading",
+        "duration": "1h 10m",
+        "type": "video",
+        "xp": 160
+      },
+      {
+        "slug": "module-26-advanced-audio-masterclass",
+        "title": "Module 26: Advanced Audio Masterclass",
+        "duration": "1h 00m",
+        "type": "video",
+        "xp": 150
+      },
+      {
+        "slug": "module-27-advanced-text-motion-graphics",
+        "title": "Module 27: Advanced Text & Motion Graphics",
+        "duration": "1h 00m",
+        "type": "simulation",
+        "xp": 150
+      },
+      {
+        "slug": "module-28-advanced-editorial-projects",
+        "title": "Module 28: Advanced Editorial Projects",
+        "duration": "1h 30m",
+        "type": "assessment",
+        "xp": 200
+      }
+    ]
+  },
+  {
+    "title": "STAGE 5: AI & Modern CapCut",
+    "stageId": 5,
+    "description": "Master ai & modern capcut workflows: Master CapCut AI tools: Text-to-Speech (TTS), AI auto-edit, AI background cutout, AI color matching, and human quality-control oversight....",
+    "duration": "4h 15m",
+    "exercisesCount": 3,
+    "lessons": [
+      {
+        "slug": "module-29-capcut-ai-foundations",
+        "title": "Module 29: CapCut AI Foundations",
+        "duration": "45m",
+        "type": "video",
+        "xp": 130
+      },
+      {
+        "slug": "module-30-generative-ai-content-workflows",
+        "title": "Module 30: Generative & AI Content Workflows",
+        "duration": "1h 10m",
+        "type": "simulation",
+        "xp": 160
+      },
+      {
+        "slug": "module-31-ai-production-pipeline",
+        "title": "Module 31: AI Production Pipeline",
+        "duration": "1h 00m",
+        "type": "video",
+        "xp": 150
+      }
+    ]
+  },
+  {
+    "title": "STAGE 6: Real-World Editing",
+    "stageId": 6,
+    "description": "Master real-world editing workflows: Master platform-specific editing tracks: TikTok (trends/hooks), Instagram Reels (polish/branding), YouTube Shorts (retention/CTA), and execute PROJECT...",
+    "duration": "4h 15m",
+    "exercisesCount": 4,
+    "lessons": [
+      {
+        "slug": "module-32-social-media-editing",
+        "title": "Module 32: Social Media Editing",
+        "duration": "1h 15m",
+        "type": "assessment",
+        "xp": 160
+      },
+      {
+        "slug": "module-33-editing-specializations",
+        "title": "Module 33: Editing Specializations",
+        "duration": "1h 20m",
+        "type": "simulation",
+        "xp": 180
+      },
+      {
+        "slug": "module-34-professional-workflow",
+        "title": "Module 34: Professional Workflow",
+        "duration": "55m",
+        "type": "video",
+        "xp": 140
+      },
+      {
+        "slug": "module-35-troubleshooting-technical-mastery",
+        "title": "Module 35: Troubleshooting & Technical Mastery",
+        "duration": "50m",
+        "type": "video",
+        "xp": 130
+      }
+    ]
+  },
+  {
+    "title": "STAGE 7: Mastery & Capstone",
+    "stageId": 7,
+    "description": "Master mastery & capstone workflows: The Final Crucible: Receive unedited raw footage and a written client brief with NO tutorial recipes. Execute PROJECT 15 to earn your Master Certifica...",
+    "duration": "4h 15m",
+    "exercisesCount": 1,
+    "lessons": [
+      {
+        "slug": "module-36-capcut-mastery-professional-capstone",
+        "title": "Module 36: CapCut Mastery & Professional Capstone",
+        "duration": "3h 00m",
+        "type": "assessment",
+        "xp": 500
+      }
+    ]
+  }
+]

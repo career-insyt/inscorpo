@@ -35,12 +35,12 @@ export const metadata: Metadata = {
   keywords: [
     "career development",
     "corporate training",
-    "banking preparation",
-    "management trainee",
+    "video editing",
+    "presentation engineering",
     "business skills",
     "professional development",
     "AI productivity",
-    "MTO preparation",
+    "GRE preparation",
     "INSYT Corporate",
   ],
   authors: [{ name: "INSYT" }],
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     siteName: "INSYT Corporate",
     title: "INSYT Corporate — The Career Operating System",
     description:
-      "Level up your career. Master banking, MTO tracks, business analytics, and executive skills.",
+      "Level up your skills. Master video editing, presentation engineering, AI automation, and GRE preparation.",
     images: [
       {
         url: "/og-image.png",
@@ -70,10 +70,10 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: [
+      { url: "/logo/logo_white.png" },
       { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
     ],
-    apple: "/apple-touch-icon.png",
+    apple: "/logo/logo_white.png",
   },
   appleWebApp: {
     capable: true,

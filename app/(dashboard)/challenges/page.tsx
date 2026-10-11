@@ -11,6 +11,7 @@ import { challengesData, Challenge } from "@/lib/data/challenges";
 import { useUser } from "@/components/providers/user-context";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function ChallengesPage() {
   const router = useRouter();
@@ -101,45 +102,66 @@ export default function ChallengesPage() {
         </div>
       </div>
 
-      {/* FEATURED COMPETITIONS */}
-      <div className="space-y-3 font-mono">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xs font-black uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
-            <Sparkles size={16} className="text-amber-500" /> Featured Premier Competitions &amp; PPO Drives
-          </h2>
-          <span className="text-[10px] font-extrabold text-[#2563eb] uppercase">Auto-Updated Live</span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {featuredChallenges.slice(0, 3).map((fc) => (
-            <div
-              key={fc.id}
-              onClick={() => setActiveChallengeModal(fc)}
-              className="p-5 rounded-2xl text-white space-y-3 cursor-pointer hover:-translate-y-1 transition-all relative overflow-hidden border-2 border-blue-400"
-              style={{
-                background: "#2563eb",
-                boxShadow: "5px 5px 0px 0px #1e3a8a",
-              }}
+      {challengesData.length === 0 ? (
+        <div className="text-center py-20 border-2 border-dashed border-blue-400 rounded-2xl p-8 font-mono space-y-4 bg-corp-surface">
+          <Trophy size={48} className="mx-auto text-[#2563eb]" />
+          <div className="space-y-1">
+            <h3 className="text-lg font-black uppercase text-corp-text">No Active Challenges Available</h3>
+            <p className="text-xs sm:text-sm font-sans text-corp-text-secondary max-w-md mx-auto">
+              There are no active competitions or hackathons scheduled at this moment. New corporate case challenges and competitions will be published here.
+            </p>
+          </div>
+          <div className="pt-2">
+            <Link
+              href="/learn"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-mono font-black text-white bg-[#2563eb] hover:bg-blue-600 transition-all border-2 border-blue-400 uppercase tracking-wider shadow-[3px_3px_0px_0px_#1e3a8a] cursor-pointer"
             >
-              <div className="flex items-center justify-between text-[10px] font-extrabold uppercase">
-                <span className="text-amber-300 truncate max-w-[180px]">{fc.hostEntity}</span>
-                {fc.ppoOffered && (
-                  <span className="px-2.5 py-1 rounded bg-amber-400 text-amber-950 font-black flex items-center gap-1 border border-amber-500">
-                    <Briefcase size={10} /> PPI Offer
-                  </span>
-                )}
-              </div>
-
-              <h3 className="font-black text-sm uppercase leading-snug line-clamp-2 text-white">{fc.title}</h3>
-
-              <div className="flex items-center justify-between text-xs pt-2 border-t border-white/20 text-white/90 font-bold">
-                <span className="text-amber-300">{fc.prize.split("+")[0]}</span>
-                <span className="text-[10px]">{fc.daysLeft || "Active"}</span>
-              </div>
-            </div>
-          ))}
+              <span>Explore Courses</span>
+              <ChevronRight size={14} />
+            </Link>
+          </div>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* FEATURED COMPETITIONS */}
+          <div className="space-y-3 font-mono">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-black uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
+                <Sparkles size={16} className="text-amber-500" /> Featured Premier Competitions &amp; PPO Drives
+              </h2>
+              <span className="text-[10px] font-extrabold text-[#2563eb] uppercase">Auto-Updated Live</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {featuredChallenges.slice(0, 3).map((fc) => (
+                <div
+                  key={fc.id}
+                  onClick={() => setActiveChallengeModal(fc)}
+                  className="p-5 rounded-2xl text-white space-y-3 cursor-pointer hover:-translate-y-1 transition-all relative overflow-hidden border-2 border-blue-400"
+                  style={{
+                    background: "#2563eb",
+                    boxShadow: "5px 5px 0px 0px #1e3a8a",
+                  }}
+                >
+                  <div className="flex items-center justify-between text-[10px] font-extrabold uppercase">
+                    <span className="text-amber-300 truncate max-w-[180px]">{fc.hostEntity}</span>
+                    {fc.ppoOffered && (
+                      <span className="px-2.5 py-1 rounded bg-amber-400 text-amber-950 font-black flex items-center gap-1 border border-amber-500">
+                        <Briefcase size={10} /> PPI Offer
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="font-black text-sm uppercase leading-snug line-clamp-2 text-white">{fc.title}</h3>
+
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-white/20 text-white/90 font-bold">
+                    <span className="text-amber-300">{fc.prize.split("+")[0]}</span>
+                    <span className="text-[10px]">{fc.daysLeft || "Active"}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
       {/* FILTER & SEARCH CONTROLS — Blue Borders */}
       <div
@@ -284,6 +306,8 @@ export default function ChallengesPage() {
           );
         })}
       </div>
+        </>
+      )}
 
       {/* DETAILS MODAL — Blue Border */}
       <AnimatePresence>

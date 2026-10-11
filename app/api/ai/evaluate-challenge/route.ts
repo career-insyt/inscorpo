@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { scanForPromptInjection, sanitizeCandidateInput, buildIsolatedEvaluationPrompt } from "@/lib/assessment/anti-injection";
+import { evaluateFinancialModel, CellData, ModelSubmission } from "@/lib/assessment/excel-evaluator";
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -22,8 +24,13 @@ const ChallengeEvaluationSchema = z.object({
     question: z.string(),
     correct: z.string(),
   })).optional(),
-  caseSubmission: z.string().min(5, "Submission must contain analytical text."),
+  caseSubmission: z.string().min(3, "Submission must contain analytical text."),
   timeSpentSeconds: z.number().optional().default(0),
+  spreadsheetCells: z.record(z.string(), z.object({
+    coordinate: z.string(),
+    formula: z.string().optional(),
+    value: z.union([z.number(), z.string(), z.boolean()]).nullable(),
+  })).optional(),
 });
 
 export interface EvaluationResult {
@@ -129,40 +136,63 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    const { challengeId, challengeTitle, category, quizAnswers, quizQuestions, caseSubmission, timeSpentSeconds, spreadsheetCells } = parsed.data;
 
-    const { challengeId, challengeTitle, category, quizAnswers, quizQuestions, caseSubmission, timeSpentSeconds } = parsed.data;
+    // Stage 1 & 2: Prompt-Injection & Input Sanitization
+    const injectionScan = scanForPromptInjection(caseSubmission);
+    if (!injectionScan.isSafe && injectionScan.severity === "MALICIOUS") {
+      return NextResponse.json(
+        {
+          error: "Adversarial prompt pattern detected in case submission. Assessment proctoring violation flagged.",
+          detectedPatterns: injectionScan.detectedPatterns,
+        },
+        { status: 403 }
+      );
+    }
 
+    const sanitizedSubmission = injectionScan.sanitizedText || caseSubmission;
     const quizResult = calculateQuizPoints(quizAnswers, quizQuestions);
 
-    const systemPrompt = `You are a Senior Executive AI Evaluator & Hiring Partner for top MNCs (Unilever, BAT, Accenture, bKash).
-Evaluate the candidate's challenge submission for: "${challengeTitle}" (Category: ${category}).
+    // If candidate submitted spreadsheet cells, evaluate with Seeded Perturbation
+    let hardcodedFlaw: string | null = null;
+    let spreadsheetPenalty = 0;
 
-Evaluation Guidelines:
-1. Diagnostic Quiz Result: ${quizResult.correctCount}/${quizResult.totalCount} correct questions (Quiz Points: ${quizResult.points}/30).
-2. Analytical Submission Text: "${caseSubmission}"
-3. Evaluate the written analytical submission across 4 rubric dimensions (0-25 each, Total Max 100):
-   - Analytical Rigor & Quantitative Accuracy (0-25)
-   - Business & Strategic Impact (0-25)
-   - Operational Feasibility (0-25)
-   - Executive Clarity & Communication (0-25)
+    if (spreadsheetCells && Object.keys(spreadsheetCells).length > 0) {
+      const modelSubmission: ModelSubmission = {
+        candidateId: "exam-candidate",
+        taskId: challengeId,
+        cells: spreadsheetCells as Record<string, CellData>,
+      };
 
-Return your response strictly as valid JSON with NO additional surrounding text or markdown codeblocks:
-{
-  "score": number (50-100, non-rounded exact score),
-  "grade": string (e.g. "S", "A+", "A", "B+", "B", "C"),
-  "summary": string (2-3 concise summary sentences),
-  "strengths": [array of 2-3 specific strength strings],
-  "flaws": [array of 2-3 specific improvement strings],
-  "rubric": {
-    "analyticalRigor": number (0-25),
-    "businessImpact": number (0-25),
-    "executionFeasibility": number (0-25),
-    "executiveClarity": number (0-25)
-  },
-  "employerVerdict": string (e.g. "RECOMMENDED FOR PRE-PLACEMENT INTERVIEW (PPI)" or "QUALIFIED WITH REVISION"),
-  "benchmarkComparison": string (comparison against top 5% candidate responses),
-  "recommendedNextSteps": string (advice for candidate's corporate career path)
-}`;
+      // Check for hardcoding in common summary cell coordinates
+      const checkRules = Object.keys(spreadsheetCells).map((coord) => ({
+        targetCoordinate: coord,
+        prohibitedHardcoding: true,
+        expectedCalculatedValue: () => 100, // placeholder
+      }));
+
+      const excelEval = evaluateFinancialModel(
+        modelSubmission,
+        [{ name: "sales_volume", coordinate: "B4", baseValue: 1000, minScale: 0.9, maxScale: 1.1 }],
+        checkRules
+      );
+
+      if (excelEval.hardcodingDetected) {
+        hardcodedFlaw = "Hardcoded constant detected in spreadsheet cells. Corporate financial models strictly require dynamic formulas (=SUM, =XLOOKUP, =NPV) to withstand sensitivity shocks.";
+        spreadsheetPenalty = 15;
+      }
+    }
+
+    // Isolate candidate input using cryptographic nonce
+    const rubricPrompt = `Evaluate the candidate's challenge submission for: "${challengeTitle}" (Category: ${category}).
+Diagnostic Quiz Result: ${quizResult.correctCount}/${quizResult.totalCount} correct questions (Quiz Points: ${quizResult.points}/30).
+Evaluate across 4 rubric dimensions (0-25 each, Total Max 100):
+- Analytical Rigor & Quantitative Accuracy (0-25)
+- Business & Strategic Impact (0-25)
+- Operational Feasibility (0-25)
+- Executive Clarity & Communication (0-25)`;
+
+    const { prompt: isolatedPrompt } = buildIsolatedEvaluationPrompt(rubricPrompt, sanitizedSubmission);
 
     if (OPENROUTER_API_KEY) {
       for (const model of OPENROUTER_MODELS) {
@@ -178,10 +208,14 @@ Return your response strictly as valid JSON with NO additional surrounding text 
             body: JSON.stringify({
               model,
               messages: [
-                { role: "system", content: systemPrompt },
-                { role: "user", content: `Please evaluate this submission:\n"${caseSubmission}"` },
+                {
+                  role: "system",
+                  content: `You are a Senior Executive AI Evaluator & Hiring Partner for top MNCs (Unilever, BAT, Accenture, bKash).
+Score strictly between 50-100 (non-rounded). Return ONLY parseable JSON with keys: score, grade, summary, strengths (string[]), flaws (string[]), rubric (analyticalRigor, businessImpact, executionFeasibility, executiveClarity), employerVerdict, benchmarkComparison, recommendedNextSteps.`,
+                },
+                { role: "user", content: isolatedPrompt },
               ],
-              temperature: 0.4,
+              temperature: 0.3,
               max_tokens: 800,
             }),
           });
@@ -189,7 +223,6 @@ Return your response strictly as valid JSON with NO additional surrounding text 
           if (response.ok) {
             const data = await response.json();
             let rawContent = data?.choices?.[0]?.message?.content || "";
-            // Clean up any markdown code block wrap if returned
             rawContent = rawContent.replace(/```json/gi, "").replace(/```/g, "").trim();
 
             const parsedAi = JSON.parse(rawContent);
@@ -201,20 +234,26 @@ Return your response strictly as valid JSON with NO additional surrounding text 
                 executiveClarity: 22,
               };
 
+              let finalScore = Math.max(50, Math.min(99, parsedAi.score - spreadsheetPenalty));
+              const flaws = parsedAi.flaws || ["Could expand on operational risk mitigation."];
+              if (hardcodedFlaw) {
+                flaws.unshift(hardcodedFlaw);
+              }
+
               const finalEvaluation: EvaluationResult = {
-                score: parsedAi.score,
-                grade: parsedAi.grade || (parsedAi.score >= 90 ? "A+" : parsedAi.score >= 80 ? "A" : "B"),
+                score: finalScore,
+                grade: finalScore >= 92 ? "S" : finalScore >= 85 ? "A+" : finalScore >= 78 ? "A" : "B",
                 summary: parsedAi.summary || `Evaluated submission for ${challengeTitle}.`,
                 strengths: parsedAi.strengths || ["Strong quantitative logic.", "Clear business justification."],
-                flaws: parsedAi.flaws || ["Could expand on operational risk mitigation."],
+                flaws,
                 rubric: {
-                  analyticalRigor: aiRubric.analyticalRigor ?? 22,
+                  analyticalRigor: Math.max(10, (aiRubric.analyticalRigor ?? 22) - (spreadsheetPenalty ? 5 : 0)),
                   businessImpact: aiRubric.businessImpact ?? 21,
                   executionFeasibility: aiRubric.executionFeasibility ?? 20,
                   executiveClarity: aiRubric.executiveClarity ?? 22,
                 },
                 quizScore: quizResult,
-                employerVerdict: parsedAi.employerVerdict || "RECOMMENDED FOR PRE-PLACEMENT INTERVIEW (PPI)",
+                employerVerdict: finalScore >= 75 ? "RECOMMENDED FOR PRE-PLACEMENT INTERVIEW (PPI)" : "QUALIFIED WITH REVISION",
                 benchmarkComparison: parsedAi.benchmarkComparison || "Matches employer benchmark standards.",
                 recommendedNextSteps: parsedAi.recommendedNextSteps || "Add this verified completion to your INSYT Talent Passport.",
               };
@@ -228,8 +267,12 @@ Return your response strictly as valid JSON with NO additional surrounding text 
       }
     }
 
-    // Fallback Evaluation
-    const fallbackEval = generateSmartFallbackEvaluation(challengeTitle, category, caseSubmission, quizResult);
+    // Fallback Evaluation with hardcoding flaw if detected
+    const fallbackEval = generateSmartFallbackEvaluation(challengeTitle, category, sanitizedSubmission, quizResult);
+    if (hardcodedFlaw) {
+      fallbackEval.score = Math.max(50, fallbackEval.score - spreadsheetPenalty);
+      fallbackEval.flaws.unshift(hardcodedFlaw);
+    }
     return NextResponse.json({ evaluation: fallbackEval });
 
   } catch (error) {

@@ -38,10 +38,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const sessionUser = await account.get();
         setUser(sessionUser);
-        document.cookie = "insyt_fallback_session=true; path=/; max-age=31536000; SameSite=Lax";
+        document.cookie = "insyt_fallback_session=true; path=/; max-age=31536000; SameSite=Lax; Secure";
+        // Set admin email cookie for middleware server-side verification
+        if (sessionUser.email) {
+          document.cookie = `insyt_admin_email=${encodeURIComponent(sessionUser.email)}; path=/; max-age=31536000; SameSite=Lax; Secure`;
+        }
       } catch (error) {
         setUser(null);
-        document.cookie = "insyt_fallback_session=; path=/; max-age=0; SameSite=Lax";
+        document.cookie = "insyt_fallback_session=; path=/; max-age=0; SameSite=Lax; Secure";
+        document.cookie = "insyt_admin_email=; path=/; max-age=0; SameSite=Lax; Secure";
       } finally {
         setIsLoading(false);
       }
@@ -53,7 +58,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await account.deleteSession("current");
       setUser(null);
-      document.cookie = "insyt_fallback_session=; path=/; max-age=0";
+      document.cookie = "insyt_fallback_session=; path=/; max-age=0; SameSite=Lax; Secure";
+      document.cookie = "insyt_admin_email=; path=/; max-age=0; SameSite=Lax; Secure";
       router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);

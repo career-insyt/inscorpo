@@ -137,7 +137,7 @@ function CountdownBlock({ label, value }: { label: string; value: number }) {
 }
 
 export default function EventsPage() {
-  const { state, addXP, addNotification } = useUser();
+  const { state, addNotification } = useUser();
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
@@ -175,12 +175,10 @@ export default function EventsPage() {
 
     setRegisteredIds((prev) => new Set(prev).add(event.id));
 
-    addXP(event.xpReward, `Registered for event: ${event.title}`);
-
     addNotification({
       type: "achievement",
       title: `Registered for ${event.title.split("—")[0].trim()}!`,
-      message: `Ticket confirmed. +${event.xpReward} XP awarded & credential stamp added to your profile!`,
+      message: `Ticket confirmed. Credential stamp and calendar invite generated.`,
     });
   };
 

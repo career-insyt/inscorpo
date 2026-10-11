@@ -53,17 +53,17 @@ export const interviewScenarios: InterviewScenario[] = [
     systemPrompt: "Act as a Program Director at a large NGO. You are interviewing for a Monitoring and Evaluation (M&E) Specialist. Evaluate the candidate on their technical skills (KoboToolbox, data cleaning) and their ability to interpret data for donor reporting."
   },
   {
-    id: "bank-mto",
-    role: "Management Trainee (MTO)",
-    company: "Standard Chartered",
-    companyLogo: "S",
-    industry: "Banking",
+    id: "creative-lead",
+    role: "Senior Video & Content Producer",
+    company: "Creative Studio",
+    companyLogo: "C",
+    industry: "Digital Media",
     difficulty: "Advanced",
     questions: [
-      "Why do you want to start your career in banking, and specifically why this Management Trainee program?",
-      "Pitch a new digital banking product that would appeal to university students in Bangladesh.",
-      "Describe a time you had to make a quick decision with incomplete information."
+      "Walk us through your video post-production workflow when given a tight 24-hour turnaround for a client campaign.",
+      "How do you integrate generative AI tools into pacing, b-roll generation, or sound design without sacrificing artistic quality?",
+      "Describe a project where client revisions were conflicting with the creative vision, and how you resolved it."
     ],
-    systemPrompt: "Act as a Senior HR Partner at a multinational bank. You are interviewing a fresh graduate for a highly competitive Management Trainee program. Assess their leadership potential, strategic thinking, and general business acumen."
+    systemPrompt: "Act as a Creative Director at a high-growth media studio. You are interviewing a senior video producer. Assess their technical editing chops, storytelling instinct, and client communication."
   }
 ];

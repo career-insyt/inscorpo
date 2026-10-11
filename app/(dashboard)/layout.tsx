@@ -7,10 +7,11 @@ import { AuthGuard } from "@/components/auth-guard";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { PageTransition } from "@/components/ui/page-transition";
 import { FloatingChatAssistant } from "@/components/ai/floating-chat-assistant";
+import { ElementHighlighter } from "@/components/ui/element-highlighter";
 
 export const metadata: Metadata = {
   title: "Dashboard",
-  description: "Your personalized career development command center. Track XP, courses, leaderboard rank, and upcoming workshops.",
+  description: "Your personalized career development command center. Track XP, courses, credentials, and upcoming workshops.",
 };
 
 export default function DashboardLayout({
@@ -20,6 +21,7 @@ export default function DashboardLayout({
 }) {
   return (
     <AuthGuard>
+      <ElementHighlighter />
       {/* #28: Scroll progress indicator */}
       <ScrollProgress />
       <div className="flex flex-col h-screen overflow-hidden" style={{ background: "var(--corp-bg)" }}>

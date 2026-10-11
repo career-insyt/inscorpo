@@ -20,7 +20,7 @@ export default function MockTestSolverPage(props: PageProps) {
   const params = use(props.params);
   const testId = params?.testId || "bb-ad-full-mock";
   const testData: MockTestDetail = MOCK_TESTS_DATABASE[testId] || MOCK_TESTS_DATABASE["bb-ad-full-mock"];
-  const { addXP, addNotification } = useUser();
+  const { addNotification } = useUser();
 
   // State Controls
   const [examStarted, setExamStarted] = useState(false);
@@ -39,7 +39,6 @@ export default function MockTestSolverPage(props: PageProps) {
     netScore: number;
     accuracyPercent: number;
     percentileRank: number;
-    xpEarned: number;
   } | null>(null);
 
   // Timer Countdown Loop
@@ -123,8 +122,6 @@ export default function MockTestSolverPage(props: PageProps) {
     else if (accuracy >= 40) percentile = 55;
     else percentile = 35;
 
-    const xpEarned = Math.round((accuracy / 100) * testData.xpReward);
-
     const summary = {
       correctCount: correct,
       incorrectCount: incorrect,
@@ -132,19 +129,15 @@ export default function MockTestSolverPage(props: PageProps) {
       netScore: Math.round(netPoints * 100) / 100,
       accuracyPercent: accuracy,
       percentileRank: percentile,
-      xpEarned,
     };
 
     setScoreSummary(summary);
 
-    if (xpEarned > 0) {
-      addXP(xpEarned, `Completed Mock Test: ${testData.title}`);
-      addNotification({
-        type: "achievement",
-        title: "Mock Test Results Compiled!",
-        message: `Scored ${accuracy}% on ${testData.title}. +${xpEarned} XP awarded!`,
-      });
-    }
+    addNotification({
+      type: "achievement",
+      title: "Mock Test Results Compiled!",
+      message: `Scored ${accuracy}% on ${testData.title}. Percentile: ${percentile}th. Verified in Career Passport.`,
+    });
   };
 
   const formatTime = (secs: number) => {
@@ -209,8 +202,8 @@ export default function MockTestSolverPage(props: PageProps) {
 
             <div className="p-4 rounded-xl space-y-1 bg-corp-bg-secondary border border-corp-border">
               <Award size={20} className="text-amber-500" />
-              <h3 className="text-xs font-black uppercase text-corp-text">XP Reward</h3>
-              <p className="text-xs font-mono font-bold text-amber-600">+{testData.xpReward} Max XP</p>
+              <h3 className="text-xs font-black uppercase text-corp-text">Credential Standing</h3>
+              <p className="text-xs font-mono font-bold text-emerald-600">Verified Proof-of-Work</p>
             </div>
           </div>
 
@@ -475,8 +468,8 @@ export default function MockTestSolverPage(props: PageProps) {
               </div>
 
               <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-amber-400/30">
-                <span className="text-[9px] font-black uppercase text-amber-300 block">XP Reward</span>
-                <span className="text-xl font-black text-amber-400 mt-0.5 block">+{scoreSummary.xpEarned} XP</span>
+                <span className="text-[9px] font-black uppercase text-amber-300 block">Status</span>
+                <span className="text-sm font-black text-emerald-400 mt-1 block">Verified In Index</span>
               </div>
             </div>
 

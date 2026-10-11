@@ -29,7 +29,7 @@ export function LeadMagnetModal() {
           }}
         >
           <Sparkles size={14} className="text-[#F0D080]" />
-          <span>Get Free 2026 MTO & Career Guide PDF</span>
+          <span>Get Free 2026 Executive Career Guide PDF</span>
           <Download size={14} />
         </button>
       </div>
@@ -65,10 +65,10 @@ export function LeadMagnetModal() {
 
                   <div className="space-y-2">
                     <h3 className="text-xl font-bold tracking-tight text-white">
-                      Download the Executive MTO & Corporate Career Blueprint
+                      Download the Executive Career &amp; Skills Blueprint
                     </h3>
                     <p className="text-xs text-white/70 leading-relaxed">
-                      Get 40+ pages of management trainee case breakdowns, ATS resume templates, and financial modeling shortcuts used by candidates at top corporate firms.
+                      Get 40+ pages of digital media workflows, presentation blueprints, and AI productivity playbooks used by modern industry leaders.
                     </p>
                   </div>
 
@@ -104,7 +104,7 @@ export function LeadMagnetModal() {
                   </div>
                   <h3 className="text-lg font-bold text-white">Guide Sent to Your Email!</h3>
                   <p className="text-xs text-white/70 leading-relaxed">
-                    Check your inbox ({email}) for your instant access download link to the 2026 MTO Blueprint.
+                    Check your inbox ({email}) for your instant access download link to the 2026 Executive Blueprint.
                   </p>
                   <button
                     onClick={() => setIsOpen(false)}

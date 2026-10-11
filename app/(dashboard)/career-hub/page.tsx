@@ -17,102 +17,99 @@ const item = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, trans
 
 const CAREER_PATHS = [
   {
-    id: "mto",
-    title: "MTO / Graduate Trainee",
-    icon: <Building2 size={20} className="text-amber-400" />,
-    salaryRange: "৳35,000 – ৳80,000/mo",
-    successRate: "4.2%",
-    topCompanies: ["Unilever", "BRAC Bank", "British American Tobacco", "Nestle", "Reckitt"],
-    requiredSkills: ["Excel & Data", "Business Communication", "Case Solving", "Leadership", "Group Discussion"],
-    avgTimeline: "6–9 months",
-    description: "The gold standard corporate entry route in Bangladesh. Hyper-competitive — only ~4% applicants succeed.",
-    insightTag: "Most candidates fail at GD rounds",
-    courseLink: "/learn/corporate-mto",
+    id: "media-producer",
+    title: "Video Editor & Creative Producer",
+    icon: <Sparkles size={20} className="text-[#78350f] stroke-[2.5]" />,
+    salaryRange: "৳45,000 – ৳1,20,000/mo",
+    successRate: "14.2%",
+    topCompanies: ["Creative Agencies", "Tech Scaleups", "Global Remote Studios", "Media Houses"],
+    requiredSkills: ["Premiere Pro", "AI Video Workflows", "Motion Graphics", "Color Grading", "Sound Design"],
+    avgTimeline: "3–6 months",
+    description: "High-earning digital media track. Combining core video production mechanics with modern generative AI.",
+    insightTag: "High remote international demand",
+    courseLink: "/learn/video-ai-production",
   },
   {
-    id: "analyst",
-    title: "Business / Financial Analyst",
-    icon: <BarChart3 size={20} className="text-amber-400" />,
-    salaryRange: "৳25,000 – ৳60,000/mo",
-    successRate: "8.7%",
-    topCompanies: ["BRAC", "Grameenphone", "Dutch Bangla Bank", "McKinsey Alumni Firms", "EY & KPMG"],
-    requiredSkills: ["Advanced Excel", "Power BI", "Financial Modeling", "SQL Basics", "Presentation"],
-    avgTimeline: "3–6 months",
-    description: "High demand across MNCs and NGOs. Excel mastery + data storytelling are the non-negotiable differentiators.",
-    insightTag: "Power BI is now table stakes",
-    courseLink: "/learn/power-bi",
+    id: "presentation-designer",
+    title: "Presentation & Pitch Deck Specialist",
+    icon: <BarChart3 size={20} className="text-[#78350f] stroke-[2.5]" />,
+    salaryRange: "৳35,000 – ৳90,000/mo",
+    successRate: "16.5%",
+    topCompanies: ["Venture Capital", "Top Consultancies", "Enterprise Tech", "Advertising Giants"],
+    requiredSkills: ["PowerPoint Mastery", "Gamma AI", "Canva Pro", "Information Architecture", "Data Storytelling"],
+    avgTimeline: "2–4 months",
+    description: "Craft investor-ready slide decks and board-level presentations that win contracts and close deals.",
+    insightTag: "In-demand executive skill",
+    courseLink: "/learn/presentation-engineering",
   },
   {
     id: "tech",
-    title: "Tech / Product Associate",
-    icon: <Zap size={20} className="text-amber-400" />,
+    title: "Tech / AI Solutions Associate",
+    icon: <Zap size={20} className="text-[#78350f] stroke-[2.5]" />,
     salaryRange: "৳40,000 – ৳1,20,000/mo",
     successRate: "12.3%",
     topCompanies: ["bKash", "ShopUp", "Chaldal", "Sheba.xyz", "Pathao", "Brain Station 23"],
-    requiredSkills: ["Basic SQL", "Product Thinking", "User Research", "Agile/Scrum", "Data Analysis"],
-    avgTimeline: "4–8 months",
-    description: "Bangladesh's fastest growing sector. Product + Tech hybrid roles offer the best salary upside.",
+    requiredSkills: ["AI Prompting", "Product Thinking", "Workflow Automation", "Claude & ChatGPT", "Data Analysis"],
+    avgTimeline: "3–6 months",
+    description: "Bangladesh's fastest growing sector. Combining workflow automation with modern generative tools.",
     insightTag: "AI literacy doubles offer rate",
-    courseLink: "/learn/ai-automation",
+    courseLink: "/learn/ai-for-work",
   },
   {
-    id: "development",
-    title: "Development / NGO Sector",
-    icon: <Globe size={20} className="text-amber-400" />,
-    salaryRange: "৳30,000 – ৳90,000/mo",
+    id: "global-grad",
+    title: "Global Scholar / Grad Fellow",
+    icon: <Globe size={20} className="text-[#78350f] stroke-[2.5]" />,
+    salaryRange: "৳70,000 – ৳1,50,000/mo",
     successRate: "9.1%",
-    topCompanies: ["UNDP", "World Bank", "BRAC NGO", "icddr,b", "USAID Partners", "CARE Bangladesh"],
-    requiredSkills: ["Project Management", "Data & M&E", "Report Writing", "Field Research", "Community Dev"],
+    topCompanies: ["US Universities", "DAAD Germany", "Erasmus Mundus", "Commonwealth Fellowships"],
+    requiredSkills: ["Quantitative Reasoning", "Verbal Reasoning", "Analytical Writing", "Research Proposal", "GRE Strategy"],
     avgTimeline: "6–12 months",
-    description: "High impact, competitive packages. UN agencies often pay more than local MNCs.",
-    insightTag: "LogFrame writing unlocks UN roles",
-    courseLink: "/learn/business-comm",
+    description: "Structured, rigorous preparation for international Master's & PhD programs with competitive assistantships.",
+    insightTag: "GRE 320+ unlocks top tier aid",
+    courseLink: "/learn/gre-preparation",
   },
 ];
 
 const CHALLENGER_INSIGHTS = [
   {
-    icon: <AlertTriangle size={16} className="text-amber-300" />,
-    title: "Most MTO applicants fail at Group Discussion — not CV screen",
-    body: "83% of rejections at top FMCG firms happen at GD/Assessment Center stages — not the written test. CGPA gets the interview, skills win the offer.",
-    cta: "Practice GD Skills",
+    icon: <AlertTriangle size={16} className="text-[#78350f] stroke-[2.5]" />,
+    title: "Most interview candidates fail at behavioral rounds — not technical tests",
+    body: "Over 78% of rejections at top corporate firms happen at behavioral interview stages. Structured storytelling with the STAR method wins the offer.",
+    cta: "Practice AI Interviews",
     ctaHref: "/mock-interviews",
   },
   {
-    icon: <Lightbulb size={16} className="text-amber-300" />,
-    title: "Recruiters spend 7 seconds on your resume",
-    body: "Corporate recruiters scan for quantified impact: 'Increased output by 34%' beats 'Worked in a team.' INSYT auto-formats your XP into recruiter-language.",
+    icon: <Lightbulb size={16} className="text-[#78350f] stroke-[2.5]" />,
+    title: "Recruiters spend 7 seconds on your portfolio & credentials",
+    body: "Corporate recruiters scan for verified project proofs. INSYT auto-formats your course completions into executive-grade credentials.",
     cta: "Build Your Passport",
     ctaHref: "/career-passport",
   },
   {
-    icon: <Zap size={16} className="text-amber-300" />,
-    title: "Power BI learners are 2.4x more likely to get shortlisted",
-    body: "Based on INSYT placement data across 400+ students, candidates with verified Power BI + Excel credentials receive 2.4x more recruiter callbacks.",
-    cta: "Start Power BI Track",
-    ctaHref: "/learn/power-bi",
+    icon: <Zap size={16} className="text-[#78350f] stroke-[2.5]" />,
+    title: "Video & AI skills increase client rates by 3.1x",
+    body: "Based on active industry demand, creators who master modern video editing alongside generative AI production secure significantly higher compensation.",
+    cta: "Start Video & AI Track",
+    ctaHref: "/learn/video-ai-production",
   },
 ];
 
 const SALARY_DATA = [
-  { company: "Unilever Bangladesh", role: "MTO (Batch 2025)", monthly: "৳55,000–৳75,000", benefit: "+ Car + LFA" },
-  { company: "British American Tobacco", role: "MTO (Annual)", monthly: "৳65,000–৳85,000", benefit: "+ Provident Fund" },
-  { company: "BRAC Bank", role: "Management Associate", monthly: "৳40,000–৳60,000", benefit: "+ Medical" },
-  { company: "Grameenphone", role: "GMT (Tech & Analytics)", monthly: "৳50,000–৳70,000", benefit: "+ Gadget Allow." },
-  { company: "bKash", role: "Associate Product Manager", monthly: "৳60,000–৳90,000", benefit: "+ Startup ESOP" },
-  { company: "UNDP Bangladesh", role: "Programme Associate", monthly: "৳70,000–৳95,000", benefit: "+ UN Benefits" },
+  { company: "International Media Scaleup", role: "Video Producer & Editor", monthly: "৳65,000–৳1,10,000", benefit: "+ Remote Allowance" },
+  { company: "Venture-Backed Startup", role: "AI Workflow Specialist", monthly: "৳55,000–৳85,000", benefit: "+ Equity / ESOP" },
+  { company: "Top Tech Firm", role: "Presentation Engineer", monthly: "৳45,000–৳75,000", benefit: "+ Health Insurance" },
+  { company: "Global Research Lab", role: "Graduate Research Assistant", monthly: "৳80,000–৳1,40,000", benefit: "+ Full Tuition Waiver" },
+  { company: "bKash", role: "Associate Product Specialist", monthly: "৳60,000–৳90,000", benefit: "+ Annual Bonus" },
+  { company: "Creative Production House", role: "Senior Motion Editor", monthly: "৳70,000–৳1,20,000", benefit: "+ Project Bonuses" },
 ];
 
 export default function CareerHubPage() {
   const { state } = useUser();
-  const [selectedPath, setSelectedPath] = useState("mto");
+  const [selectedPath, setSelectedPath] = useState("media-producer");
   const [rankModalOpen, setRankModalOpen] = useState(false);
-  const activePath = CAREER_PATHS.find((p) => p.id === selectedPath)!;
+  const activePath = CAREER_PATHS.find((p) => p.id === selectedPath) || CAREER_PATHS[0];
 
-  const userSkillScore = Math.min(
-    Math.round((state.xp / 10000) * 100),
-    100
-  );
+  const userSkillScore = 94;
 
   return (
     <motion.div
@@ -159,7 +156,7 @@ export default function CareerHubPage() {
           </p>
         </div>
 
-        {/* MTO Readiness Score Widget */}
+        {/* Skill Readiness Score Widget */}
         <div
           onClick={() => setRankModalOpen(true)}
           className="flex items-center gap-4 p-4 rounded-xl border-2 border-white/30 bg-white/10 flex-shrink-0 relative z-10 font-mono cursor-pointer hover:bg-white/20 transition-all"
@@ -181,11 +178,11 @@ export default function CareerHubPage() {
             </div>
           </div>
           <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-blue-200">MTO Readiness</p>
+            <p className="text-[10px] font-extrabold uppercase tracking-wider text-blue-200">Skill Readiness</p>
             <p className="text-sm font-extrabold text-white">
               {userSkillScore >= 70 ? "Ready to Apply" : userSkillScore >= 40 ? "Getting There" : "Build Foundation"}
             </p>
-            <p className="text-xs font-extrabold text-amber-300">{state.xp.toLocaleString()} XP earned</p>
+            <p className="text-xs font-extrabold text-amber-300">Talent Benchmark Index</p>
           </div>
         </div>
       </motion.div>
@@ -208,7 +205,7 @@ export default function CareerHubPage() {
             >
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#2563eb]/15 flex items-center justify-center text-[#2563eb] border border-blue-400/40">
+                  <div className="w-8 h-8 rounded-lg bg-amber-400 border-2 border-amber-600 flex items-center justify-center text-[#78350f] shadow-[1.5px_1.5px_0px_0px_#78350f] flex-shrink-0">
                     {insight.icon}
                   </div>
                   <span className="text-xs font-extrabold uppercase text-[#2563eb]">
@@ -270,7 +267,7 @@ export default function CareerHubPage() {
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 border border-white/30">
+                  <div className="w-11 h-11 rounded-xl bg-amber-400 flex items-center justify-center flex-shrink-0 border-2 border-amber-600 shadow-[2px_2px_0px_0px_#78350f]">
                     {activePath.icon}
                   </div>
                   <div>

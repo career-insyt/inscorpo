@@ -8,8 +8,8 @@ import {
 
 const features = [
   {
-    title: "Flagship Learning Paths",
-    description: "Structured career tracks for Corporate MTOs, Management Trainees, Business Analytics, Financial Modeling, and AI Productivity.",
+    title: "Flagship Career Courses",
+    description: "Industry-grade courses in Video Production + AI, Presentation Engineering, AI for Work, and GRE Preparation.",
     icon: BookOpen,
     variant: "primary",
     span: "md:col-span-2",
@@ -37,7 +37,7 @@ const features = [
   },
   {
     title: "Gamified XP & Ranks",
-    description: "Every action earns XP. Rise from Bronze to Legend. Daily streaks, achievements, leaderboards, and rewards.",
+    description: "Every action earns XP. Rise from Bronze to Legend. Daily streaks, achievements, skill credentials, and rewards.",
     icon: Zap,
     variant: "secondary",
     span: "",

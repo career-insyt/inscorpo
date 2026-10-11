@@ -1,36 +1,33 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
   Search, Bell, ChevronRight, X, Sun, Moon,
-  BookOpen, Award, MessageSquare, Info, LogOut, Trophy, Crown, User, Settings,
-  Compass, Brain, ClipboardList, Building2, Calendar, Zap, Flame, ShieldCheck
+  BookOpen, Award, LogOut, Crown, User, Building2, Flame,
+  CheckCheck, Trash2, AlertCircle, Sparkles, Zap, ArrowRight
 } from "lucide-react";
 import { useUser } from "@/components/providers/user-context";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useTheme } from "@/components/providers/theme-provider";
-import { XpExplainerModal } from "@/components/dashboard/xp-explainer-modal";
 import { StreakExplainerModal } from "@/components/dashboard/streak-explainer-modal";
-import { RankExplainerModal } from "@/components/dashboard/rank-explainer-modal";
-import { getRankInfo, RankBadge } from "@/components/ui/rank-badge";
+import { SearchCommandPalette } from "@/components/layout/search-command-palette";
+import { Notification } from "@/lib/state/types";
 import { cn } from "@/lib/utils";
 
 const breadcrumbMap: Record<string, string> = {
   "/dashboard": "Dashboard",
-  "/learn": "Learning Tracks",
-  "/courses": "Individual Courses",
+  "/learn": "Learn",
+  "/learn/courses": "Individual Courses",
   "/mock-tests": "Practice Tests",
   "/career-passport": "Career Passport",
   "/career-hub": "Career Hub",
   "/certificates": "Certificates",
-  "/leaderboard": "Leaderboard",
   "/workshops": "Live Workshops",
   "/events": "Events & Competitions",
   "/marketplace": "Marketplace",
-  "/settings": "Settings",
   "/help": "Help & Support",
   "/mock-interviews": "AI Mock Interviews",
   "/challenges": "Skill Challenges",
@@ -50,21 +47,67 @@ function resolveBreadcrumb(pathname: string): string {
 
 export function DashboardTopbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
-  const { state, markNotificationRead } = useUser();
+  const {
+    state,
+    markNotificationRead,
+    markAllNotificationsRead,
+    deleteNotification,
+    clearAllNotifications,
+  } = useUser();
 
   const [notifOpen, setNotifOpen] = useState(false);
+  const [notifFilter, setNotifFilter] = useState<"all" | "unread" | "achievement" | "alert">("all");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [xpModalOpen, setXpModalOpen] = useState(false);
   const [streakModalOpen, setStreakModalOpen] = useState(false);
-  const [rankModalOpen, setRankModalOpen] = useState(false);
 
   const currentPage = resolveBreadcrumb(pathname);
   const unreadCount = state.notifications.filter((n) => !n.read).length;
-  const userRank = getRankInfo(state.xp);
+
+  const tier = (state.subscriptionTier || "starter") as "starter" | "single_course" | "flagship_path" | "pro" | "enterprise";
+
+  const tierStyles = {
+    pro: {
+      name: "PRO ACTIVE",
+      shortName: "PRO",
+      icon: <Crown size={13} className="fill-amber-950 text-amber-950" />,
+      badgeClass: "bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-950 border-2 border-amber-600 shadow-[2px_2px_0px_0px_#78350f] hover:from-amber-300 hover:to-yellow-300",
+      tagClass: "bg-amber-400 text-amber-950",
+    },
+    flagship_path: {
+      name: "TRACK PASS",
+      shortName: "TRACK",
+      icon: <Award size={13} className="fill-white text-white" />,
+      badgeClass: "bg-gradient-to-r from-violet-600 to-purple-600 text-white border-2 border-violet-400 shadow-[2px_2px_0px_0px_#4c1d95] hover:from-violet-500 hover:to-purple-500",
+      tagClass: "bg-violet-600 text-white",
+    },
+    single_course: {
+      name: "COURSE PASS",
+      shortName: "COURSE",
+      icon: <Award size={13} className="text-white" />,
+      badgeClass: "bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-2 border-emerald-400 shadow-[2px_2px_0px_0px_#064e3b] hover:from-emerald-500 hover:to-teal-500",
+      tagClass: "bg-emerald-600 text-white",
+    },
+    enterprise: {
+      name: "ENTERPRISE",
+      shortName: "CORP",
+      icon: <Building2 size={13} className="text-white" />,
+      badgeClass: "bg-gradient-to-r from-blue-700 to-indigo-800 text-white border-2 border-blue-400 shadow-[2px_2px_0px_0px_#1e1b4b] hover:from-blue-600 hover:to-indigo-700",
+      tagClass: "bg-blue-700 text-white",
+    },
+    starter: {
+      name: "Upgrade Pro",
+      shortName: "PRO",
+      icon: <Crown size={13} />,
+      badgeClass: "text-white bg-[#2563eb] hover:bg-blue-600 border-2 border-blue-400 shadow-[2px_2px_0px_0px_#1e3a8a]",
+      tagClass: "bg-slate-700 text-slate-300",
+    },
+  };
+
+  const currentTier = tierStyles[tier] || tierStyles.starter;
 
   const closeAllMenus = () => {
     setNotifOpen(false);
@@ -100,6 +143,29 @@ export function DashboardTopbar() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  const handleNotificationClick = (item: Notification) => {
+    markNotificationRead(item.id);
+    setNotifOpen(false);
+    if (item.link) {
+      router.push(item.link);
+    } else if (item.title.toLowerCase().includes("streak")) {
+      router.push("/dashboard?highlight=daily-streak");
+    } else if (item.title.toLowerCase().includes("gap")) {
+      router.push("/dashboard?highlight=skill-gap-audit");
+    } else if (item.title.toLowerCase().includes("passport") || item.title.toLowerCase().includes("evidence")) {
+      router.push("/career-passport?highlight=career-passport-evidence");
+    } else {
+      router.push("/dashboard");
+    }
+  };
+
+  const filteredNotifications = state.notifications.filter((n) => {
+    if (notifFilter === "unread") return !n.read;
+    if (notifFilter === "achievement") return n.type === "achievement";
+    if (notifFilter === "alert") return n.type === "alert" || n.type === "system";
+    return true;
+  });
+
   return (
     <header
       className="relative z-30 h-16 flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 md:px-6 flex-shrink-0 font-sans border-b-2 max-w-full"
@@ -125,7 +191,7 @@ export function DashboardTopbar() {
         </span>
       </div>
 
-      {/* Middle: Quick Search Trigger Button */}
+      {/* Middle: Quick Search Trigger Button (GOATED Command Palette Trigger) */}
       <div className="flex-1 max-w-[180px] lg:max-w-[240px] hidden md:flex justify-center font-mono">
         <button
           onClick={() => setSearchOpen(true)}
@@ -135,7 +201,7 @@ export function DashboardTopbar() {
             borderColor: "var(--corp-border)",
             color: "var(--corp-text-secondary)",
           }}
-          aria-label="Search"
+          aria-label="Search command palette"
         >
           <div className="flex items-center gap-2 min-w-0">
             <Search size={14} className="text-[#2563eb] flex-shrink-0" />
@@ -176,37 +242,33 @@ export function DashboardTopbar() {
             : <Moon size={15} className="text-[#2563eb] fill-[#2563eb]" />}
         </button>
 
-        {/* XP Badge Pill */}
+        {/* Streak Pill — Strictly "{streak}d", Yellow colored with dark brown borders and animated fire on hover */}
         <div
-          onClick={() => setXpModalOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black border-2 border-amber-500 bg-amber-400 text-amber-950 cursor-pointer hover:scale-105 active:scale-95 transition-all shadow-sm flex-shrink-0"
-          title="Click to view XP Breakdown & Perks"
+          onClick={() => setStreakModalOpen(true)}
+          className="group flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black cursor-pointer bg-amber-300 dark:bg-yellow-400 border-2 border-[#451a03] text-[#451a03] shadow-[2px_2px_0px_0px_#451a03] hover:scale-105 active:scale-95 transition-all flex-shrink-0"
+          title="Daily Check-in Streak (Click to inspect)"
         >
-          <Zap size={16} className="text-amber-950 fill-amber-950 flex-shrink-0" />
-          <span className="hidden xs:inline">{state.xp.toLocaleString()} XP</span>
-          <span className="xs:hidden">{state.xp}</span>
+          <Flame
+            size={15}
+            className="text-[#451a03] fill-amber-500 group-hover:scale-135 group-hover:rotate-12 group-hover:animate-bounce transition-transform duration-300 flex-shrink-0"
+          />
+          <span className="font-mono font-black">{state.streak || 1}d</span>
         </div>
 
-        {/* Streak Pill */}
-        {state.streak > 0 && (
-          <div
-            onClick={() => setStreakModalOpen(true)}
-            className="hidden lg:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black border-2 border-rose-500/50 bg-rose-500/15 text-rose-600 dark:text-rose-400 cursor-pointer hover:scale-105 active:scale-95 transition-all shadow-sm flex-shrink-0"
-            title="Click to view Daily Streak Calendar"
+        {/* Dynamic Plan / Upgrade Badge */}
+        {tier !== "starter" ? (
+          <Link
+            href="/subscription"
+            title={`Active Plan: ${currentTier.name} (Click to manage)`}
+            className={cn(
+              "hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase transition-all active:scale-95 flex-shrink-0 cursor-pointer",
+              currentTier.badgeClass
+            )}
           >
-            <Flame size={15} className="text-rose-500 fill-rose-500" />
-            <span>{state.streak}d Streak</span>
-          </div>
-        )}
-
-        {/* Pro Pass / Upgrade Badge */}
-        {state.subscriptionTier === "pro" ? (
-          <div
-            className="hidden xl:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase text-amber-950 bg-amber-400 border border-amber-500 shadow-sm flex-shrink-0"
-          >
-            <Crown size={13} fill="currentColor" />
-            <span>PRO</span>
-          </div>
+            {currentTier.icon}
+            <span className="hidden lg:inline">{currentTier.name}</span>
+            <span className="lg:hidden">{currentTier.shortName}</span>
+          </Link>
         ) : (
           <Link
             href="/subscription"
@@ -218,44 +280,21 @@ export function DashboardTopbar() {
           </Link>
         )}
 
-        {/* Notifications Dropdown Trigger */}
+        {/* Notifications Dropdown Trigger (Circular matching navbar aesthetics) */}
         <div className="relative flex-shrink-0">
           <button
             onClick={toggleNotif}
-            className="p-1.5 bg-transparent border-none outline-none relative flex items-center justify-center cursor-pointer group"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all border-2 border-corp-border hover:bg-corp-bg-secondary active:scale-95 flex-shrink-0 cursor-pointer relative"
+            style={{ color: "var(--corp-text-secondary)" }}
             aria-label="Notifications"
+            title="Notifications"
           >
-            <motion.div
-              animate={unreadCount > 0 ? {
-                rotate: [0, -14, 14, -10, 10, -5, 5, 0],
-              } : {}}
-              transition={unreadCount > 0 ? {
-                repeat: Infinity,
-                repeatDelay: 3.5,
-                duration: 0.7,
-                ease: "easeInOut"
-              } : {}}
-              whileHover={{
-                rotate: [0, -22, 20, -14, 10, -5, 0],
-                scale: 1.2,
-                transition: { duration: 0.5, ease: "easeInOut" },
-              }}
-              className="relative inline-flex items-center justify-center"
-            >
-              <Bell
-                size={25}
-                className="text-amber-400 fill-amber-400/30 group-hover:fill-amber-400 transition-all filter drop-shadow-[0_2px_6px_rgba(245,158,11,0.5)]"
-              />
-              {unreadCount > 0 && (
-                <motion.span
-                  initial={{ scale: 0.8 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-1.5 -right-2 flex items-center justify-center text-[10px] font-mono font-black text-white bg-rose-600 border-2 border-slate-900 px-1 min-w-[18px] h-[18px] rounded-full shadow-md leading-none z-10"
-                >
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </motion.span>
-              )}
-            </motion.div>
+            <Bell size={15} className="text-[#2563eb]" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex items-center justify-center text-[9px] font-mono font-black text-white bg-rose-600 border border-white dark:border-slate-900 px-1 min-w-[16px] h-[16px] rounded-full shadow-md leading-none z-10">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
           </button>
 
           <AnimatePresence>
@@ -267,41 +306,126 @@ export function DashboardTopbar() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.94 }}
                   transition={{ type: "spring", stiffness: 380, damping: 28, mass: 0.7 }}
-                  className="absolute right-0 top-11 w-76 sm:w-84 rounded-sm shadow-[0_20px_50px_rgba(0,0,0,0.4)] z-[1001] overflow-hidden border-2 border-corp-border font-mono"
-                  style={{ background: "var(--corp-surface)" }}
+                  className="absolute right-0 top-11 w-80 sm:w-96 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.2)] z-[1001] overflow-hidden border-2 border-blue-500 bg-white text-slate-900 font-sans"
                 >
-                  <div className="flex items-center justify-between p-3.5 border-b-2 border-corp-border bg-corp-bg-secondary">
-                    <h3 className="text-xs font-black uppercase text-corp-text flex items-center gap-2">
-                      <Bell size={14} className="text-[#2563eb]" /> Notifications
-                    </h3>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-[#2563eb] border border-blue-500/20">
-                      {unreadCount} unread
-                    </span>
+                  {/* Popover Header */}
+                  <div className="flex items-center justify-between p-3.5 border-b-2 border-slate-200 bg-slate-50">
+                    <div className="flex items-center gap-2">
+                      <Bell size={16} className="text-[#2563eb]" />
+                      <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
+                        Notifications
+                      </h3>
+                      {unreadCount > 0 && (
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200">
+                          {unreadCount} new
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={markAllNotificationsRead}
+                          className="flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-1 rounded-md text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 transition-colors cursor-pointer"
+                          title="Mark all as read"
+                        >
+                          <CheckCheck size={13} /> Mark read
+                        </button>
+                      )}
+                      {state.notifications.length > 0 && (
+                        <button
+                          onClick={clearAllNotifications}
+                          className="flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                          title="Clear all notifications"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="max-h-72 overflow-y-auto divide-y divide-corp-border">
-                    {state.notifications.length === 0 ? (
-                      <div className="p-6 text-center text-xs text-corp-text-tertiary">
-                        No notifications yet
+                  {/* Filter Tabs */}
+                  <div className="flex items-center gap-1 px-3 py-1.5 border-b border-slate-200 bg-slate-100 font-mono text-[11px] overflow-x-auto no-scrollbar">
+                    {(["all", "unread", "achievement", "alert"] as const).map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setNotifFilter(tab)}
+                        className={`px-2.5 py-1 rounded-md capitalize font-bold transition-all cursor-pointer whitespace-nowrap ${
+                          notifFilter === tab
+                            ? "bg-blue-600 text-white font-black shadow-xs"
+                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-200"
+                        }`}
+                      >
+                        {tab === "all" ? `All (${state.notifications.length})` : tab}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Notifications List */}
+                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 bg-white">
+                    {filteredNotifications.length === 0 ? (
+                      <div className="py-10 px-4 text-center space-y-2">
+                        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400 border border-slate-200">
+                          <Bell size={18} />
+                        </div>
+                        <p className="text-xs font-bold text-slate-900">All caught up!</p>
+                        <p className="text-[11px] text-slate-500">No notifications in this filter.</p>
                       </div>
                     ) : (
-                      state.notifications.map((item) => (
+                      filteredNotifications.map((item) => (
                         <div
                           key={item.id}
-                          onClick={() => markNotificationRead(item.id)}
-                          className={`p-3 text-xs transition-colors cursor-pointer hover:bg-corp-bg-secondary ${
-                            !item.read ? "bg-blue-500/5 font-semibold" : ""
+                          onClick={() => handleNotificationClick(item)}
+                          className={`p-3.5 text-xs transition-all cursor-pointer group flex items-start gap-3 ${
+                            !item.read
+                              ? "bg-blue-50/70 hover:bg-blue-100/60"
+                              : "hover:bg-slate-50"
                           }`}
                         >
-                          <div className="flex items-start justify-between gap-2">
-                            <span className="text-corp-text leading-tight">{item.title}</span>
-                            {!item.read && (
-                              <span className="w-2 h-2 rounded-full bg-[#2563eb] flex-shrink-0 mt-1" />
+                          {/* Type Icon Badge */}
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 border border-slate-200 bg-slate-100 text-slate-900">
+                            {item.type === "achievement" ? (
+                              <Award size={15} className="text-amber-500" />
+                            ) : item.type === "alert" ? (
+                              <AlertCircle size={15} className="text-rose-500" />
+                            ) : item.type === "course" ? (
+                              <BookOpen size={15} className="text-blue-500" />
+                            ) : (
+                              <Sparkles size={15} className="text-purple-500" />
                             )}
                           </div>
-                          <p className="text-[11px] text-corp-text-secondary mt-1 font-normal leading-normal">
-                            {item.message}
-                          </p>
+
+                          {/* Content */}
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <div className="flex items-start justify-between gap-1.5">
+                              <span className="font-extrabold text-slate-900 leading-tight line-clamp-1 group-hover:text-blue-600 transition-colors">
+                                {item.title}
+                              </span>
+                              {!item.read && (
+                                <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6] flex-shrink-0 mt-1" />
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-600 font-normal leading-relaxed line-clamp-2">
+                              {item.message}
+                            </p>
+                            <div className="flex items-center justify-between pt-1 text-[10px] font-mono text-slate-400">
+                              <span>{item.time}</span>
+                              <span className="text-[#2563eb] font-bold group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+                                Jump to section <ArrowRight size={10} />
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Delete Item Button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteNotification(item.id);
+                            }}
+                            className="text-slate-400 hover:text-slate-700 p-1 rounded hover:bg-slate-100 transition-colors flex-shrink-0 cursor-pointer"
+                            title="Dismiss notification"
+                          >
+                            <X size={13} />
+                          </button>
                         </div>
                       ))
                     )}
@@ -312,86 +436,100 @@ export function DashboardTopbar() {
           </AnimatePresence>
         </div>
 
-        {/* USER PROFILE MENU TRIGGER — MAX ROUNDED */}
+        {/* USER PROFILE MENU TRIGGER (Circular matching navbar aesthetics) */}
         <div className="relative flex-shrink-0">
-          <button
-            onClick={toggleUserMenu}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full transition-all border-2 active:scale-95 cursor-pointer font-mono min-h-[38px] hover:brightness-105 shadow-sm"
-            style={{
-              background: "var(--corp-bg-secondary)",
-              borderColor: userRank.current.color,
-              boxShadow: `2px 2px 0px 0px ${userRank.current.shadowColor}`,
-            }}
-            aria-label="User menu"
-          >
-            {/* Avatar Box in Rank Gradient — MAX ROUNDED */}
-            <div
-              className="w-7 h-7 rounded-full flex items-center justify-center font-extrabold text-xs border shadow-sm flex-shrink-0"
-              style={{
-                background: userRank.current.gradient,
-                color: userRank.current.textColor,
-                borderColor: userRank.current.shadowColor,
-              }}
-            >
-              {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-            </div>
+          {(() => {
+            const userPhoto = state.passportProfile?.photoUrl;
+            const userDisplayName = user?.name || state.name || "Candidate";
+            const userInitial = userDisplayName.charAt(0).toUpperCase() || "U";
 
-            {/* Name + Level */}
-            <div className="hidden lg:flex flex-col text-left leading-tight min-w-0 pr-0.5">
-              <span className="text-[11px] font-black text-corp-text truncate max-w-[95px]">
-                {user?.name || "Student"}
-              </span>
-              <span className="text-[9px] font-black font-mono uppercase tracking-wider text-amber-500 mt-0.5">
-                Lvl {state.level}
-              </span>
-            </div>
-
-            <ChevronRight
-              size={13}
-              className={cn("text-corp-text-tertiary transition-transform duration-200 hidden lg:inline", userMenuOpen && "rotate-90")}
-            />
-          </button>
-
-          {/* Profile Dropdown Menu */}
-          <AnimatePresence>
-            {userMenuOpen && (
+            return (
               <>
-                <div className="fixed inset-0 z-[1000]" onClick={() => setUserMenuOpen(false)} />
-                <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.94 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 1 }}
-                  transition={{ type: "spring", stiffness: 380, damping: 28, mass: 0.7 }}
-                  className="absolute right-0 top-11 w-64 rounded-sm shadow-[0_20px_50px_rgba(0,0,0,0.4)] z-[1001] overflow-hidden border-2 border-corp-border"
-                  style={{ background: "var(--corp-surface)" }}
+                <button
+                  onClick={toggleUserMenu}
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all border-2 border-corp-border hover:bg-corp-bg-secondary active:scale-95 flex-shrink-0 cursor-pointer relative overflow-hidden bg-[#2563eb] text-white shadow-sm font-mono font-black text-xs"
+                  aria-label="User menu"
+                  title={`User menu (${userDisplayName})`}
                 >
-                  <div 
-                    onClick={() => { setUserMenuOpen(false); setRankModalOpen(true); }}
-                    className="p-4 border-b-2 border-corp-border bg-corp-bg-secondary space-y-2 font-mono cursor-pointer hover:bg-corp-surface transition-colors"
-                    title="Click to view Rank Tiers"
-                  >
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-black text-corp-text truncate">{user?.name || "User"}</p>
-                      <RankBadge rank={userRank.current} size="xs" />
-                    </div>
-                    <p className="text-[10px] text-corp-text-tertiary truncate">{user?.email || "user@insyt.com"}</p>
-                    <p className="text-[10px] text-[#2563eb] font-bold">Rank: {userRank.current.name} (Click for Perks)</p>
-                  </div>
+                  {userPhoto ? (
+                    <img
+                      src={userPhoto}
+                      alt={userDisplayName}
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    userInitial
+                  )}
+                </button>
+
+                {/* Profile Dropdown Menu */}
+                <AnimatePresence>
+                  {userMenuOpen && (
+                    <>
+                      <div className="fixed inset-0 z-[1000]" onClick={() => setUserMenuOpen(false)} />
+                      <motion.div
+                        initial={{ opacity: 0, y: -10, scale: 0.94 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10, scale: 1 }}
+                        transition={{ type: "spring", stiffness: 380, damping: 28, mass: 0.7 }}
+                        className="absolute right-0 top-11 w-64 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.4)] z-[1001] overflow-hidden border-2 border-corp-border"
+                        style={{ background: "var(--corp-surface)" }}
+                      >
+                        <div 
+                          className="p-4 border-b-2 border-corp-border bg-corp-bg-secondary space-y-3 font-mono"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full border-2 border-corp-border overflow-hidden bg-[#2563eb] text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm">
+                              {userPhoto ? (
+                                <img
+                                  src={userPhoto}
+                                  alt={userDisplayName}
+                                  className="w-full h-full object-cover rounded-full"
+                                />
+                              ) : (
+                                userInitial
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between">
+                                <p className="text-xs font-black text-corp-text truncate">{userDisplayName}</p>
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-blue-500/15 text-[#2563eb] border border-blue-400/30">
+                                  Candidate
+                                </span>
+                              </div>
+                              <p className="text-[10px] text-corp-text-tertiary truncate">{user?.email || state.email || "user@insyt.com"}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-[10px] pt-1 border-t border-corp-border/60">
+                            <span className="text-emerald-600 font-bold flex items-center gap-1">
+                              Corporate Candidate
+                            </span>
+                            <span className={cn("px-1.5 py-0.5 rounded font-black text-[9px] uppercase", currentTier.tagClass)}>
+                              {currentTier.name}
+                            </span>
+                          </div>
+                        </div>
 
                   <div className="p-2 space-y-1 font-mono text-xs">
                     <Link
+                      href="/subscription"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center justify-between px-3 py-2 rounded-md text-corp-text hover:bg-corp-bg-secondary transition-colors cursor-pointer"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Crown size={14} className="text-amber-500" /> Membership Plan
+                      </span>
+                      <span className={cn("text-[9px] font-black uppercase px-1.5 py-0.5 rounded", currentTier.tagClass)}>
+                        {currentTier.shortName}
+                      </span>
+                    </Link>
+
+                    <Link
                       href="/career-passport"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-sm text-corp-text hover:bg-corp-bg-secondary transition-colors cursor-pointer"
+                      className="flex items-center gap-2 px-3 py-2 rounded-md text-corp-text hover:bg-corp-bg-secondary transition-colors cursor-pointer"
                     >
                       <User size={14} className="text-[#2563eb]" /> Career Passport
-                    </Link>
-                    <Link
-                      href="/settings"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-sm text-corp-text hover:bg-corp-bg-secondary transition-colors cursor-pointer"
-                    >
-                      <Settings size={14} className="text-[#2563eb]" /> Settings
                     </Link>
 
                     <button
@@ -399,23 +537,27 @@ export function DashboardTopbar() {
                         setUserMenuOpen(false);
                         logout();
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-sm text-rose-600 hover:bg-rose-500/10 transition-colors font-bold cursor-pointer"
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-rose-600 hover:bg-rose-500/10 transition-colors font-bold cursor-pointer"
                     >
                       <LogOut size={14} /> Log Out
                     </button>
                   </div>
                 </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
               </>
-            )}
-          </AnimatePresence>
+            );
+          })()}
         </div>
 
       </div>
 
-      {/* XP, Streak & Rank Explainer Modals */}
-      <XpExplainerModal isOpen={xpModalOpen} onClose={() => setXpModalOpen(false)} state={state} />
+      {/* Streak Explainer Modal */}
       <StreakExplainerModal isOpen={streakModalOpen} onClose={() => setStreakModalOpen(false)} state={state} />
-      <RankExplainerModal isOpen={rankModalOpen} onClose={() => setRankModalOpen(false)} state={state} />
+
+      {/* GOATED Search Command Palette */}
+      <SearchCommandPalette isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );
 }

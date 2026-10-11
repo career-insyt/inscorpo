@@ -50,7 +50,7 @@ export function ResumeUploadModal({ isOpen, onClose }: ResumeUploadModalProps) {
 
         addNotification({
           type: "achievement",
-          title: "🤖 Career Passport Auto-Filled!",
+          title: "Career Passport Auto-Filled",
           message: "AI successfully parsed your CV and updated your verified Passport credentials.",
         });
 

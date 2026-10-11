@@ -12,13 +12,14 @@ export async function POST(req: Request) {
     }
 
     const reqBody = await req.json().catch(() => ({}));
-    const apiKey = reqBody.apiKey || process.env.APPWRITE_API_KEY;
-    const projectId = reqBody.projectId || process.env.NEXT_PUBLIC_APPWRITE_PROJECT || "6a55c66500032e142d85";
-    const endpoint = reqBody.endpoint || process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || "https://sgp.cloud.appwrite.io/v1";
-    const databaseId = reqBody.databaseId || "6a56075800013fce1aa1";
+    // API key must come from server environment only — never from request body
+    const apiKey = process.env.APPWRITE_API_KEY;
+    const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT;
+    const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
+    const databaseId = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID;
 
-    if (!apiKey) {
-      return NextResponse.json({ error: "API Key required for seed endpoint" }, { status: 400 });
+    if (!apiKey || !endpoint || !projectId || !databaseId) {
+      return NextResponse.json({ error: "Server Appwrite environment variables (API Key, Endpoint, Project, Database) are required" }, { status: 400 });
     }
 
     const client = new Client()
@@ -127,12 +128,20 @@ export async function POST(req: Request) {
     // Seed Data
     const seedPaths = [
       {
-        slug: "corporate-mto",
-        title: "Corporate Job / MTO Masterclass",
-        description: "Crack Management Trainee assessments, refine your CV for ATS screening, and master behavioral, technical, and consulting case interviews.",
-        modules: 4, hours: 23, students: 52100, rating: 5.0,
-        icon: "Briefcase", gradient: "from-blue-600 to-indigo-800",
-        topics: ["SHL Tests", "Psychometric", "Situational Judgment", "ATS CV", "STAR Method"],
+        slug: "video-ai-production",
+        title: "Video Editing + AI Production",
+        description: "From CapCut Social Videos to AI-Assisted Professional Production. Tool handoff logic across CapCut, Gemini, ElevenLabs, and Higgsfield.",
+        modules: 4, hours: 22, students: 0, rating: 0,
+        icon: "Video", gradient: "from-violet-600 via-purple-700 to-indigo-900",
+        topics: ["CapCut", "Gemini", "ElevenLabs", "Higgsfield", "Sound Design", "Soul ID"],
+      },
+      {
+        slug: "presentation-engineering",
+        title: "Presentation Engineering (Gamma + Canva + PowerPoint)",
+        description: "From Idea to Investor Deck: Master Gamma AI, Canva visual design, and executive PowerPoint storytelling.",
+        modules: 4, hours: 18, students: 0, rating: 0,
+        icon: "Presentation", gradient: "from-amber-600 via-orange-700 to-slate-950",
+        topics: ["Gamma AI", "Canva Pro", "PowerPoint", "Pitch Decks", "Data Storytelling"],
       }
     ];
 
@@ -147,20 +156,20 @@ export async function POST(req: Request) {
 
     const seedCourses = [
       {
-        slug: "recruit-assessments",
-        pathSlug: "corporate-mto",
-        title: "Application Strategy & Assessment Tests",
-        description: "SHL numerical reasoning, situational judgment tests (SJT), and employer expectations for top MNC recruitment drives.",
+        slug: "video-editing-mastery",
+        pathSlug: "video-ai-production",
+        title: "Video Editing & Social Media Production",
+        description: "From basic cuts to advanced pacing, rhythm, transitions, and audio sync.",
         lessons: 8, hours: 6, xp: 350, locked: false,
-        skills: ["SHL Tests", "Psychometric", "Situational Judgment", "ATS CV"],
+        skills: ["Video Editing", "Pacing", "Sound Design", "CapCut Pro"],
       },
       {
-        slug: "recruit-behavioral",
-        pathSlug: "corporate-mto",
-        title: "Behavioral & HR Interview Mastery",
-        description: "STAR framework storytelling, CAR structures, and templates for answering tough behavioral questions.",
+        slug: "presentation-mastery",
+        pathSlug: "presentation-engineering",
+        title: "Executive Presentation Architecture",
+        description: "Executive slide hierarchy, typography, data visualization, and compelling investor narrative design.",
         lessons: 7, hours: 5, xp: 350, locked: false,
-        skills: ["STAR Method", "HR Interviews", "Behavioral Q&A"],
+        skills: ["Presentation Design", "PowerPoint", "Gamma AI", "Storytelling"],
       }
     ];
 

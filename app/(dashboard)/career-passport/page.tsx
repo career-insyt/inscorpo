@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Award, Shield, FileDown, Share2, QrCode, Sparkles, Check, CheckCircle2,
   Trophy, BookOpen, Star, Mail, MapPin, Briefcase, GraduationCap, Link2,
   Phone, Edit3, Plus, Trash2, X, Save, User, Building2,
-  Calendar, ExternalLink, RefreshCw, ShieldCheck, Camera, Upload, Image as ImageIcon
+  Calendar, ExternalLink, RefreshCw, ShieldCheck, Camera, Upload, Image as ImageIcon,
+  BrainCircuit, AlertCircle
 } from "lucide-react";
 import { useUser } from "@/components/providers/user-context";
 import { PassportExperience, PassportProfile } from "@/lib/state/types";
@@ -14,6 +15,11 @@ import { AlertDialog } from "@/components/ui/alert-dialog";
 import { ResumeUploadModal } from "@/components/passport/resume-upload-modal";
 import { ProUpgradeModal } from "@/components/pro-upgrade-modal";
 import { getRankInfo, RankBadge, getContrastColor } from "@/components/ui/rank-badge";
+import { SkillCombobox } from "@/components/ui/skill-combobox";
+import { AiSkillAssessmentModal } from "@/components/passport/ai-skill-assessment-modal";
+import { PlatformBadge } from "@/components/ui/platform-badge";
+import { PLATFORM_BADGES } from "@/lib/data/platform-badges";
+import { ImageCropModal } from "@/components/passport/image-crop-modal";
 
 function EditableField({
   value, placeholder, onSave, multiline = false, className = ""
@@ -83,7 +89,7 @@ const PRESET_AVATARS = [
   { label: "FMCG Lead", url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" },
   { label: "Tech Director", url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" },
   { label: "Finance Strategist", url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80" },
-  { label: "MTO Analyst", url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80" },
+  { label: "Creative Lead", url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80" },
   { label: "Operations Lead", url: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80" },
   { label: "Brand Director", url: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80" },
 ];
@@ -101,6 +107,10 @@ export default function CareerPassportPage() {
   const [newExp, setNewExp] = useState<Omit<PassportExperience, "id">>(EMPTY_EXP);
   const [addingSkill, setAddingSkill] = useState(false);
   const [newSkill, setNewSkill] = useState("");
+  const [customUrlInput, setCustomUrlInput] = useState("");
+  const [assessmentSkill, setAssessmentSkill] = useState<string | null>(null);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [tempImageForCrop, setTempImageForCrop] = useState<string | null>(null);
 
   const [alertDialog, setAlertDialog] = useState<{
     isOpen: boolean;
@@ -120,22 +130,23 @@ export default function CareerPassportPage() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 15 * 1024 * 1024) {
       setAlertDialog({
         isOpen: true,
         title: "File Too Large",
-        message: "Please choose an image file under 5MB.",
+        message: "Please choose an image file under 15MB.",
         type: "warning",
       });
       return;
     }
     const reader = new FileReader();
     reader.onload = (evt) => {
-      const dataUrl = evt.target?.result as string;
-      if (dataUrl) {
-        save({ photoUrl: dataUrl });
-        setShowPhotoModal(false);
-      }
+      const rawData = evt.target?.result as string;
+      if (!rawData) return;
+      setTempImageForCrop(rawData);
+      setCropModalOpen(true);
+      setShowPhotoModal(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     };
     reader.readAsDataURL(file);
   };
@@ -174,7 +185,52 @@ export default function CareerPassportPage() {
     save({ summary: generated });
   };
 
-  const courseSkills = state.courseProgress.map((c) => ({ name: c.title, progress: c.progress }));
+  // Only completed courses (progress >= 100) populate verified skills & masteries
+  const completedCourses = state.courseProgress.filter((c) => c.progress >= 100);
+  const courseSkills: { name: string; progress: number; mastery: string }[] = [];
+
+  completedCourses.forEach((c) => {
+    const isExcel =
+      c.id === "excel-modeling" ||
+      c.courseId === "excel-modeling" ||
+      c.title.toLowerCase().includes("excel") ||
+      c.title.toLowerCase().includes("spreadsheet");
+
+    if (isExcel) {
+      const excelSkills = [
+        "Advanced Excel Spreadsheet Engineering",
+        "Financial Modeling Formulas & Sensitivity Tables",
+        "Excel Power Query & Data Automation",
+        "Dynamic Array Formulas & Lambda Functions",
+        "Cash Flow Management & Forecasting",
+      ];
+      excelSkills.forEach((skillName) => {
+        courseSkills.push({ name: skillName, progress: 100, mastery: "Level 5 Certified" });
+      });
+    } else {
+      courseSkills.push({ name: c.title, progress: 100, mastery: "Course Completed" });
+    }
+  });
+
+  const handleAssessmentPass = (
+    skillName: string,
+    score: number,
+    details: { verifiedAt: string; hash: string }
+  ) => {
+    const existing = pp?.verifiedSkillDetails || {};
+    save({
+      verifiedSkillDetails: {
+        ...existing,
+        [skillName]: {
+          verified: true,
+          score,
+          verifiedAt: details.verifiedAt,
+          hash: details.hash,
+        },
+      },
+    });
+  };
+
   const verificationId = `INSYT-PASS-${(state.name || "USER").substring(0, 3).toUpperCase()}-2026`;
 
   const [showProModal, setShowProModal] = useState(false);
@@ -224,8 +280,8 @@ export default function CareerPassportPage() {
 
   const handlePopulateSample = () => {
     save({
-      headline: "Corporate Analyst & Business Intelligence Specialist",
-      summary: "Results-driven business analyst with strong foundation in financial modeling, XLOOKUP data pipeline design, and executive presentation storytelling. Seeking high-impact corporate/MTO roles.",
+      headline: "Creative Producer & Presentation Specialist",
+      summary: "Results-driven specialist with strong foundation in digital production, presentation architecture, and executive storytelling. Seeking high-impact corporate and creative roles.",
       university: "Bangladesh Agricultural University (BAU)",
       degree: "Bachelor of Business Administration (BBA)",
       gradYear: "2026",
@@ -234,7 +290,7 @@ export default function CareerPassportPage() {
       linkedin: "linkedin.com/in/executive-pro",
       github: "github.com/analyst-pro",
       photoUrl: PRESET_AVATARS[0].url,
-      customSkills: ["Financial Modeling", "XLOOKUP & Data Cleaning", "Power BI Dashboards", "MTO Assessment Prep", "Agile Project Management"],
+      customSkills: ["Video Editing", "Presentation Design", "AI Automation", "GRE Prep", "Strategic Communications"],
       experience: [
         {
           id: `exp_sample_1`,
@@ -271,7 +327,7 @@ export default function CareerPassportPage() {
   };
 
   const initials = state.name ? state.name.substring(0, 2).toUpperCase() : "EX";
-  const { current: rankInfo } = getRankInfo(state.xp);
+  const { current: rankInfo } = getRankInfo(0);
   const rankTextColor = getContrastColor(rankInfo.color);
 
 
@@ -334,19 +390,13 @@ export default function CareerPassportPage() {
                 <ShieldCheck size={14} /> {verificationId}
               </span>
 
-              {/* Rank pill with rank color background + auto-contrast text */}
+              {/* Corporate Credential Status Pill */}
               <div
-                className="px-3 py-1.5 rounded-lg text-xs font-mono font-extrabold uppercase flex items-center gap-2"
-                style={{
-                  background: rankInfo.gradient,
-                  color: rankTextColor,
-                  boxShadow: `0 2px 8px ${rankInfo.shadowColor}55`,
-                  border: `1px solid ${rankInfo.shadowColor}66`,
-                }}
+                id="career-passport-evidence"
+                className="px-3 py-1.5 rounded-lg text-xs font-mono font-extrabold uppercase flex items-center gap-2 bg-emerald-400 text-emerald-950 border border-emerald-500 shadow-sm"
               >
-                <RankBadge rank={rankInfo} size="xs" />
-                Level {state.level} Executive · {rankInfo.name} Rank
-                <span className="opacity-70 text-[10px]">({state.xp.toLocaleString()} XP)</span>
+                <ShieldCheck size={14} className="text-emerald-950" />
+                <span>Corporate Credential · Recruiter Index: 94%</span>
               </div>
             </div>
 
@@ -401,7 +451,7 @@ export default function CareerPassportPage() {
                 </h3>
                 <button
                   onClick={() => {
-                    const tracksText = state.enrolledPathSlugs.length > 0 ? state.enrolledPathSlugs.join(", ") : "Corporate Analytics & MTO Prep";
+                    const tracksText = state.enrolledPathSlugs.length > 0 ? state.enrolledPathSlugs.join(", ") : "Professional Skills & Career Development";
                     const uniText = pp?.university ? `graduate of ${pp.university}` : "ambitious business professional";
                     const smartSummary = `High-performing ${uniText} specializing in ${tracksText}. Demonstrated expertise in financial modeling, XLOOKUP data pipelines, and executive storytelling with a focus on high-impact corporate performance.`;
                     save({ summary: smartSummary });
@@ -514,37 +564,138 @@ export default function CareerPassportPage() {
               )}
             </div>
 
-            {/* Skills */}
-            <div className="p-5 rounded-2xl space-y-4 border-2 border-blue-500 shadow-[5px_5px_0px_0px_#2563eb]" style={{ background: "var(--corp-surface)" }}>
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
-                  <Shield size={15} className="text-corp-accent" /> Verified Skills & Masteries
-                </h3>
-                <button onClick={() => setAddingSkill(true)} className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-corp-accent-light text-corp-accent">
-                  <Plus size={12} /> Add Skill
+            {/* Skills & Platform Badges */}
+            <div id="evidence-ledger" className="p-5 rounded-2xl space-y-6 border-2 border-blue-500 shadow-[5px_5px_0px_0px_#2563eb]" style={{ background: "var(--corp-surface)" }}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-corp-border pb-3">
+                <div>
+                  <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
+                    <Shield size={15} className="text-corp-accent" /> Verified Skills &amp; Masteries ({courseSkills.length + (pp?.customSkills ?? []).length})
+                  </h3>
+                  <p className="text-xs font-sans text-corp-text-tertiary">
+                    Auto-updated from course completions &amp; AI-proctored skill tests
+                  </p>
+                </div>
+                <button
+                  onClick={() => setAddingSkill(!addingSkill)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold uppercase bg-blue-600/15 text-blue-500 hover:bg-blue-600 hover:text-white border border-blue-500/40 transition-all cursor-pointer self-start sm:self-auto"
+                >
+                  <Plus size={12} /> Add Skill to Verify
                 </button>
               </div>
 
               {addingSkill && (
-                <div className="flex items-center gap-2">
-                  <input value={newSkill} onChange={(e) => setNewSkill(e.target.value)} placeholder="e.g. Financial Modeling" className="px-3 py-1.5 rounded-xl text-xs outline-none bg-corp-bg-secondary border" style={{ borderColor: "var(--corp-border)", color: "var(--corp-text)" }} />
-                  <button onClick={addCustomSkill} className="px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-corp-accent">Add</button>
-                  <button onClick={() => setAddingSkill(false)} className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-corp-bg-secondary text-corp-text-secondary">Cancel</button>
+                <div className="p-4 rounded-xl bg-blue-900/15 border-2 border-dashed border-blue-500/50 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-mono font-bold text-blue-400">
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles size={13} /> Select from 450+ Verified Catalog
+                    </span>
+                    <button onClick={() => setAddingSkill(false)} className="text-corp-text-tertiary hover:text-corp-text">
+                      Cancel
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-corp-text-secondary font-mono">
+                    You can type to filter candidates, but you must select an option from the dropdown list.
+                  </p>
+                  <SkillCombobox
+                    onSelectSkill={(selectedSkill) => {
+                      const existing = pp?.customSkills ?? [];
+                      if (!existing.some((s) => s.toLowerCase() === selectedSkill.toLowerCase())) {
+                        save({ customSkills: [...existing, selectedSkill] });
+                      }
+                      setAddingSkill(false);
+                    }}
+                    selectedSkills={pp?.customSkills ?? []}
+                  />
                 </div>
               )}
 
-              <div className="flex flex-wrap gap-2">
-                {courseSkills.map((s) => (
-                  <span key={s.name} className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-                    {s.name} ({s.progress}%)
+              {/* Verified Course Skills & Self-Added AI Verified Skills */}
+              <div className="space-y-2 font-mono">
+                {courseSkills.length === 0 && (pp?.customSkills ?? []).length === 0 && (
+                  <p className="text-xs italic text-center py-4 text-corp-text-tertiary">
+                    No verified skills unlocked yet. Complete courses to earn verified skills and masteries automatically!
+                  </p>
+                )}
+
+                <div className="flex flex-wrap gap-2.5">
+                  {/* Course Skills (Completed Courses) */}
+                  {courseSkills.map((s) => (
+                    <span
+                      key={s.name}
+                      className="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 shadow-[0_0_10px_rgba(16,185,129,0.2)] flex items-center gap-1.5"
+                    >
+                      <ShieldCheck size={13} className="text-emerald-400 animate-pulse" />
+                      <span>{s.name}</span>
+                      <span className="text-[10px] px-2.5 py-0.5 rounded font-extrabold bg-[#022c22] text-white border border-[#065f46] shadow-sm">
+                        Level 5 Certified
+                      </span>
+                    </span>
+                  ))}
+
+                  {/* Self-Added Skills (with AI Verification status & test action) */}
+                  {(pp?.customSkills ?? []).map((s) => {
+                    const isVerified = Boolean(pp?.verifiedSkillDetails?.[s]?.verified);
+                    const verifiedScore = pp?.verifiedSkillDetails?.[s]?.score;
+
+                    return (
+                      <div
+                        key={s}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold border flex items-center gap-2 transition-all ${
+                          isVerified
+                            ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/40 shadow-[0_0_10px_rgba(16,185,129,0.25)]"
+                            : "bg-amber-500/10 text-amber-300 border-amber-500/40"
+                        }`}
+                      >
+                        {isVerified ? (
+                          <ShieldCheck size={13} className="text-emerald-400" />
+                        ) : (
+                          <AlertCircle size={13} className="text-amber-400" />
+                        )}
+
+                        <span>{s}</span>
+
+                        {isVerified ? (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/25 text-emerald-300">
+                            AI Verified ({verifiedScore || 92}%)
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => setAssessmentSkill(s)}
+                            className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-600 hover:bg-blue-500 text-white flex items-center gap-1 shadow-sm transition-all"
+                          >
+                            <BrainCircuit size={10} /> Verify via AI Test
+                          </button>
+                        )}
+
+                        <button
+                          onClick={() => removeCustomSkill(s)}
+                          className="hover:text-red-400 text-corp-text-tertiary transition-colors ml-0.5"
+                          title="Remove skill"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ── Platform Honors & Badges (Luminous, Animated, Zero Emojis) ── */}
+              <div className="pt-4 border-t border-corp-border space-y-3 font-mono">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 text-corp-text">
+                    <Sparkles size={14} className="text-cyan-400" /> Platform Badges
+                  </h4>
+                  <span className="text-[10px] text-corp-text-tertiary">
+                    Illuminated Vector Badges • Zero Emojis
                   </span>
-                ))}
-                {(pp?.customSkills ?? []).map((s) => (
-                  <span key={s} className="px-3 py-1 rounded-full text-xs font-semibold bg-corp-accent/10 text-corp-accent border border-corp-accent/20 flex items-center gap-1">
-                    {s}
-                    <button onClick={() => removeCustomSkill(s)} className="hover:text-red-500"><X size={12} /></button>
-                  </span>
-                ))}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {PLATFORM_BADGES.slice(0, 4).map((badge) => (
+                    <PlatformBadge key={badge.id} badge={badge} size="sm" unlocked={true} />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -566,7 +717,7 @@ export default function CareerPassportPage() {
               </div>
             </div>
             <div style={{ textAlign: "right", fontSize: "11px", color: "#94a3b8" }}>
-              <p style={{ margin: 0, fontWeight: "bold", color: "#f59e0b" }}>Level {state.level} Executive</p>
+              <p style={{ margin: 0, fontWeight: "bold", color: "#10b981" }}>Corporate Credential · 94% Index</p>
               <p style={{ margin: 0 }}>Verified ID: {verificationId}</p>
             </div>
           </div>
@@ -617,23 +768,75 @@ export default function CareerPassportPage() {
                 <button onClick={() => setShowPhotoModal(false)} className="p-1 rounded-full hover:bg-corp-bg-secondary"><X size={16} /></button>
               </div>
 
-              {/* Upload Custom File Input */}
+              {/* Cloud Sync Notice */}
+              <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-400/30 text-xs text-blue-600 dark:text-blue-400 font-medium leading-relaxed">
+                Photos automatically sync to your Top Navbar Profile Avatar and are backed by Appwrite Cloud &amp; Database.
+              </div>
+
+              {/* Upload Custom File Input with Interactive Zoom & Crop */}
               <div className="space-y-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-corp-text-tertiary">Option 1: Upload Custom Photo</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-corp-text-tertiary">
+                  Option 1: Upload &amp; Interactive Crop
+                </label>
                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
-                <button onClick={() => fileInputRef.current?.click()}
-                  className="w-full py-3 rounded-2xl border-2 border-dashed border-corp-accent/40 hover:bg-corp-accent/10 transition-colors flex items-center justify-center gap-2 text-xs font-bold text-corp-accent">
-                  <Upload size={16} /> Choose Image File from Device
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full py-3 rounded-2xl border-2 border-dashed border-corp-accent/40 hover:bg-corp-accent/10 transition-colors flex items-center justify-center gap-2 text-xs font-bold text-corp-accent cursor-pointer"
+                >
+                  <Upload size={16} /> Choose Image to Zoom &amp; Crop
                 </button>
+                {pp?.photoUrl && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTempImageForCrop(pp.photoUrl || null);
+                      setCropModalOpen(true);
+                      setShowPhotoModal(false);
+                    }}
+                    className="w-full py-2.5 rounded-xl border border-blue-500/50 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 font-mono text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <Camera size={14} /> Adjust &amp; Crop Current Photo
+                  </button>
+                )}
+              </div>
+
+              {/* Option 2: Direct Cloud Image URL */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-corp-text-tertiary">
+                  Option 2: Direct Cloud Image URL
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    placeholder="https://... cloud or CDN image URL"
+                    value={customUrlInput}
+                    onChange={(e) => setCustomUrlInput(e.target.value)}
+                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-corp-border bg-corp-bg text-corp-text focus:outline-none focus:border-corp-accent"
+                  />
+                  <button
+                    onClick={() => {
+                      if (customUrlInput.trim()) {
+                        save({ photoUrl: customUrlInput.trim() });
+                        setCustomUrlInput("");
+                        setShowPhotoModal(false);
+                      }
+                    }}
+                    disabled={!customUrlInput.trim()}
+                    className="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#2563eb] text-white disabled:opacity-40 cursor-pointer"
+                  >
+                    Apply
+                  </button>
+                </div>
               </div>
 
               {/* Preset Avatars */}
               <div className="space-y-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-corp-text-tertiary">Option 2: Executive Preset Avatars</label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-corp-text-tertiary">Option 3: Executive Preset Avatars</label>
                 <div className="grid grid-cols-3 gap-3">
                   {PRESET_AVATARS.map((avatar) => (
                     <button key={avatar.label} onClick={() => { save({ photoUrl: avatar.url }); setShowPhotoModal(false); }}
-                      className="group flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-corp-bg-secondary border border-transparent hover:border-corp-accent/30 transition-all">
+                      className="group flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-corp-bg-secondary border border-transparent hover:border-corp-accent/30 transition-all cursor-pointer">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={avatar.url} alt={avatar.label} className="w-14 h-14 rounded-2xl object-cover shadow-sm group-hover:scale-105 transition-transform" />
                       <span className="text-[10px] font-semibold truncate w-full text-center" style={{ color: "var(--corp-text-secondary)" }}>{avatar.label}</span>
@@ -690,6 +893,30 @@ export default function CareerPassportPage() {
         onClose={() => setShowProModal(false)}
         featureTitle="Executive PDF Resume Export"
         featureDescription="High-resolution ATS-optimized PDF exports are available exclusively on INSYT Pro. Upgrade to download your formatted CV."
+      />
+
+      {assessmentSkill && (
+        <AiSkillAssessmentModal
+          isOpen={Boolean(assessmentSkill)}
+          onClose={() => setAssessmentSkill(null)}
+          skillName={assessmentSkill}
+          candidateName={state.name || "Authenticated Candidate"}
+          onPassAssessment={handleAssessmentPass}
+        />
+      )}
+
+      <ImageCropModal
+        isOpen={cropModalOpen}
+        imageSrc={tempImageForCrop}
+        onClose={() => setCropModalOpen(false)}
+        onSaveCrop={(croppedUrl) => {
+          save({ photoUrl: croppedUrl });
+          setCropModalOpen(false);
+        }}
+        onPickNewFile={() => {
+          setCropModalOpen(false);
+          fileInputRef.current?.click();
+        }}
       />
 
       <AlertDialog

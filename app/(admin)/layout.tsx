@@ -8,11 +8,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/components/providers/auth-provider";
 
-const ALLOWED_ADMIN_EMAILS = [
-  "z65gt9@gmail.com",
-  "zubaiirh@gmail.com"
-];
-
 export default function AdminLayout({
   children,
 }: {
@@ -21,8 +16,10 @@ export default function AdminLayout({
   const { user, isLoading } = useAuth();
   const pathname = usePathname();
 
-  const userEmail = user?.email?.toLowerCase() || "";
-  const isAllowedAdmin = user && ALLOWED_ADMIN_EMAILS.includes(userEmail);
+  // Admin verification is done server-side in middleware.ts
+  // If the user reaches this layout, they passed the middleware check.
+  // We still show a loading state and a client-side fallback guard.
+  const isAllowedAdmin = !!user;
 
   // 1. Loading State
   if (isLoading) {
@@ -36,7 +33,7 @@ export default function AdminLayout({
     );
   }
 
-  // 2. Access Restricted Lockout Screen
+  // 2. Access Restricted Lockout Screen (fallback — middleware handles primary guard)
   if (!isAllowedAdmin) {
     return (
       <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex items-center justify-center p-6 font-mono">
@@ -53,14 +50,8 @@ export default function AdminLayout({
               Admin Access Restricted
             </h1>
             <p className="text-xs font-sans font-bold text-slate-600">
-              Super Administrator portal is strictly restricted to verified administrative accounts:
-            </p>
-            <div className="py-2.5 px-3 rounded-sm bg-slate-100 border border-red-500/30 text-[11px] font-mono text-slate-900 font-black space-y-1 text-left">
-              <div className="flex items-center gap-2 text-red-600"><ShieldAlert size={12} /> z65gt9@gmail.com</div>
-              <div className="flex items-center gap-2 text-red-600"><ShieldAlert size={12} /> zubaiirh@gmail.com</div>
-            </div>
-            <p className="text-[11px] text-slate-500 pt-1 font-sans">
-              {user ? `Currently authenticated as: ${user.email}` : "No active session detected. Please sign in with an admin account."}
+              This portal is restricted to verified administrative accounts.
+              Please sign in with an authorized admin account.
             </p>
           </div>
 
@@ -72,7 +63,7 @@ export default function AdminLayout({
               Sign In as Admin
             </Link>
             <Link
-              href="/jobs"
+              href="/dashboard"
               className="flex-1 py-2.5 rounded-full text-xs font-black uppercase bg-slate-100 text-slate-900 border border-slate-300 hover:bg-slate-200 transition-all text-center"
             >
               Return to App

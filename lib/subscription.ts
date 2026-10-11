@@ -1,6 +1,6 @@
 import { UserState } from "./state/types";
 
-export type SubscriptionTier = "starter" | "pro" | "enterprise";
+export type SubscriptionTier = "starter" | "single_course" | "flagship_path" | "pro" | "enterprise";
 
 export interface TierFeature {
   id: string;
@@ -13,19 +13,19 @@ export const TIER_FEATURES: Record<string, TierFeature> = {
   pdfExport: {
     id: "pdfExport",
     name: "Executive PDF Passport Export",
-    minTier: "pro",
+    minTier: "single_course",
     description: "Export high-resolution PDF resumes directly from your Career Passport.",
   },
   aiToolsFull: {
     id: "aiToolsFull",
     name: "Full AI Tools Suite (12 Tools)",
-    minTier: "pro",
+    minTier: "flagship_path",
     description: "Access advanced AI tutors, prompt engineering, and mock interview tools.",
   },
   unlimitedMockTests: {
     id: "unlimitedMockTests",
     name: "Unlimited Mock Tests",
-    minTier: "pro",
+    minTier: "flagship_path",
     description: "Take unlimited banking, corporate, and analytics mock tests.",
   },
   allLearningPaths: {
@@ -37,7 +37,7 @@ export const TIER_FEATURES: Record<string, TierFeature> = {
   certificates: {
     id: "certificates",
     name: "Verified Certificate Generation",
-    minTier: "pro",
+    minTier: "single_course",
     description: "Generate official digital certificates with cryptographic verification.",
   },
   teamAnalytics: {
@@ -53,8 +53,10 @@ export const TIER_FEATURES: Record<string, TierFeature> = {
  */
 const TIER_WEIGHT: Record<SubscriptionTier, number> = {
   starter: 1,
-  pro: 2,
-  enterprise: 3,
+  single_course: 2,
+  flagship_path: 3,
+  pro: 4,
+  enterprise: 5,
 };
 
 /**

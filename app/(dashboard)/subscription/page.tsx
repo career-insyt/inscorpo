@@ -8,9 +8,10 @@ import { account } from "@/lib/appwrite";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 
 export default function SubscriptionPage() {
-  const { state } = useUser();
+  const { state, updateSubscriptionTier } = useUser();
   const [selectedBilling, setSelectedBilling] = useState<"monthly" | "yearly">("monthly");
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [selectedMethod, setSelectedMethod] = useState<"bkash" | "nagad" | "sslcommerz" | "stripe">("bkash");
   const [accountNumber, setAccountNumber] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -25,18 +26,20 @@ export default function SubscriptionPage() {
     message: "",
   });
 
-  const handleOpenCheckout = () => {
+  const handleOpenCheckout = (plan: any) => {
+    setSelectedPlan(plan);
     setCheckoutModalOpen(true);
   };
 
   const handleProcessPayment = async () => {
     setIsProcessing(true);
+    const planToCharge = selectedPlan?.id || "pro";
     try {
       const res = await fetch("/api/payments/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          planId: selectedBilling === "monthly" ? "pro_monthly" : "pro_annual",
+          planId: planToCharge === "pro" ? (selectedBilling === "monthly" ? "pro_monthly" : "pro_annual") : planToCharge,
           method: selectedMethod,
           accountNumber,
         }),
@@ -47,15 +50,13 @@ export default function SubscriptionPage() {
       setCheckoutModalOpen(false);
 
       if (data.success) {
-        try {
-          await account.updatePrefs({ subscriptionTier: "pro", subscriptionStatus: "active" });
-        } catch {
-          /* pref update fallback */
-        }
+        // Persist to database, Appwrite prefs, localStorage and UserContext
+        await updateSubscriptionTier(planToCharge as any, "active");
+
         setAlertDialog({
           isOpen: true,
-          title: "পেমেন্ট সফল হয়েছে! এক্সিকিউটিভ প্রো একটিভ করা হলো",
-          message: "অভিনন্দন! আপনার ইনসাইট প্রিমিয়াম অল-অ্যাক্সেস মেম্বারশিপ এখন চালু রয়েছে।",
+          title: "পেমেন্ট সফল হয়েছে! প্ল্যান সক্রিয় করা হয়েছে 🎉",
+          message: `অভিনন্দন! আপনার ${selectedPlan?.name || "আপগ্রেড প্ল্যান"} সফলভাবে অ্যাক্টিভেট ও ডেটাবেজে সংরক্ষিত হয়েছে। টপবার ও ড্যাশবোর্ড নতুন ফিচারে সাজানো হয়েছে।`,
           type: "success",
         });
       } else {
@@ -81,47 +82,50 @@ export default function SubscriptionPage() {
   const plans = [
     {
       id: "single_course",
-      name: "একক কোর্স পাস",
+      name: "একক কোর্স পাস (Single Course Pass)",
       priceMonthly: "৳৪৯৯",
       priceYearly: "৳৪৯৯",
-      description: "নির্দিষ্ট যেকোনো ১টি কর্পোরেট মাস্টার কোর্সে আজীবন অ্যাক্সেস (যেমন: অ্যাডভান্সড কর্পোরেট এক্সেল)।",
+      priceDisplay: "৳৪৯৯",
+      description: "নির্দিষ্ট যেকোনো ১টি কর্পোরেট মাস্টার কোর্সে আজীবন অ্যাক্সেস (যেমন: অ্যাডভান্সড কর্পোরেট এক্সেল বা ভিডিও প্রোডাকশন)।",
       features: [
         "নির্বাচিত ১টি মাস্টার কোর্সে আজীবন অ্যাক্সেস",
         "ইন্টারেক্টিভ ফর্মুলা স্যান্ডবক্স ও এক্সারসাইজ",
         "কোর্স সমাপ্তি ভেরিফাইড সার্টিফিকেট",
-        "ডাউনলোডযোগ্য এক্সেল ও পিপিটি টেমপ্লেটসমূহ",
+        "ডাউনলোডযোগ্য রিসোর্স ও প্রজেক্ট ফাইলসমূহ",
         "বিকাশ ও নগদ ১-ক্লিক মোবাইল পেমেন্ট",
       ],
-      current: false,
+      current: state.subscriptionTier === "single_course",
       popular: false,
-      buttonText: "একক কোর্স পাস কিনুন (৳৪৯৯)",
+      buttonText: state.subscriptionTier === "single_course" ? "আপনার সক্রিয় প্ল্যান (সক্রিয়)" : "একক কোর্স পাস কিনুন (৳৪৯৯)",
       buttonVariant: "secondary",
     },
     {
       id: "flagship_path",
-      name: "ফ্ল্যাগশিপ ট্র্যাক পাস",
+      name: "ফ্ল্যাগশিপ ট্র্যাক পাস (Track Pass)",
       priceMonthly: "৳১,৯৯৯",
       priceYearly: "৳১,৯৯৯",
+      priceDisplay: "৳১,৯৯৯",
       savings: "একবারই পরিশোধযোগ্য",
-      description: "একটি সম্পূর্ণ ক্যারিয়ার ট্র্যাকের আজীবন অ্যাক্সেস (যেমন: এমটিও মাস্টারক্লাস বা বিজনেস অ্যানালিটিক্স)।",
+      description: "একটি সম্পূর্ণ ক্যারিয়ার ট্র্যাকের আজীবন অ্যাক্সেস (যেমন: বিজনেস অ্যানালিটিক্স বা ক্রিয়েটিভ প্রোডাকশন)।",
       features: [
         "সম্পূর্ণ ৪-কোর্স লার্নিং ট্র্যাকে আজীবন অ্যাক্সেস",
-        "এসএইচএল ও এমটিও অ্যাসেসমেন্ট কেস সলভার টেমপ্লেট",
+        "এসএইচএল ও কর্পোরেট অ্যাসেসমেন্ট কেস সলভার টেমপ্লেট",
         "ভেরিফাইড ক্যারিয়ার পাসপোর্ট স্পেশালিস্ট ব্যাজ",
         "ক্যাপস্টোন প্রজেক্টের এক্সপার্ট রিভিউ ও মূল্যায়ণ",
         "এআই রেজুমে অডিট ও মক ইন্টারভিউয়ার অ্যাক্সেস",
         "কর্পোরেট এইচআর রিক্রুটার ডাটাবেসে প্রোফাইল ইনডেক্স",
       ],
-      current: false,
+      current: state.subscriptionTier === "flagship_path",
       popular: true,
-      buttonText: "ফ্ল্যাগশিপ ট্র্যাক এনরোল করুন (৳১,৯৯৯)",
+      buttonText: state.subscriptionTier === "flagship_path" ? "আপনার সক্রিয় প্ল্যান (সক্রিয়)" : "ফ্ল্যাগশিপ ট্র্যাক এনরোল করুন (৳১,৯৯৯)",
       buttonVariant: "primary",
     },
     {
       id: "pro",
-      name: "প্রো অল-অ্যাক্সেস মেম্বারশিপ",
+      name: "প্রো অল-অ্যাক্সেস মেম্বারশিপ (INSYT Pro)",
       priceMonthly: "৳৭৯৯/মাস",
       priceYearly: "৳৪,৯৯৯/বছর",
+      priceDisplay: selectedBilling === "monthly" ? "৳৭৯৯/মাস" : "৳৪,৯৯৯/বছর",
       savings: "৪৮% সাশ্রয়",
       description: "সবকটি লার্নিং ট্র্যাক, মাস্টার কোর্স এবং ১২টি এআই ক্যারিয়ার টুলের আনলিমিটেড অল-অ্যাক্সেস।",
       features: [
@@ -134,7 +138,7 @@ export default function SubscriptionPage() {
       ],
       current: state.subscriptionTier === "pro",
       popular: false,
-      buttonText: state.subscriptionTier === "pro" ? "আপনার সক্রিয় প্ল্যান" : "প্রো অল-অ্যাক্সেসে আপগ্রেড করুন",
+      buttonText: state.subscriptionTier === "pro" ? "আপনার সক্রিয় প্ল্যান (সক্রিয়)" : "প্রো অল-অ্যাক্সেসে আপগ্রেড করুন",
       buttonVariant: "primary",
     },
   ];
@@ -203,6 +207,89 @@ export default function SubscriptionPage() {
         </div>
       </div>
 
+      {/* Live Active Plan Status & Quick Switcher Strip */}
+      <div
+        className="rounded-xl p-4 sm:p-5 border-2 border-corp-border flex flex-wrap items-center justify-between gap-4 font-mono shadow-sm"
+        style={{ background: "var(--corp-surface)" }}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center font-black bg-blue-500/10 text-[#2563eb] border border-blue-500/20">
+            <Crown size={20} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black uppercase text-corp-text">আপনার বর্তমান প্ল্যান:</span>
+              <span
+                className={`px-3 py-1 rounded-full text-[11px] font-mono font-black uppercase tracking-wider border-2 ${
+                  state.subscriptionTier === "pro"
+                    ? "bg-amber-400 text-[#78350f] border-amber-600 shadow-[2px_2px_0px_0px_#78350f]"
+                    : state.subscriptionTier === "flagship_path"
+                    ? "bg-violet-600 text-white border-violet-400"
+                    : state.subscriptionTier === "single_course"
+                    ? "bg-emerald-600 text-white border-emerald-400"
+                    : "bg-amber-400 text-[#78350f] border-amber-600 shadow-[2px_2px_0px_0px_#78350f]"
+                }`}
+              >
+                {state.subscriptionTier === "pro"
+                  ? "PRO ALL-ACCESS"
+                  : state.subscriptionTier === "flagship_path"
+                  ? "TRACK PASS"
+                  : state.subscriptionTier === "single_course"
+                  ? "COURSE PASS"
+                  : "STARTER PACK (FREE)"}
+              </span>
+            </div>
+            <p className="text-[11px] text-corp-text-secondary mt-0.5 font-sans">
+              টপবার ও প্ল্যাটফর্মের ব্যাজ এবং প্রিমিয়াম সুবিধাগুলো স্বয়ংক্রিয়ভাবে অ্যাডাপ্ট হয়।
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-[10px] font-black uppercase text-corp-text-tertiary mr-1">টেস্ট সুইচিং:</span>
+          <button
+            onClick={() => updateSubscriptionTier("starter", "active")}
+            className={`px-2.5 py-1 rounded text-[11px] font-black border transition-all cursor-pointer ${
+              !state.subscriptionTier || state.subscriptionTier === "starter"
+                ? "bg-amber-400 text-[#78350f] border-amber-600 shadow-[1.5px_1.5px_0px_0px_#78350f]"
+                : "border-corp-border text-corp-text-secondary hover:text-corp-text hover:bg-corp-bg-secondary"
+            }`}
+          >
+            Starter Pack
+          </button>
+          <button
+            onClick={() => updateSubscriptionTier("single_course", "active")}
+            className={`px-2.5 py-1 rounded text-[11px] font-black border transition-all cursor-pointer ${
+              state.subscriptionTier === "single_course"
+                ? "bg-emerald-600 text-white border-emerald-400 shadow-sm"
+                : "border-emerald-500/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+            }`}
+          >
+            Course Pass
+          </button>
+          <button
+            onClick={() => updateSubscriptionTier("flagship_path", "active")}
+            className={`px-2.5 py-1 rounded text-[11px] font-black border transition-all cursor-pointer ${
+              state.subscriptionTier === "flagship_path"
+                ? "bg-violet-600 text-white border-violet-400 shadow-sm"
+                : "border-violet-500/40 text-violet-600 dark:text-violet-400 hover:bg-violet-500/10"
+            }`}
+          >
+            Track Pass
+          </button>
+          <button
+            onClick={() => updateSubscriptionTier("pro", "active")}
+            className={`px-2.5 py-1 rounded text-[11px] font-black border transition-all cursor-pointer ${
+              state.subscriptionTier === "pro"
+                ? "bg-amber-400 text-amber-950 border-amber-600 shadow-sm"
+                : "border-amber-500/40 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10"
+            }`}
+          >
+            Pro Active
+          </button>
+        </div>
+      </div>
+
       {/* Pricing Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch font-bangla">
         {plans.map((plan) => (
@@ -255,8 +342,8 @@ export default function SubscriptionPage() {
                 </button>
               ) : (
                 <button
-                  onClick={handleOpenCheckout}
-                  className="w-full py-3.5 rounded-lg text-xs font-extrabold text-white bg-[#2563eb] hover:bg-blue-600 transition-all shadow-[3px_3px_0px_0px_#1e3a8a] border border-blue-300 uppercase flex items-center justify-center gap-2"
+                  onClick={() => handleOpenCheckout(plan)}
+                  className="w-full py-3.5 rounded-lg text-xs font-extrabold text-white bg-[#2563eb] hover:bg-blue-600 transition-all shadow-[3px_3px_0px_0px_#1e3a8a] border border-blue-300 uppercase flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>{plan.buttonText}</span>
                   <ArrowRight size={14} />
@@ -280,6 +367,72 @@ export default function SubscriptionPage() {
             <span>{badge.label}</span>
           </div>
         ))}
+      </div>
+
+      {/* CCFCM Corporate Fellowship & Modeling Certification Track */}
+      <div className="rounded-xl p-6 md:p-8 border-2 border-emerald-500 shadow-[5px_5px_0px_0px_#047857] space-y-4" style={{ background: "var(--corp-surface)" }}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-corp-border pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold">
+              <Award size={22} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 uppercase">
+                  FMI AFM & FAST Standard Compliant
+                </span>
+                <span className="text-[10px] font-mono text-corp-text-tertiary">75-Hour Executive Track</span>
+              </div>
+              <h3 className="text-base sm:text-lg font-extrabold text-corp-text mt-0.5">
+                CCFCM: কর্পোরেট ফিন্যান্সিয়াল অ্যান্ড কমার্শিয়াল মডেলিং ফেলোশিপ
+              </h3>
+            </div>
+          </div>
+          <Link
+            href="/learn/corporate-analyst/corporate-financial-commercial-modeling-excel"
+            className="px-4 py-2 rounded-lg text-xs font-mono font-extrabold text-white bg-emerald-600 hover:bg-emerald-500 border border-emerald-400 uppercase tracking-wider flex items-center gap-1.5 self-start sm:self-auto"
+          >
+            সিলেবাস দেখুন <ArrowRight size={13} />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
+          <div className="p-4 rounded-lg bg-corp-bg-secondary border border-corp-border space-y-2">
+            <span className="text-[10px] font-bold text-corp-text-tertiary uppercase">Tier 1 · সেলফ-পেসড</span>
+            <div className="flex items-baseline justify-between">
+              <p className="font-extrabold text-sm text-corp-text">Self-Paced Track</p>
+              <p className="font-extrabold text-emerald-400 text-base">৳ ৫,৯৯৯</p>
+            </div>
+            <p className="text-[11px] text-corp-text-secondary leading-relaxed font-sans">
+              মডিউল ১ থেকে ৬ পর্যন্ত লেকচার, ডাউনলোডেবল এক্সেল ওয়ার্কবুক ও অটোমেটেড কুইজ।
+            </p>
+          </div>
+
+          <div className="p-4 rounded-lg bg-emerald-500/10 border-2 border-emerald-500 space-y-2 relative">
+            <div className="absolute -top-2.5 right-3 px-2 py-0.5 rounded text-[9px] font-extrabold bg-emerald-600 text-white uppercase tracking-wider">
+              ফ্ল্যাগশিপ ট্র্যাক 🔥
+            </div>
+            <span className="text-[10px] font-bold text-emerald-400 uppercase">Tier 2 · ক্যারিয়ার এক্সিলারেটর</span>
+            <div className="flex items-baseline justify-between">
+              <p className="font-extrabold text-sm text-corp-text">Career Accelerator</p>
+              <p className="font-extrabold text-emerald-400 text-base">৳ ১১,৯৯৯</p>
+            </div>
+            <p className="text-[11px] text-corp-text-secondary leading-relaxed font-sans">
+              ১০টি মডিউল (৪৮ লেকচার), ৫টি মিনি-প্রজেক্ট, ৪-ঘণ্টার লাইভ ব্ল্যাঙ্ক-শিট এক্সাম ও ক্যারিয়ার পাসপোর্ট।
+            </p>
+          </div>
+
+          <div className="p-4 rounded-lg bg-corp-bg-secondary border border-corp-border space-y-2">
+            <span className="text-[10px] font-bold text-corp-text-tertiary uppercase">Tier 3 · এক্সিকিউটিভ কোহর্ট</span>
+            <div className="flex items-baseline justify-between">
+              <p className="font-extrabold text-sm text-corp-text">Executive Fellowship</p>
+              <p className="font-extrabold text-emerald-400 text-base">৳ ১৭,৯৯৯</p>
+            </div>
+            <p className="text-[11px] text-corp-text-secondary leading-relaxed font-sans">
+              ৮টি লাইভ উইকেন্ড ল্যাব, ১-অন-১ মডেল অডিট, এক্সিকিউটিভ প্যানেলে ৩০-মিনিটের ওরাল মডেল ডিফেন্স ও রেফারাল।
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Enterprise Contact Card */}
@@ -312,12 +465,17 @@ export default function SubscriptionPage() {
             style={{ background: "var(--corp-surface)" }}
           >
             <div className="flex items-center justify-between border-b-2 border-corp-border pb-3">
-              <h3 className="text-base font-extrabold" style={{ color: "var(--corp-text)" }}>
-                এক্সিকিউটিভ প্রো আপগ্রেড ({selectedBilling === "monthly" ? "৳৭৯৯/মাস" : "৳৪,৯৯৯/বছর"})
-              </h3>
+              <div>
+                <h3 className="text-base font-extrabold" style={{ color: "var(--corp-text)" }}>
+                  {selectedPlan?.name || "মেম্বারশিপ আপগ্রেড"}
+                </h3>
+                <p className="text-xs text-[#2563eb] font-bold font-mono mt-0.5">
+                  মূল্য: {selectedPlan?.priceDisplay || (selectedBilling === "monthly" ? "৳৭৯৯/মাস" : "৳৪,৯৯৯/বছর")}
+                </p>
+              </div>
               <button
                 onClick={() => setCheckoutModalOpen(false)}
-                className="text-xs font-extrabold font-mono text-corp-text-tertiary hover:text-corp-text"
+                className="text-xs font-extrabold font-mono text-corp-text-tertiary hover:text-corp-text cursor-pointer"
               >
                 ✕
               </button>
@@ -336,7 +494,7 @@ export default function SubscriptionPage() {
                   <button
                     key={item.id}
                     onClick={() => setSelectedMethod(item.id as any)}
-                    className={`p-3 rounded-lg text-left border-2 flex items-center gap-2.5 transition-all ${
+                    className={`p-3 rounded-lg text-left border-2 flex items-center gap-2.5 transition-all cursor-pointer ${
                       selectedMethod === item.id ? "border-[#2563eb] bg-[#2563eb]/10 font-bold" : "border-corp-border bg-corp-bg-secondary"
                     }`}
                   >
@@ -367,13 +525,15 @@ export default function SubscriptionPage() {
             <button
               onClick={handleProcessPayment}
               disabled={isProcessing}
-              className="w-full py-3.5 rounded-lg text-xs font-extrabold uppercase text-white bg-[#2563eb] hover:bg-blue-600 transition-all shadow-[3px_3px_0px_0px_#1e3a8a] border border-blue-300 flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-lg text-xs font-extrabold uppercase text-white bg-[#2563eb] hover:bg-blue-600 transition-all shadow-[3px_3px_0px_0px_#1e3a8a] border border-blue-300 flex items-center justify-center gap-2 cursor-pointer"
             >
               {isProcessing ? (
                 <span>প্রসেসিং হচ্ছে...</span>
               ) : (
                 <>
-                  <span>পেমেন্ট করুন ({selectedBilling === "monthly" ? "৳৭৯৯" : "৳৪,৯৯৯"}) এবং প্রো একটিভ করুন</span>
+                  <span>
+                    পেমেন্ট সম্পন্ন করুন ({selectedPlan?.priceDisplay || (selectedBilling === "monthly" ? "৳৭৯৯" : "৳৪,৯৯৯")}) এবং অ্যাক্টিভ করুন
+                  </span>
                   <ArrowRight size={14} />
                 </>
               )}

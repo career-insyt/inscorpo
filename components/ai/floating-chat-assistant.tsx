@@ -12,10 +12,10 @@ interface Message {
 }
 
 const starterPrompts = [
-  "🎯 How do I prepare for Bank MTO SHL tests?",
-  "📊 Write an XLOOKUP formula with IFERROR",
+  "🎬 How do I edit pacing for social video?",
+  "📊 How do I structure an investor pitch deck?",
   "💼 Give me a STAR technique interview tip",
-  "🏆 What is the career roadmap for Business Analytics?",
+  "🎓 What is the best strategy for GRE preparation?",
 ];
 
 export function FloatingChatAssistant() {
@@ -26,7 +26,7 @@ export function FloatingChatAssistant() {
     {
       id: "welcome",
       sender: "bot",
-      text: "👋 Hello! I'm your INSYT AI Career Assistant. Ask me anything about MTO prep, Excel formulas, or STAR interviews!",
+      text: "👋 Hello! I'm your INSYT AI Career Assistant. Ask me anything about video editing, presentation design, AI tools, or STAR interviews!",
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
@@ -220,7 +220,7 @@ export function FloatingChatAssistant() {
               >
                 <input
                   type="text"
-                  placeholder="Ask MTO, Excel, STAR Qs..."
+                  placeholder="Ask video, presentation, STAR Qs..."
                   value={input}
                   aria-label="Type message for AI Assistant"
                   onChange={(e) => setInput(e.target.value)}

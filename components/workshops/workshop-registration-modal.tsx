@@ -12,6 +12,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { bookWorkshopSeat } from "@/lib/db";
 import { WorkshopDetail } from "@/lib/data/workshops";
 import Link from "next/link";
+import { generateId } from "@/lib/id";
 
 interface WorkshopRegistrationModalProps {
   isOpen: boolean;
@@ -26,7 +27,7 @@ export function WorkshopRegistrationModal({
   workshop,
   onSuccess,
 }: WorkshopRegistrationModalProps) {
-  const { state, addXP, addNotification } = useUser();
+  const { state, addNotification } = useUser();
   const { user } = useAuth();
 
   const [step, setStep] = useState<"form" | "ticket">("form");
@@ -58,7 +59,7 @@ export function WorkshopRegistrationModal({
       });
       // Generate unique ticket code
       const safeId = (workshop?.id || "WKS").substring(0, 4).toUpperCase();
-      const generatedCode = `BAUBC-${safeId}-${Math.floor(1000 + Math.random() * 9000)}-2026`;
+      const generatedCode = generateId(`BAUBC-${safeId}`).toUpperCase();
       setTicketCode(generatedCode);
     }
   }, [isOpen, workshop, state.name, state.passportProfile, state.email, user]);
@@ -108,26 +109,22 @@ export function WorkshopRegistrationModal({
         /* localStorage fallback */
       }
 
-      // 2. Award XP points
-      addXP(workshop.xpReward, `Registered for workshop: ${workshop.title}`);
-
-      // 3. System Notification
+      // 2. System Notification
       addNotification({
         type: "achievement",
-        title: "Workshop Seat Booked! 🎟️",
-        message: `Your ticket (${ticketCode}) for ${workshop.title} is confirmed. +${workshop.xpReward} XP awarded!`,
+        title: "Workshop Seat Booked",
+        message: `Your ticket (${ticketCode}) for ${workshop.title} is confirmed.`,
       });
 
-      // 4. Move to Ticket view
+      // 3. Move to Ticket view
       setStep("ticket");
       if (onSuccess) onSuccess(ticketCode);
     } catch (err) {
       console.error("Workshop registration failed:", err);
       // Fallback: grant offline success for smooth UX
-      addXP(workshop.xpReward, `Registered for workshop: ${workshop.title}`);
       addNotification({
         type: "achievement",
-        title: "Seat Reserved! 🎟️",
+        title: "Seat Reserved",
         message: `Your ticket (${ticketCode}) for ${workshop.title} is reserved.`,
       });
       setStep("ticket");
@@ -166,7 +163,7 @@ export function WorkshopRegistrationModal({
           <div className="p-5 bg-[#2563eb] text-white flex items-center justify-between border-b-2 border-blue-600">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-400 text-amber-950 flex items-center justify-center font-black text-lg border border-amber-500 shadow">
-                🎟️
+                <Ticket size={20} className="text-amber-950" />
               </div>
               <div>
                 <span className="px-2.5 py-0.5 rounded text-[10px] font-black uppercase bg-amber-400 text-amber-950 border border-amber-500">
@@ -216,7 +213,7 @@ export function WorkshopRegistrationModal({
               {workshop.registrationUrl && (
                 <div className="p-3 rounded-xl bg-amber-400/15 border border-amber-500/40 flex items-center justify-between gap-3 text-xs font-mono">
                   <span className="font-bold text-amber-600 dark:text-amber-400">
-                    📌 Prefer the official BAUCC Google Form?
+                    Prefer the official BAUCC Google Form?
                   </span>
                   <a
                     href={workshop.registrationUrl}
@@ -385,7 +382,7 @@ export function WorkshopRegistrationModal({
               {/* Action Buttons */}
               <div className="pt-3 border-t flex items-center justify-between gap-3" style={{ borderColor: "var(--corp-border)" }}>
                 <span className="text-[10px] text-corp-text-tertiary font-bold">
-                  🔒 Data securely stored in Appwrite DB
+                  Data securely stored in Appwrite DB
                 </span>
 
                 <div className="flex gap-2">

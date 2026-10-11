@@ -10,6 +10,7 @@ import {
 import { JobListing } from "@/lib/data/jobs";
 import { UserState } from "@/lib/state/types";
 import { CompanyLogo } from "./company-logo";
+import { generateId } from "@/lib/id";
 
 interface ApplyModalProps {
   isOpen: boolean;
@@ -33,15 +34,17 @@ export function CareerPassportApplyModal({
   if (!isOpen) return null;
 
   const profile = state.passportProfile || {
-    headline: "Fresh Graduate Candidate & MTO Applicant",
+    headline: "Fresh Graduate Candidate & Professional Specialist",
     university: "Dhaka University (IBA)",
     degree: "BBA (Finance & Marketing)",
     phone: "+880 1711-000000",
-    summary: "Motivated corporate aspirant with verified skills in financial modeling, SHL numerical reasoning, and executive presentations.",
+    summary: "Motivated professional with verified skills in digital media production, presentation architecture, and AI automation.",
   };
 
   const completedCertsCount = state.courseProgress.filter((c) => c.progress === 100).length;
-  const verificationId = `INSYT-PASSPORT-APP-${job.id.toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const [verificationId] = useState(() =>
+    generateId(`INSYT-PASSPORT-APP-${job.id.toUpperCase()}`).toUpperCase()
+  );
 
   const handleSubmit = () => {
     setIsSubmitting(true);
@@ -113,7 +116,7 @@ export function CareerPassportApplyModal({
                       </div>
                     </div>
                     <span className="text-xs font-mono font-black px-2.5 py-1 rounded-md bg-[#2563eb] text-white border border-blue-300">
-                      Level {state.level} · {state.xp.toLocaleString()} XP
+                      Verified Candidate
                     </span>
                   </div>
 

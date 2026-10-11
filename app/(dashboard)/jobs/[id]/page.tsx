@@ -24,7 +24,7 @@ interface PageProps {
 }
 
 export default function JobDetailPage(props: PageProps) {
-  const { state, addNotification, addXP } = useUser();
+  const { state, addNotification } = useUser();
   const { user } = useAuth();
   const [applied, setApplied] = useState(false);
   const [applyModalOpen, setApplyModalOpen] = useState(false);
@@ -136,8 +136,6 @@ export default function JobDetailPage(props: PageProps) {
     setApplicationData(record);
     setApplied(true);
     setApplyModalOpen(false);
-
-    addXP(100, `Submitted Career Passport CV for ${job.title}`);
 
     addNotification({
       type: "achievement",

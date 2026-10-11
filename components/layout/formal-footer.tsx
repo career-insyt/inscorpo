@@ -12,10 +12,10 @@ const footerNavigation = {
     { name: "XP Marketplace", href: "/marketplace" },
   ],
   solutions: [
-    { name: "Management Trainee (MTO)", href: "/learn" },
-    { name: "Business Analytics & Excel", href: "/learn" },
-    { name: "Banking Prep (AD & Officer)", href: "/learn" },
-    { name: "AI Workplace Automation", href: "/learn" },
+    { name: "Video Editing + AI Production", href: "/learn/video-ai-production" },
+    { name: "Presentation Engineering", href: "/learn/presentation-engineering" },
+    { name: "AI for Work, Career & Business", href: "/learn/ai-for-work" },
+    { name: "GRE Preparation", href: "/learn/gre-preparation" },
   ],
   company: [
     { name: "About INSYT Corporate", href: "/about" },
@@ -24,10 +24,10 @@ const footerNavigation = {
     { name: "Pro Membership Pass", href: "/subscription" },
   ],
   legal: [
-    { name: "Privacy Policy", href: "#" },
-    { name: "Terms of Service", href: "#" },
-    { name: "Security & Compliance", href: "#" },
-    { name: "Cookie Preferences", href: "#" },
+    { name: "Privacy Policy", href: "/help" },
+    { name: "Terms of Service", href: "/help" },
+    { name: "Security & Compliance", href: "/help" },
+    { name: "Cookie Preferences", href: "/help" },
   ],
 };
 
@@ -46,12 +46,12 @@ export function FormalFooter() {
           {/* Brand & Description Column */}
           <div className="lg:col-span-2 space-y-4">
             <Link href="/" className="inline-flex items-center gap-3 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#3B5BDB] to-[#4B94E0] flex items-center justify-center shadow-lg shadow-[#3B5BDB]/20">
-                <span className="text-white font-bold text-base">I</span>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#1E40AF] to-[#3B82F6] flex items-center justify-center shadow-lg shadow-[#3B5BDB]/20 p-1.5 border border-blue-400">
+                <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
-                <span className="text-base font-bold tracking-tight text-white group-hover:text-[#5B7CF6] transition-colors">
-                  INSYT <span className="font-light text-[#A0ABBC]">Corporate</span>
+                <span className="text-base font-black tracking-tight text-white group-hover:text-[#5B7CF6] transition-colors">
+                  CAREER INSYT
                 </span>
                 <span className="text-[10px] font-semibold tracking-[0.22em] uppercase text-[#626C80]">
                   Career Operating System

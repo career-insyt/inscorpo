@@ -4,20 +4,17 @@ import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Award, FileDown, Share2, CheckCircle2, ShieldCheck, Star, X,
-  Lock, BookOpen, ArrowRight, Sparkles, ExternalLink
+  Lock, BookOpen, ArrowRight, Sparkles, ExternalLink, Play
 } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@/components/providers/user-context";
+import { useCapCutCourse } from "@/lib/state/capcut-submissions";
 
 const PATH_META: Record<string, { title: string; gradient: string; issuer: string }> = {
-  "excel-corporate": { title: "Excel for Corporate Careers", gradient: "from-[#064e3b] to-[#10b981]", issuer: "Excel Analytics Division" },
-  "corporate-mto": { title: "Corporate Job / MTO Masterclass", gradient: "from-[#881337] to-[#e11d48]", issuer: "Corporate Recruitment Board" },
-  "power-bi": { title: "Power BI & Business Analytics", gradient: "from-[#78350f] to-[#f59e0b]", issuer: "Data Analytics Division" },
-  "ai-automation": { title: "AI & Automation for Work", gradient: "from-[#4c1d95] to-[#8b5cf6]", issuer: "AI Innovation Lab" },
-  "supply-chain": { title: "Supply Chain & Operations", gradient: "from-[#1e293b] to-[#475569]", issuer: "Operations Excellence Board" },
-  "business-comm": { title: "Business Communication + PowerPoint", gradient: "from-[#881337] to-[#e11d48]", issuer: "Communication Sciences Board" },
-  "project-management": { title: "Project Management", gradient: "from-[#1e3a8a] to-[#2563eb]", issuer: "Project Management Institute" },
-  "digital-marketing": { title: "Digital Marketing + Branding", gradient: "from-[#831843] to-[#ec4899]", issuer: "Marketing Excellence Board" },
+  "video-ai-production": { title: "Video Editing + AI Production", gradient: "from-[#2e1065] to-[#8b5cf6]", issuer: "Creative & AI Media Board" },
+  "presentation-engineering": { title: "Gamma + Canva + PowerPoint", gradient: "from-[#78350f] to-[#f59e0b]", issuer: "Executive Communications Board" },
+  "ai-for-work": { title: "AI for Work, Career & Business", gradient: "from-[#083344] to-[#06b6d4]", issuer: "AI Innovation & Governance Lab" },
+  "gre-preparation": { title: "GRE Preparation Masterclass", gradient: "from-[#881337] to-[#e11d48]", issuer: "GRE Quantitative & Verbal Institute" },
 };
 
 function CornerOrnament({ rotate = 0 }: { rotate?: number }) {
@@ -47,9 +44,10 @@ type CertProps = {
   certId: string;
   issuer: string;
   demo?: boolean;
+  scoreText?: string;
 };
 
-function CertificateCard({ title, recipient, date, certId, issuer, demo }: CertProps) {
+function CertificateCard({ title, recipient, date, certId, issuer, demo, scoreText }: CertProps) {
   return (
     <div
       className="relative w-full overflow-hidden rounded-xl select-none border-2 border-[#10b981] shadow-[6px_6px_0px_0px_#10b981]"
@@ -79,12 +77,14 @@ function CertificateCard({ title, recipient, date, certId, issuer, demo }: CertP
             </div>
             <div>
               <p className="text-xs font-extrabold tracking-widest text-[#10b981]">INSYT</p>
-              <p className="text-[9px] tracking-[0.15em] uppercase text-emerald-200">Corporate Board</p>
+              <p className="text-[9px] tracking-[0.15em] uppercase text-emerald-200">Creative &amp; Technical Media Board</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#10b981]/20 border border-[#10b981] text-[#10b981]">
             <ShieldCheck size={14} />
-            <span className="text-[10px] font-extrabold tracking-wide uppercase">Verified Credential</span>
+            <span className="text-[10px] font-extrabold tracking-wide uppercase">
+              {scoreText || "Verified Credential"}
+            </span>
           </div>
         </div>
 
@@ -102,7 +102,7 @@ function CertificateCard({ title, recipient, date, certId, issuer, demo }: CertP
             <p className="text-2xl font-extrabold text-[#FEF08A]">{recipient}</p>
           </div>
           <p className="text-xs leading-relaxed max-w-sm text-emerald-100 font-sans font-medium">
-            has successfully completed all required coursework and demonstrated professional competency in the executive program.
+            has successfully completed all required coursework, passed the strict 80% evaluation benchmark, and demonstrated professional competency in the executive program.
           </p>
         </div>
 
@@ -129,23 +129,25 @@ function CertificateCard({ title, recipient, date, certId, issuer, demo }: CertP
   );
 }
 
-function LockedCertCard({ title, progress, pathSlug }: { title: string; progress: number; pathSlug: string }) {
+function LockedCertCard({ title, progress, pathSlug, requirementText }: { title: string; progress: number; pathSlug: string; requirementText?: string }) {
   return (
-    <div className="relative w-full overflow-hidden rounded-xl border-2 border-rose-500 shadow-[5px_5px_0px_0px_#881337] bg-slate-900/95 p-8 text-white space-y-4">
+    <div className="relative w-full overflow-hidden rounded-xl border-2 border-amber-500 shadow-[5px_5px_0px_0px_#78350f] bg-slate-900/95 p-8 text-white space-y-4">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-lg bg-rose-500/20 text-rose-400 border-2 border-rose-500 flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 rounded-lg bg-amber-500/20 text-amber-400 border-2 border-amber-500 flex items-center justify-center flex-shrink-0">
             <Lock size={20} />
           </div>
           <div>
             <h3 className="text-base font-extrabold font-mono uppercase text-white">{title}</h3>
-            <p className="text-xs text-rose-200 font-medium">Complete 100% of the track to unlock credential</p>
+            <p className="text-xs text-amber-200 font-medium">
+              {requirementText || "Threshold Gated: Achieve &ge; 80% cumulative rubric score across milestone deliverables"}
+            </p>
           </div>
         </div>
 
         <Link
           href={`/learn/${pathSlug}`}
-          className="px-5 py-2.5 rounded-lg text-xs font-mono font-extrabold text-white bg-[#e11d48] hover:bg-rose-600 transition-all shadow-[3px_3px_0px_0px_#881337] border-2 border-rose-300 uppercase flex items-center gap-1.5"
+          className="px-5 py-2.5 rounded-lg text-xs font-mono font-extrabold text-white bg-amber-600 hover:bg-amber-500 transition-all shadow-[3px_3px_0px_0px_#78350f] border-2 border-amber-300 uppercase flex items-center gap-1.5"
         >
           <span>Continue Track</span>
           <ArrowRight size={13} />
@@ -153,12 +155,13 @@ function LockedCertCard({ title, progress, pathSlug }: { title: string; progress
       </div>
 
       <div className="space-y-1.5 pt-2">
-        <div className="flex justify-between text-xs font-mono font-extrabold text-rose-200">
-          <span>Track Progress</span>
-          <span>{progress}%</span>
+        <div className="flex justify-between text-xs font-mono font-extrabold text-amber-200">
+          <span>Current Score / Progress</span>
+          <span>{progress}% (80% Required)</span>
         </div>
-        <div className="w-full h-3 rounded-full bg-slate-800 border border-slate-700 overflow-hidden">
-          <div className="h-full bg-[#10b981]" style={{ width: `${progress}%` }} />
+        <div className="w-full h-3 rounded-full bg-slate-800 border border-slate-700 overflow-hidden relative">
+          <div className="h-full bg-amber-500 transition-all duration-500" style={{ width: `${Math.min(100, progress)}%` }} />
+          <div className="absolute top-0 bottom-0 w-0.5 bg-white z-10" style={{ left: "80%" }} />
         </div>
       </div>
     </div>
@@ -167,8 +170,8 @@ function LockedCertCard({ title, progress, pathSlug }: { title: string; progress
 
 export default function CertificatesPage() {
   const { state } = useUser();
+  const { metrics, state: capcutState } = useCapCutCourse();
   const [downloading, setDownloading] = useState<string | null>(null);
-  const [inspecting, setInspecting] = useState<any | null>(null);
   const certRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const issueDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
@@ -179,7 +182,7 @@ export default function CertificatesPage() {
       slug: c.id,
       title: c.title,
       pathSlug: c.id,
-      certId: `INSYT-${c.id.slice(0, 8).toUpperCase()}-${state.level}`,
+      certId: `INSYT-${c.id.slice(0, 8).toUpperCase()}-VERIFIED`,
       issuer: PATH_META[c.id]?.issuer ?? "INSYT Academic Board",
       unlocked: true,
     }));
@@ -207,9 +210,12 @@ export default function CertificatesPage() {
       if (!el && certSlug === "demo") {
         el = certRefs.current["demo"];
       }
+      if (!el && certSlug === "capcut-master") {
+        el = certRefs.current["capcut-master"];
+      }
 
       if (!el) {
-        const content = `INSYT CORPORATE CERTIFICATE OF COMPLETION\nProgram: ${certTitle}\nRecipient: ${state.name || "Executive Operator"}\nDate: ${issueDate}\nCredential ID: INSYT-CERT-VERIFIED-2026\n\nVerified by INSYT Academic Board & BAUBC`;
+        const content = `INSYT CORPORATE CERTIFICATE OF COMPLETION\nProgram: ${certTitle}\nRecipient: ${state.name || "Executive Editor"}\nDate: ${issueDate}\nCredential ID: INSYT-CERT-VERIFIED-2026\n\nVerified by INSYT Academic Board & Post-Production Council`;
         const blob = new Blob([content], { type: "text/plain" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -243,39 +249,100 @@ export default function CertificatesPage() {
   }, [state.name, issueDate]);
 
   const demoCert = {
-    title: "Excel for Corporate Careers",
+    title: "CapCut Master Video Editor V2",
     recipient: state.name || "Your Name",
     date: issueDate,
-    certId: "INSYT-DEMO-2026",
-    issuer: "Excel Analytics Division",
+    certId: "INSYT-CAPCUT-2026",
+    issuer: "Creative & AI Media Board",
+    scoreText: "Rubric Score: 88% (Pass)",
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-16 px-4">
+    <div className="max-w-5xl mx-auto space-y-8 pb-16 px-4 font-sans">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-extrabold font-mono uppercase tracking-tight" style={{ color: "var(--corp-text)" }}>
           Verified Credentials
         </h1>
         <p className="text-xs sm:text-sm mt-1 font-medium" style={{ color: "var(--corp-text-secondary)" }}>
-          Premium certificates issued upon 100% track completion — downloadable, shareable, and cryptographically verifiable.
+          Official professional certifications issued upon meeting verified evaluation benchmarks (&ge; 80% rubric score) — downloadable, shareable, and cryptographically verifiable.
         </p>
       </div>
 
+      {/* ── SPECIAL SECTION: CAPCUT MASTER ACADEMY V2 CREDENTIAL ── */}
+      <div className="space-y-4 pt-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-pulse" />
+            <h2 className="text-sm font-mono font-extrabold uppercase tracking-wider text-emerald-400">
+              Flagship Credential: CapCut Master Academy V2
+            </h2>
+          </div>
+
+          <Link
+            href="/learn/capcut-master-academy"
+            className="text-xs font-mono text-emerald-400 hover:underline flex items-center gap-1"
+          >
+            <span>Course Hub</span>
+            <ExternalLink size={12} />
+          </Link>
+        </div>
+
+        {metrics.isThresholdMet ? (
+          <div className="space-y-3">
+            <div ref={(el) => { certRefs.current["capcut-master"] = el; }}>
+              <CertificateCard
+                title="CapCut Certified Master Video Editor"
+                recipient={capcutState.studentName || state.name || "Creative Director"}
+                date={issueDate}
+                certId="INSYT-CAPCUT-V2-MASTER"
+                issuer="Creative & AI Media Board"
+                scoreText={`Rubric Score: ${metrics.cumulativeScore}%`}
+              />
+            </div>
+            <div className="flex items-center gap-2 justify-end flex-wrap font-mono">
+              <a
+                href={`https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=${encodeURIComponent("CapCut Certified Master Video Editor")}&organizationName=INSYT+Media+Lab&issueYear=${new Date().getFullYear()}&issueMonth=${new Date().getMonth() + 1}&certUrl=${encodeURIComponent("https://insyt.co/verify/INSYT-CAPCUT-V2-MASTER")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-extrabold text-white bg-[#0A66C2] border-2 border-blue-400 shadow-[2px_2px_0px_0px_#1e3a8a]"
+              >
+                <Share2 size={12} /> Share to LinkedIn
+              </a>
+              <button
+                onClick={() => handleDownloadPdf("capcut-master", "CapCut Certified Master Video Editor")}
+                disabled={downloading === "capcut-master"}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-extrabold text-emerald-950 bg-[#10b981] hover:bg-emerald-400 border-2 border-emerald-300 shadow-[2px_2px_0px_0px_#064e3b] uppercase"
+              >
+                <FileDown size={12} />
+                {downloading === "capcut-master" ? "Generating..." : "Download Official PDF"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <LockedCertCard
+            title="CapCut Certified Master Video Editor"
+            progress={metrics.cumulativeScore}
+            pathSlug="capcut-master-academy"
+            requirementText={`Threshold Requirement: Average score ≥ 80% across milestone deliverables (Current: ${metrics.cumulativeScore}%)`}
+          />
+        )}
+      </div>
+
       {/* Demo preview */}
-      <div className="space-y-3">
+      <div className="space-y-3 pt-4 border-t border-slate-800">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-pulse" />
+          <div className="w-2.5 h-2.5 rounded-full bg-[#10b981] opacity-75" />
           <p className="text-xs font-mono font-extrabold uppercase tracking-widest text-[#10b981]">
-            Official Certificate Preview
+            Standard Certificate Preview
           </p>
         </div>
         <div ref={(el) => { certRefs.current["demo"] = el; }}>
           <CertificateCard {...demoCert} demo />
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1">
-          <p className="text-xs font-medium" style={{ color: "var(--corp-text-tertiary)" }}>
-            Enroll in a learning track and complete 100% to earn your personalized certificate.
+          <p className="text-xs font-medium text-slate-400">
+            Submit coursework deliverables and achieve &ge; 80% to earn your personalized certificate.
           </p>
           <button
             onClick={() => handleDownloadPdf("demo", demoCert.title)}
@@ -292,11 +359,11 @@ export default function CertificatesPage() {
       {earnedCerts.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <div className="flex-1 h-0.5" style={{ background: "var(--corp-border)" }} />
+            <div className="flex-1 h-0.5 bg-slate-800" />
             <p className="text-xs font-mono font-extrabold uppercase tracking-widest flex items-center gap-1.5 text-[#10b981]">
-              <CheckCircle2 size={14} /> Earned Certificates
+              <CheckCircle2 size={14} /> Additional Earned Certificates
             </p>
-            <div className="flex-1 h-0.5" style={{ background: "var(--corp-border)" }} />
+            <div className="flex-1 h-0.5 bg-slate-800" />
           </div>
 
           {earnedCerts.map((cert) => (
@@ -311,18 +378,6 @@ export default function CertificatesPage() {
                 />
               </div>
               <div className="flex items-center gap-2 justify-end flex-wrap font-mono">
-                <button onClick={() => setInspecting(cert)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-extrabold border-2 border-corp-border hover:bg-corp-bg-secondary text-corp-text">
-                  <ExternalLink size={12} /> Inspect
-                </button>
-                <a
-                  href={`https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=${encodeURIComponent(cert.title)}&organizationName=INSYT+Corporate&issueYear=${new Date().getFullYear()}&issueMonth=${new Date().getMonth() + 1}&certUrl=${encodeURIComponent(`https://insyt.co/verify/${cert.certId}`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-extrabold text-white bg-[#0A66C2] border-2 border-blue-400 shadow-[2px_2px_0px_0px_#1e3a8a]"
-                >
-                  <Share2 size={12} /> LinkedIn
-                </a>
                 <button
                   onClick={() => handleDownloadPdf(cert.slug, cert.title)}
                   disabled={downloading === cert.slug}
@@ -341,11 +396,11 @@ export default function CertificatesPage() {
       {lockedCerts.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <div className="flex-1 h-0.5" style={{ background: "var(--corp-border)" }} />
-            <p className="text-xs font-mono font-extrabold uppercase tracking-widest flex items-center gap-1.5 text-rose-500">
-              <Lock size={14} /> In-Progress Certificates
+            <div className="flex-1 h-0.5 bg-slate-800" />
+            <p className="text-xs font-mono font-extrabold uppercase tracking-widest flex items-center gap-1.5 text-amber-500">
+              <Lock size={14} /> In-Progress Course Tracks
             </p>
-            <div className="flex-1 h-0.5" style={{ background: "var(--corp-border)" }} />
+            <div className="flex-1 h-0.5 bg-slate-800" />
           </div>
 
           {lockedCerts.map((cert) => (
@@ -361,4 +416,3 @@ export default function CertificatesPage() {
     </div>
   );
 }
-

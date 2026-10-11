@@ -3,14 +3,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  Calendar, Clock, User, Sparkles, Check, CheckCircle2, Flame, AlertCircle, RefreshCw,
-  Presentation, BookOpen, BarChart3, Brain, Briefcase, TrendingUp, Ticket, ArrowRight,
-  ShieldCheck, Award, QrCode
+  Calendar, Clock, User, Sparkles, Check, Flame, AlertCircle, RefreshCw,
+  Presentation, Ticket, ArrowRight, Award
 } from "lucide-react";
-import { useUser } from "@/components/providers/user-context";
 import { fetchWorkshops, fetchUserWorkshopBookings } from "@/lib/db";
 import { useAuth } from "@/components/providers/auth-provider";
-import { WORKSHOPS_DATA, WorkshopDetail, normalizeWorkshopId } from "@/lib/data/workshops";
+import { WorkshopDetail, normalizeWorkshopId } from "@/lib/data/workshops";
 import { WorkshopRegistrationModal } from "@/components/workshops/workshop-registration-modal";
 import Link from "next/link";
 
@@ -23,9 +21,42 @@ const item = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
 };
 
+function mapDbWorkshop(w: any): WorkshopDetail {
+  return {
+    id: w.$id || w.id || w.workshopId || "",
+    title: w.title || "Live Workshop",
+    tagline: w.description || w.tagline || "",
+    category: w.category || "Career & Skills",
+    level: (w.level as any) || "Intermediate",
+    date: w.date || "Upcoming",
+    time: w.time || "TBD",
+    duration: w.duration || "2.0 Hours",
+    status: w.status || "upcoming",
+    spotsRemaining: typeof w.spots === "number" ? w.spots : (w.spotsRemaining ?? 50),
+    totalCapacity: w.totalCapacity || 100,
+    xpReward: w.xpReward || 150,
+    examXpReward: w.examXpReward || 200,
+    hostOrg: w.host || w.hostOrg || "INSYT Live",
+    registrationUrl: w.registrationUrl || "",
+    instructor: {
+      name: w.instructorName || w.instructor?.name || w.host || "Instructor",
+      role: w.instructorRole || w.instructor?.role || "Mentor",
+      company: w.instructorCompany || w.instructor?.company || "INSYT",
+      avatar: w.instructorAvatar || w.instructor?.avatar || "",
+      bio: w.instructorBio || w.instructor?.bio || "",
+    },
+    venue: w.venue || "Online Live Session",
+    description: w.description || "",
+    agenda: Array.isArray(w.agenda) ? w.agenda : [],
+    learningOutcomes: Array.isArray(w.learningOutcomes) ? w.learningOutcomes : [],
+    credentialName: w.credentialName || (w.title ? `${w.title} Certificate` : "Workshop Credential"),
+    examQuestions: Array.isArray(w.examQuestions) ? w.examQuestions : [],
+  };
+}
+
 export default function WorkshopsPage() {
   const { user } = useAuth();
-  const [workshops, setWorkshops] = useState<WorkshopDetail[]>(WORKSHOPS_DATA);
+  const [workshops, setWorkshops] = useState<WorkshopDetail[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
   const [bookedIds, setBookedIds] = useState<Set<string>>(new Set());
@@ -46,26 +77,12 @@ export default function WorkshopsPage() {
         user ? fetchUserWorkshopBookings(user.$id) : Promise.resolve([]),
       ]);
 
-      // Merge DB records onto local WORKSHOPS_DATA while preserving all local static definitions
-      const activeWorkshops = [...WORKSHOPS_DATA];
-      if (dbWorkshops && dbWorkshops.length > 0) {
-        dbWorkshops.forEach((w: any) => {
-          const rawId = w.id || w.workshopId || w.$id || "";
-          const normId = normalizeWorkshopId(rawId);
-          const idx = activeWorkshops.findIndex((item) => item.id === normId || item.id === w.id || item.title === w.title);
-          if (idx !== -1) {
-            activeWorkshops[idx] = {
-              ...activeWorkshops[idx],
-              spotsRemaining: typeof w.spots === "number" ? w.spots : activeWorkshops[idx].spotsRemaining,
-            };
-          }
-        });
-      }
+      const activeWorkshops: WorkshopDetail[] = (dbWorkshops || []).map(mapDbWorkshop);
       setWorkshops(activeWorkshops);
 
       // Extract and normalize all booking IDs
       const rawBookedSet = new Set<string>();
-      userBookings.forEach((b: any) => {
+      (userBookings || []).forEach((b: any) => {
         if (b.workshopId) rawBookedSet.add(normalizeWorkshopId(b.workshopId));
       });
       try {
@@ -75,16 +92,10 @@ export default function WorkshopsPage() {
         /* fallback */
       }
 
-      // Keep only valid active workshop IDs
-      const validBookedSet = new Set<string>();
-      rawBookedSet.forEach((id) => {
-        if (activeWorkshops.some((w) => w.id === id)) {
-          validBookedSet.add(id);
-        }
-      });
-      setBookedIds(validBookedSet);
+      setBookedIds(rawBookedSet);
     } catch {
-      setWorkshops(WORKSHOPS_DATA);
+      setFetchError(true);
+      setWorkshops([]);
     } finally {
       setIsLoading(false);
     }
@@ -112,13 +123,13 @@ export default function WorkshopsPage() {
       <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-mono font-extrabold uppercase bg-amber-400 text-amber-950 border border-amber-500 shadow-sm">
-            <Award size={13} /> Partnered with BAU Business Club (BAUBC)
+            <Award size={13} /> Verified Masterclasses &amp; Credentials
           </div>
           <h1 className="text-2xl sm:text-3xl font-black font-mono uppercase flex items-center gap-2 text-corp-text">
             <Presentation className="w-8 h-8 text-[#2563eb]" /> Live Workshops &amp; Credentials
           </h1>
           <p className="text-xs sm:text-sm font-medium text-corp-text-secondary">
-            Register for live masterclasses, obtain digital event passes, and earn verified credentials issued by BAUBC.
+            Register for live masterclasses, obtain digital event passes, and earn verified credentials.
           </p>
         </div>
 
@@ -151,7 +162,7 @@ export default function WorkshopsPage() {
       {/* State: Loading */}
       {isLoading ? (
         <div className="flex justify-center items-center py-20 font-mono">
-          <div className="text-xs font-extrabold text-corp-text-tertiary">Loading workshops...</div>
+          <div className="text-xs font-extrabold text-corp-text-tertiary">Loading workshops from database...</div>
         </div>
       ) : fetchError ? (
         <motion.div variants={item} className="flex flex-col items-center gap-4 py-16 font-mono">
@@ -167,10 +178,18 @@ export default function WorkshopsPage() {
       ) : (
         <motion.div variants={item} className="space-y-5 font-mono">
           {displayedWorkshops.length === 0 ? (
-            <div className="py-16 text-center text-xs font-extrabold rounded-xl border-2 border-dashed border-blue-400 bg-corp-surface text-corp-text-tertiary">
-              {activeTab === "my_tickets"
-                ? "You haven't registered for any workshops yet. Book a seat below!"
-                : "No workshops available at the moment."}
+            <div className="py-20 text-center rounded-2xl border-2 border-dashed border-blue-400 bg-corp-surface p-8 space-y-3">
+              <Presentation className="w-12 h-12 text-[#2563eb] mx-auto opacity-70" />
+              <h3 className="text-base font-extrabold uppercase text-corp-text">
+                {activeTab === "my_tickets"
+                  ? "No Registered Tickets Yet"
+                  : "No Live Workshops Scheduled"}
+              </h3>
+              <p className="text-xs font-medium text-corp-text-secondary max-w-md mx-auto">
+                {activeTab === "my_tickets"
+                  ? "You haven't registered for any live workshops yet. Check back when new workshops are announced in the database."
+                  : "All workshops are loaded directly from the database in real time. Any newly scheduled workshops will automatically appear here."}
+              </p>
             </div>
           ) : (
             displayedWorkshops.map((w) => (
@@ -205,7 +224,7 @@ export default function WorkshopsPage() {
                   <div className="flex flex-wrap gap-4 text-xs font-bold text-corp-text-tertiary">
                     <span className="flex items-center gap-1.5"><Calendar size={13} className="text-[#2563eb]" /> {w.date}</span>
                     <span className="flex items-center gap-1.5"><Clock size={13} className="text-[#2563eb]" /> {w.time}</span>
-                    <span className="flex items-center gap-1.5"><User size={13} className="text-[#2563eb]" /> {w.instructor.name} ({w.instructor.company})</span>
+                    <span className="flex items-center gap-1.5"><User size={13} className="text-[#2563eb]" /> {w.instructor?.name || "Lead Instructor"} ({w.instructor?.company || "INSYT"})</span>
                   </div>
                 </div>
 
@@ -260,7 +279,7 @@ export default function WorkshopsPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         workshop={selectedWorkshop}
-        onSuccess={(ticketCode) => {
+        onSuccess={() => {
           if (selectedWorkshop) {
             setBookedIds((prev) => new Set([...prev, selectedWorkshop.id]));
           }

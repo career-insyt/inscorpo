@@ -32,16 +32,15 @@ export function MarketingNavbar() {
         <div className="mx-auto max-w-7xl px-6 flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative w-8 h-8 rounded-full bg-corp-accent flex items-center justify-center overflow-hidden">
-              <span className="text-white font-bold text-sm relative z-10">I</span>
-              <div className="absolute inset-0 bg-gradient-to-br from-corp-accent to-corp-cyan opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative w-9 h-9 rounded-xl bg-[#2563eb] flex items-center justify-center overflow-hidden border border-blue-400 p-0.5 shadow-sm">
+              <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain rounded-lg" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[15px] font-semibold tracking-tight" style={{ color: "var(--corp-text)" }}>
-                INSYT
+              <span className="text-[15px] font-black tracking-tight" style={{ color: "var(--corp-text)" }}>
+                CAREER INSYT
               </span>
-              <span className="text-[10px] font-medium tracking-[0.2em] uppercase" style={{ color: "var(--corp-text-tertiary)" }}>
-                Corporate
+              <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-corp-accent">
+                Corporate OS
               </span>
             </div>
           </Link>

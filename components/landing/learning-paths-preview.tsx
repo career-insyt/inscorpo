@@ -105,8 +105,8 @@ export function LearningPathsPreview() {
                 const hoursSum = path.hours || 0;
                 const pathLevel = levelsMap[path.slug] || "All Levels";
                 const pathTag = tagsMap[path.slug];
-                const subTopics = path.topics ? (path.topics.slice(0, 3).join(" · ") + (path.topics.length > 3 ? "..." : "")) : "";
-                const Icon = iconMap[path.icon] || BookOpen;
+                const subTopics = Array.isArray(path.topics) ? (path.topics.slice(0, 3).join(" · ") + (path.topics.length > 3 ? "..." : "")) : "";
+                const Icon = (path.icon && iconMap[path.icon]) || BookOpen;
 
                 return (
                   <Link key={path.slug} href={`/learn/${path.slug}`}>

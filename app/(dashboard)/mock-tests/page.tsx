@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
-  Search, Filter, Landmark, Briefcase, GraduationCap, Languages,
-  Clock, Play, Sparkles, ChevronRight, Trophy,
-  Zap, Flame, Target, CheckCircle2, Brain, AlertTriangle, FileSpreadsheet, BarChart3
+  Search, Landmark, Briefcase, GraduationCap,
+  Clock, Play, Sparkles, ChevronRight,
+  Zap, Target, CheckCircle2, Brain, AlertTriangle, FileSpreadsheet, BarChart3,
+  Layers, MessageSquare, ArrowRight, ShieldCheck
 } from "lucide-react";
 import Link from "next/link";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import { DailyDrillModal } from "@/components/mock-tests/daily-drill-modal";
-import { RankExplainerModal } from "@/components/dashboard/rank-explainer-modal";
 import { useUser } from "@/components/providers/user-context";
 import { MOCK_TESTS_DATABASE, MockTestDetail } from "@/lib/data/mock-tests-db";
 
@@ -30,7 +30,6 @@ export default function MockTestsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [isDrillOpen, setIsDrillOpen] = useState(false);
-  const [rankModalOpen, setRankModalOpen] = useState(false);
 
   const todayKey = `${DRILL_CHALLENGE_ID}-${new Date().toISOString().split("T")[0]}`;
   const isDrillCompletedToday = state.completedChallengeIds.includes(todayKey);
@@ -39,9 +38,7 @@ export default function MockTestsPage() {
     isOpen: boolean;
     title?: string;
     message: string;
-    type?: "error" | "warning" | "info" | "success" | "xp";
-    requiredXP?: number;
-    currentXP?: number;
+    type?: "error" | "warning" | "info" | "success";
     actionText?: string;
     onAction?: () => void;
   }>({
@@ -49,10 +46,13 @@ export default function MockTestsPage() {
     message: "",
   });
 
-  const categories = ["All", "Banking", "Corporate", "Excel"];
+  const categories = ["All", "Aptitude", "Technical", "Case", "Finance"];
 
   const testsList = useMemo(() => {
-    return Object.values(MOCK_TESTS_DATABASE);
+    // Exclude legacy alias bb-ad-full-mock from primary catalog list if mto-cognitive-aptitude exists
+    return Object.values(MOCK_TESTS_DATABASE).filter((t, idx, arr) => 
+      arr.findIndex(item => item.id === t.id) === idx && t.id !== "bb-ad-full-mock"
+    );
   }, []);
 
   const filteredTests = useMemo(() => {
@@ -72,12 +72,13 @@ export default function MockTestsPage() {
 
   const getCategoryIcon = (category: string) => {
     switch (category.toLowerCase()) {
+      case "finance":
       case "banking":
         return Landmark;
-      case "corporate":
-        return Briefcase;
-      case "excel":
+      case "technical":
         return FileSpreadsheet;
+      case "case":
+        return Layers;
       default:
         return Brain;
     }
@@ -88,27 +89,78 @@ export default function MockTestsPage() {
       variants={container}
       initial="hidden"
       animate="visible"
-      className="max-w-6xl mx-auto space-y-6 font-sans pb-16"
+      className="max-w-6xl mx-auto space-y-8 font-sans pb-16"
     >
       {/* Top Header */}
       <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-black uppercase bg-blue-500/10 text-[#2563eb] border border-blue-500/30">
+              03 · Evaluate
+            </span>
+            <span className="text-xs font-mono font-bold text-corp-text-secondary">
+              Employability Operating System
+            </span>
+          </div>
           <h1 className="text-2xl sm:text-3xl font-black font-mono uppercase flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
-            <Brain className="w-8 h-8 text-[#2563eb]" /> Mock Test Assessment Center
+            <Brain className="w-8 h-8 text-[#2563eb]" /> Competency Evaluation Center
           </h1>
-          <p className="text-sm font-medium text-corp-text-secondary">
-            Timed corporate assessments, real negative marking penalties, and step-by-step solution analytics.
+          <p className="text-xs sm:text-sm font-medium text-corp-text-secondary max-w-2xl">
+            Timed corporate assessments, real negative marking penalties, and psychometrically calibrated readiness benchmarks. Course completion does not grant verified status — rigorous evaluation does.
           </p>
         </div>
 
-        {/* Silver / Current Rank Badge trigger */}
-        <div
-          onClick={() => setRankModalOpen(true)}
-          className="px-4 py-2 rounded-2xl bg-amber-400 text-amber-950 border-2 border-slate-950 font-black text-xs font-mono uppercase cursor-pointer hover:scale-105 transition-all shadow-[3px_3px_0px_0px_#000] flex items-center gap-2 self-start sm:self-auto"
-        >
-          <Trophy size={16} />
-          <span>Rank Info &amp; Perks</span>
+        <div className="flex items-center gap-2 self-start sm:self-auto font-mono text-xs">
+          <div className="px-3.5 py-2 rounded-xl bg-corp-surface border-2 border-corp-border flex items-center gap-2">
+            <ShieldCheck size={16} className="text-[#2563eb]" />
+            <span className="font-bold text-corp-text">Zero-Trust Scoring</span>
+          </div>
         </div>
+      </motion.div>
+
+      {/* 4 Pillars Quick Overview Grid */}
+      <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="p-4 rounded-xl border-2 border-blue-400 bg-corp-surface space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-black uppercase text-[#2563eb]">Pillar 01</span>
+            <Brain size={16} className="text-[#2563eb]" />
+          </div>
+          <h3 className="text-sm font-black text-corp-text font-mono uppercase">Cognitive Aptitude</h3>
+          <p className="text-[11px] text-corp-text-secondary">Standardized quantitative, verbal, and logical reasoning benchmarks.</p>
+        </div>
+
+        <div className="p-4 rounded-xl border-2 border-emerald-400 bg-corp-surface space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-black uppercase text-emerald-600">Pillar 02</span>
+            <FileSpreadsheet size={16} className="text-emerald-600" />
+          </div>
+          <h3 className="text-sm font-black text-corp-text font-mono uppercase">Technical Practical</h3>
+          <p className="text-[11px] text-corp-text-secondary">Messy data modeling in Excel, SQL queries, and Power BI DAX evaluations.</p>
+        </div>
+
+        <div className="p-4 rounded-xl border-2 border-amber-400 bg-corp-surface space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-black uppercase text-amber-600">Pillar 03</span>
+            <Layers size={16} className="text-amber-600" />
+          </div>
+          <h3 className="text-sm font-black text-corp-text font-mono uppercase">Case Simulations</h3>
+          <p className="text-[11px] text-corp-text-secondary">MECE issue trees, profitability breakdowns, and corporate turnaround cases.</p>
+        </div>
+
+        <Link
+          href="/evaluate/interviews"
+          className="p-4 rounded-xl border-2 border-violet-400 bg-corp-surface space-y-2 hover:border-violet-600 transition-all group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-black uppercase text-violet-600">Pillar 04</span>
+            <MessageSquare size={16} className="text-violet-600 group-hover:scale-110 transition-transform" />
+          </div>
+          <h3 className="text-sm font-black text-corp-text font-mono uppercase flex items-center justify-between">
+            <span>Interview Center</span>
+            <ChevronRight size={14} className="text-violet-600" />
+          </h3>
+          <p className="text-[11px] text-corp-text-secondary">AI-evaluated STAR behavioral, MTO, and technical interview simulations.</p>
+        </Link>
       </motion.div>
 
       {/* Daily Practice Drill Banner */}
@@ -134,17 +186,14 @@ export default function MockTestsPage() {
             <div className="space-y-2 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="px-3 py-1 rounded-md text-xs font-mono font-extrabold uppercase bg-amber-400 text-amber-950 border border-amber-500 shadow-sm">
-                  Daily Challenge
+                  Daily Diagnostic Drill
                 </span>
                 <span className="px-2.5 py-1 rounded-md text-xs font-mono font-extrabold uppercase bg-white/20 text-white border border-white/30 flex items-center gap-1">
-                  <Sparkles size={12} /> +25 XP
-                </span>
-                <span className="px-2.5 py-1 rounded-md text-xs font-mono font-extrabold uppercase bg-white/20 text-white border border-white/30 flex items-center gap-1">
-                  <Flame size={12} className="fill-amber-300 text-amber-300" /> {state.streak}-Day Streak
+                  <Target size={12} /> Standardized Calibration
                 </span>
                 {isDrillCompletedToday && (
                   <span className="px-2.5 py-1 rounded-md text-xs font-mono font-extrabold uppercase bg-emerald-900 text-emerald-100 border border-emerald-400 flex items-center gap-1">
-                    <CheckCircle2 size={12} /> Completed Today
+                    <CheckCircle2 size={12} /> Calibrated Today
                   </span>
                 )}
               </div>
@@ -154,16 +203,16 @@ export default function MockTestsPage() {
                   5-Minute Corporate Skill Rapid Drill
                 </h3>
                 <p className="text-xs sm:text-sm mt-1 font-sans font-medium text-blue-100">
-                  Test your speed with 3 rapid questions on Excel formulas, financial statement analysis &amp; logical reasoning.
+                  Calibrate your analytical speed with 3 rapid questions on Excel formulas, financial statement analysis &amp; logical reasoning.
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-4 text-xs text-blue-100 font-sans font-medium">
-                <span className="flex items-center gap-1.5"><Target size={13} /> 3 Questions</span>
+                <span className="flex items-center gap-1.5"><Target size={13} /> 3 Rapid Questions</span>
                 <span>•</span>
-                <span className="flex items-center gap-1.5"><Clock size={13} /> 5 Mins</span>
+                <span className="flex items-center gap-1.5"><Clock size={13} /> 5 Mins Timed</span>
                 <span>•</span>
-                <span className="flex items-center gap-1.5"><CheckCircle2 size={13} /> Instant Analytics</span>
+                <span className="flex items-center gap-1.5"><CheckCircle2 size={13} /> Instant Solution Analytics</span>
               </div>
             </div>
           </div>
@@ -174,7 +223,7 @@ export default function MockTestsPage() {
               className="px-6 py-3.5 rounded-xl text-xs font-mono font-extrabold uppercase flex items-center justify-center gap-2 transition-all bg-amber-400 text-amber-950 border-2 border-slate-950 shadow-[4px_4px_0px_0px_#000] hover:bg-amber-300 cursor-pointer"
             >
               <Play size={14} className="fill-amber-950" />
-              <span>{isDrillCompletedToday ? "Retry Drill" : "Begin Drill Now"}</span>
+              <span>{isDrillCompletedToday ? "Review Drill" : "Begin Diagnostic"}</span>
               <ChevronRight size={14} />
             </button>
             <span className="text-[11px] text-blue-100 font-mono text-center">
@@ -193,7 +242,7 @@ export default function MockTestsPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search tests by title, keyword, or organization..."
+            placeholder="Search assessments by skill, pillar, or topic..."
             className="w-full pl-10 pr-4 py-2.5 rounded-xl text-xs font-bold border-2 border-blue-400 bg-corp-surface text-corp-text focus:outline-none focus:border-[#2563eb] shadow-sm"
           />
         </div>
@@ -228,9 +277,14 @@ export default function MockTestsPage() {
             >
               <div className="space-y-4 font-mono">
                 <div className="flex items-center justify-between">
-                  <span className="px-3 py-1 rounded-md text-[10px] font-black uppercase bg-amber-400 text-amber-950 border border-amber-500 shadow-sm">
-                    {test.category}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 rounded-md text-[10px] font-black uppercase bg-amber-400 text-amber-950 border border-amber-500 shadow-sm">
+                      {test.category}
+                    </span>
+                    <span className="text-[10px] font-bold text-corp-text-secondary">
+                      {test.competencyPillar} Readiness
+                    </span>
+                  </div>
                   <span className="px-2.5 py-0.5 rounded text-[10px] font-black uppercase bg-blue-50 text-[#2563eb] border border-blue-300">
                     {test.difficulty}
                   </span>
@@ -271,9 +325,9 @@ export default function MockTestsPage() {
 
               {/* Action Bar */}
               <div className="pt-3 border-t-2 border-blue-400/40 flex items-center justify-between font-mono">
-                <div className="flex items-center gap-1 text-xs font-black text-[#2563eb]">
-                  <Sparkles size={14} />
-                  +{test.xpReward} XP
+                <div className="flex items-center gap-1.5 text-xs font-bold text-corp-text-secondary">
+                  <ShieldCheck size={14} className="text-[#2563eb]" />
+                  <span>Percentile Calibrated</span>
                 </div>
 
                 <Link
@@ -289,10 +343,20 @@ export default function MockTestsPage() {
       </motion.div>
 
       {filteredTests.length === 0 && (
-        <div className="text-center py-12 border-2 border-dashed border-blue-400 rounded-2xl p-6 font-mono text-corp-text-tertiary space-y-2">
-          <Brain size={36} className="mx-auto text-[#2563eb]" />
-          <h3 className="text-base font-bold text-corp-text">No Mock Tests Match Your Search</h3>
-          <p className="text-xs">Try selecting another category or clearing your search filter.</p>
+        <div className="text-center py-16 border-2 border-dashed border-blue-400 rounded-2xl p-8 font-mono space-y-3 bg-corp-surface">
+          <Brain size={42} className="mx-auto text-[#2563eb]" />
+          <h3 className="text-base font-black uppercase text-corp-text">No Assessments in Selected Category</h3>
+          <p className="text-xs font-sans text-corp-text-secondary max-w-md mx-auto">
+            Try adjusting your search criteria or switch to another competency domain.
+          </p>
+          <div className="pt-2">
+            <button
+              onClick={() => { setActiveCategory("All"); setSearchQuery(""); }}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-mono font-black text-white bg-[#2563eb] hover:bg-blue-600 transition-all border-2 border-blue-400 uppercase tracking-wider shadow-[3px_3px_0px_0px_#1e3a8a] cursor-pointer"
+            >
+              <span>Reset Filters</span>
+            </button>
+          </div>
         </div>
       )}
 
@@ -302,8 +366,6 @@ export default function MockTestsPage() {
         title={alertDialog.title}
         message={alertDialog.message}
         type={alertDialog.type}
-        requiredXP={alertDialog.requiredXP}
-        currentXP={alertDialog.currentXP}
         actionText={alertDialog.actionText}
         onAction={alertDialog.onAction}
       />
@@ -312,12 +374,6 @@ export default function MockTestsPage() {
         isOpen={isDrillOpen}
         onClose={() => setIsDrillOpen(false)}
         isCompletedToday={isDrillCompletedToday}
-      />
-
-      <RankExplainerModal
-        isOpen={rankModalOpen}
-        onClose={() => setRankModalOpen(false)}
-        state={state}
       />
     </motion.div>
   );

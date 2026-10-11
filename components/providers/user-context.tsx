@@ -1,17 +1,19 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
-import { UserState, Notification, CommunityPost, XpLog, PassportProfile } from "@/lib/state/types";
+import { UserState, Notification, CommunityPost, PassportProfile } from "@/lib/state/types";
 import { INITIAL_USER_STATE } from "@/lib/state/initial-data";
 import { useAuth } from "@/components/providers/auth-provider";
 import { account } from "@/lib/appwrite";
-import { syncUserProfile, fetchLeaderboard, fetchTasks, fetchEvents, fetchCommunityPosts } from "@/lib/db";
+import { syncUserProfile, fetchTasks, fetchEvents, fetchCommunityPosts } from "@/lib/db";
+import { generateId } from "@/lib/id";
 
 type UserContextType = {
   state: UserState;
-  addXP: (amount: number, reason: string) => void;
   markNotificationRead: (id: string) => void;
   markAllNotificationsRead: () => void;
+  deleteNotification: (id: string) => void;
+  clearAllNotifications: () => void;
   addNotification: (notification: Omit<Notification, "id" | "time" | "read">) => void;
   addCommunityPost: (content: string, space: string) => void;
   togglePostLike: (id: string) => void;
@@ -24,12 +26,16 @@ type UserContextType = {
   toggleTask: (taskTitle: string) => void;
   resetUserStats: () => Promise<void>;
   recordStudyMinutes: (minutes: number) => void;
-  redeemVoucher: (code: string, amount: number, reason: string) => boolean;
-  completeChallenge: (challengeId: string, amount: number, reason: string) => void;
+  redeemVoucher: (code: string, reason: string) => boolean;
+  completeChallenge: (challengeId: string, reason: string) => void;
   buyItem: (itemId: string, itemTitle: string, method: string) => void;
   buyStreakFreeze: () => boolean;
-  completeChecklistTask: (taskId: string, title: string, xpAmount?: number) => boolean;
-  boostUserStats: (xpAmount: number, streakDays: number, reason: string) => void;
+  completeChecklistTask: (taskId: string, title: string) => boolean;
+  boostUserStats: (streakDays: number, reason: string) => void;
+  updateSubscriptionTier: (
+    tier: "starter" | "single_course" | "flagship_path" | "pro" | "enterprise",
+    status?: "active" | "inactive" | "trialing"
+  ) => Promise<void>;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -40,14 +46,79 @@ function getTodayIndex(): number {
   return jsDay === 0 ? 6 : jsDay - 1; // remap to Mon=0...Sun=6
 }
 
+const DEFAULT_INITIAL_NOTIFICATIONS: Notification[] = [
+  {
+    id: "notif-streak-checkin",
+    title: "Daily Velocity Streak Active",
+    message: "Keep your consecutive check-in streak alive to preserve your talent percentile ranking.",
+    type: "achievement",
+    time: "5m ago",
+    read: false,
+    link: "/dashboard?highlight=daily-streak",
+  },
+  {
+    id: "notif-skill-gap",
+    title: "Priority Gap: Power BI DAX & Star Schema",
+    message: "Corporate diagnostic highlights modeling and DAX as high-priority target remediations.",
+    type: "alert",
+    time: "45m ago",
+    read: false,
+    link: "/dashboard?highlight=skill-gap-audit",
+  },
+  {
+    id: "notif-passport-evidence",
+    title: "Career Passport Evidence Ledger Ready",
+    message: "Inspect your tamper-proof ED25519 cryptographic skill credentials and export for recruiters.",
+    type: "system",
+    time: "3h ago",
+    read: false,
+    link: "/career-passport?highlight=career-passport-evidence",
+  },
+  {
+    id: "notif-ccfcm-course",
+    title: "Corporate Financial Modeler Curriculum",
+    message: "Practice Module 1: Corporate PVM Decomposition & Financial Fundamentals interactively.",
+    type: "course",
+    time: "1d ago",
+    read: true,
+    link: "/learn/corporate-financial-modeler?highlight=course-curriculum",
+  },
+];
+
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<UserState>(INITIAL_USER_STATE);
+  const [state, setState] = useState<UserState>({
+    ...INITIAL_USER_STATE,
+    notifications: DEFAULT_INITIAL_NOTIFICATIONS,
+  });
   // `prefsLoaded` tracks if we've finished the async Appwrite prefs fetch.
   // We no longer block rendering on this — children mount immediately.
   const [prefsLoaded, setPrefsLoaded] = useState(false);
   const { user } = useAuth();
   // Prevent saving prefs on the initial mount before loading is done
   const isFirstSaveRef = useRef(true);
+  const lastCheckInRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    lastCheckInRef.current = state.lastCheckInDate;
+  }, [state.lastCheckInDate]);
+
+  // ─── Instant LocalStorage Sync for Enrollment State & Subscription Tier ───
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("insyt_enrolled_paths");
+      const storedTier = localStorage.getItem("insyt_subscription_tier");
+      const clean = stored
+        ? (JSON.parse(stored) as string[]).filter((s) => s && s !== "corporate-mto" && s !== "excel-corporate")
+        : [];
+      setState((prev) => ({
+        ...prev,
+        ...(clean.length ? { enrolledPathSlugs: Array.from(new Set([...prev.enrolledPathSlugs, ...clean])) } : {}),
+        ...(storedTier ? { subscriptionTier: storedTier as any } : {}),
+      }));
+    } catch {
+      // fallback
+    }
+  }, []);
 
   // ─── Load from Appwrite Preferences ───────────────────────────────────────
 
@@ -61,76 +132,84 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       try {
         const results = await Promise.allSettled([
           account.getPrefs(),
-          fetchLeaderboard(),
           fetchTasks(),
           fetchEvents(),
           fetchCommunityPosts(),
         ]);
 
         const prefs: any = results[0].status === "fulfilled" ? results[0].value : {};
-        const realLeaderboard: any[] = results[1].status === "fulfilled" ? results[1].value : [];
-        const dbTasks: any[] = results[2].status === "fulfilled" ? results[2].value : [];
-        const dbEvents: any[] = results[3].status === "fulfilled" ? results[3].value : [];
-        const dbCommunityPosts: any[] = results[4].status === "fulfilled" ? results[4].value : [];
+        const dbTasks: any[] = results[1].status === "fulfilled" ? results[1].value : [];
+        const dbEvents: any[] = results[2].status === "fulfilled" ? results[2].value : [];
+        const dbCommunityPosts: any[] = results[3].status === "fulfilled" ? results[3].value : [];
 
         const completedTasksList: string[] = prefs.completedTasks ?? [];
         const mappedTasks = dbTasks.map((t: any) => ({
           title: t.title,
-          xp: t.xp,
           done: completedTasksList.includes(t.title),
         }));
 
-        if (prefs && prefs.xp !== undefined) {
-          const rawLogs: XpLog[] = prefs.xpLogs ?? [];
-          // Deduplicate Daily Check-in logs on the same calendar date
-          const cleanLogs = rawLogs.filter((log, idx, self) => {
-            if (log.reason.includes("Check-in")) {
-              const dateStr = log.date.split("T")[0];
-              return self.findIndex(l => l.reason.includes("Check-in") && l.date.split("T")[0] === dateStr) === idx;
-            }
-            return true;
-          });
+        const cleanEnrolled = (prefs.enrolledPathSlugs ?? []).filter(
+          (s: string) => s && s !== "corporate-mto" && s !== "excel-corporate"
+        );
 
+        if (prefs) {
           const todayStr = new Date().toISOString().split("T")[0];
           const hasCheckedInToday = prefs.lastCheckInDate === todayStr;
-          const userNotifications: Notification[] = prefs.notifications ?? [];
+          const rawNotifications: Notification[] = prefs.notifications ?? [];
+          const userNotifications: Notification[] = rawNotifications.length > 0 ? rawNotifications : [...DEFAULT_INITIAL_NOTIFICATIONS];
 
           if (!hasCheckedInToday && !userNotifications.some(n => n.title.includes("Streak"))) {
             userNotifications.unshift({
-              id: `streak-rem-${Date.now()}`,
-              title: "🔥 Keep Your Streak Alive!",
-              message: "You haven't claimed your daily check-in today. Claim it now to earn +50 XP and protect your streak.",
+              id: generateId("streak_rem"),
+              title: "Keep Your Streak Alive!",
+              message: "You haven't completed your daily quests today. Complete them now to protect your streak.",
               type: "achievement",
               time: "Just now",
               read: false,
             });
           }
 
+          // Ensure Excel course is completed for this account as mandated
+          const defaultExcelCourse = INITIAL_USER_STATE.courseProgress[0];
+          const rawCourseProgress = prefs.courseProgress ?? [];
+          const hasExcelCourse = rawCourseProgress.some(
+            (c: any) => c.courseId === "excel-modeling" || c.title?.toLowerCase().includes("excel")
+          );
+          const resolvedCourseProgress = hasExcelCourse
+            ? rawCourseProgress.map((c: any) =>
+                c.courseId === "excel-modeling" || c.title?.toLowerCase().includes("excel")
+                  ? { ...c, progress: 100 }
+                  : c
+              )
+            : [defaultExcelCourse, ...rawCourseProgress];
+
+          const defaultBadge = INITIAL_USER_STATE.recentBadges[0];
+          const rawBadges = (prefs.recentBadges ?? []).filter((b: any) => b.icon !== "🎓");
+          const hasBadge = rawBadges.some((b: any) => b.name === defaultBadge.name);
+          const resolvedBadges = hasBadge ? rawBadges : [defaultBadge, ...rawBadges];
+
           setState({
             ...INITIAL_USER_STATE,
             name: user.name || INITIAL_USER_STATE.name,
             email: user.email,
-            xp: prefs.xp ?? 0,
-            level: prefs.level ?? 1,
             streak: prefs.streak ?? 0,
             weeklyActivity: prefs.weeklyActivity ?? [0, 0, 0, 0, 0, 0, 0],
-            courseProgress: prefs.courseProgress ?? [],
+            courseProgress: resolvedCourseProgress,
             notifications: userNotifications,
-            xpLogs: cleanLogs,
             todayTasks: mappedTasks,
             upcomingEvents: dbEvents,
-            recentBadges: prefs.recentBadges ?? [],
-            leaderboard: realLeaderboard,
+            recentBadges: resolvedBadges,
             communityPosts: dbCommunityPosts,
-            passportProfile: prefs.passportProfile ?? undefined,
-            enrolledPathSlugs: prefs.enrolledPathSlugs ?? [],
+            passportProfile: prefs.passportProfile ?? (typeof window !== "undefined" ? JSON.parse(localStorage.getItem("insyt_passport_profile") || "null") : undefined) ?? undefined,
+            enrolledPathSlugs: cleanEnrolled.length ? cleanEnrolled : ["excel-modeling"],
             lastCheckInDate: prefs.lastCheckInDate ?? undefined,
             redeemedVouchers: prefs.redeemedVouchers ?? [],
             completedChallengeIds: prefs.completedChallengeIds ?? [],
             purchasedItemIds: prefs.purchasedItemIds ?? [],
+            completedChecklistTaskIds: prefs.completedChecklistTaskIds ?? [],
             careerGoals: prefs.careerGoals ?? [],
             experienceLevel: prefs.experienceLevel ?? "",
-            subscriptionTier: prefs.subscriptionTier ?? "starter",
+            subscriptionTier: prefs.subscriptionTier || (typeof window !== "undefined" ? (localStorage.getItem("insyt_subscription_tier") as any) : null) || "starter",
             subscriptionStatus: prefs.subscriptionStatus ?? "active",
           });
 
@@ -140,19 +219,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             ...INITIAL_USER_STATE,
             name: user.name || INITIAL_USER_STATE.name,
             email: user.email,
-            xp: 0,
-            level: 1,
             streak: 0,
             weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
-            courseProgress: [],
+            courseProgress: INITIAL_USER_STATE.courseProgress,
             notifications: [],
-            xpLogs: [],
             todayTasks: mappedTasks,
             upcomingEvents: dbEvents,
-            recentBadges: [],
-            leaderboard: realLeaderboard,
+            recentBadges: INITIAL_USER_STATE.recentBadges,
             communityPosts: dbCommunityPosts,
-            enrolledPathSlugs: [],
+            enrolledPathSlugs: ["excel-modeling"],
+            completedChecklistTaskIds: [],
             careerGoals: prefs.careerGoals ?? [],
             experienceLevel: prefs.experienceLevel ?? "",
             subscriptionTier: "starter",
@@ -162,17 +238,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           await account.updatePrefs({
             ...freshState,
             communityPosts: undefined, // don't store community posts in prefs
-            leaderboard: undefined,    // don't store leaderboard in prefs
             upcomingEvents: undefined,
             todayTasks: undefined,
             completedTasks: [],
+            completedChecklistTaskIds: [],
           });
           await syncUserProfile(user.$id, {
             name: freshState.name,
-            xp: freshState.xp,
-            level: freshState.level,
             streak: freshState.streak,
             email: freshState.email,
+            passportProfile: freshState.passportProfile,
           });
         }
       } catch (err) {
@@ -196,21 +271,19 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       const savePrefs = async () => {
         try {
           await account.updatePrefs({
-            xp: state.xp,
-            level: state.level,
             streak: state.streak,
             weeklyActivity: state.weeklyActivity,
             courseProgress: state.courseProgress,
             notifications: state.notifications,
-            xpLogs: state.xpLogs,
             recentBadges: state.recentBadges,
             completedTasks: state.todayTasks.filter((t) => t.done).map((t) => t.title),
             passportProfile: state.passportProfile ?? null,
-            enrolledPathSlugs: state.enrolledPathSlugs,
+            enrolledPathSlugs: state.enrolledPathSlugs.filter((s) => s && s !== "corporate-mto" && s !== "excel-corporate"),
             lastCheckInDate: state.lastCheckInDate ?? null,
             redeemedVouchers: state.redeemedVouchers,
             completedChallengeIds: state.completedChallengeIds,
             purchasedItemIds: state.purchasedItemIds,
+            completedChecklistTaskIds: state.completedChecklistTaskIds ?? [],
             careerGoals: state.careerGoals ?? [],
             experienceLevel: state.experienceLevel ?? "",
             subscriptionTier: state.subscriptionTier ?? "starter",
@@ -219,10 +292,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
           await syncUserProfile(user.$id, {
             name: state.name,
-            xp: state.xp,
-            level: state.level,
             streak: state.streak,
             email: state.email || user.email,
+            passportProfile: state.passportProfile,
           });
         } catch (err) {
           console.error("Failed to save Appwrite user preferences", err);
@@ -235,8 +307,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(timer);
   }, [state, prefsLoaded, user]);
 
-  // ─── Actions ──────────────────────────────────────────────────────────────
-
   /**
    * Records minutes of study time for today in the weekly activity array.
    * Called whenever a lesson is completed or a significant study session ends.
@@ -247,25 +317,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       const newActivity = [...prev.weeklyActivity];
       newActivity[todayIdx] = (newActivity[todayIdx] || 0) + minutes;
       return { ...prev, weeklyActivity: newActivity };
-    });
-  };
-
-  const addXP = (amount: number, reason: string) => {
-    setState((prev) => {
-      const newXp = prev.xp + amount;
-      const newLevel = Math.floor(newXp / 200) + 1;
-      const newLog: XpLog = {
-        id: `x_${Date.now()}`,
-        reason,
-        amount,
-        date: new Date().toISOString(),
-      };
-      return {
-        ...prev,
-        xp: newXp,
-        level: newLevel,
-        xpLogs: [newLog, ...prev.xpLogs],
-      };
     });
   };
 
@@ -283,11 +334,25 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
+  const deleteNotification = (id: string) => {
+    setState((prev) => ({
+      ...prev,
+      notifications: prev.notifications.filter((n) => n.id !== id),
+    }));
+  };
+
+  const clearAllNotifications = () => {
+    setState((prev) => ({
+      ...prev,
+      notifications: [],
+    }));
+  };
+
   const addNotification = (notif: Omit<Notification, "id" | "time" | "read">) => {
     setState((prev) => {
       const newNotif: Notification = {
         ...notif,
-        id: `n_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        id: generateId("notif"),
         time: "Just now",
         read: false,
       };
@@ -298,7 +363,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const addCommunityPost = (content: string, space: string) => {
     setState((prev) => {
       const newPost: CommunityPost = {
-        id: `p_${Date.now()}`,
+        id: generateId("post"),
         author: { name: prev.name, role: "Student", avatar: prev.name.substring(0, 2).toUpperCase() },
         content,
         space,
@@ -345,7 +410,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setState((prev) => {
       const course = prev.courseProgress.find((c) => c.id === courseId);
       const exists = !!course;
-      const oldProgress = course ? course.progress : 0;
 
       let nextProgressList;
       let title = "";
@@ -366,32 +430,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         ];
       }
 
-      let nextXp = prev.xp;
-      let nextLevel = prev.level;
-      let nextLogs = [...prev.xpLogs];
       let nextNotifications = [...prev.notifications];
       let nextBadges = [...prev.recentBadges];
+      const oldProgress = course ? course.progress : 0;
 
       if (oldProgress < 100 && progress === 100) {
-        const xpReward = 300;
-        nextXp += xpReward;
-        nextLevel = Math.floor(nextXp / 200) + 1;
-
-        nextLogs = [
-          {
-            id: `x_${Date.now()}`,
-            reason: `Completed course: ${title}`,
-            amount: xpReward,
-            date: new Date().toISOString(),
-          },
-          ...nextLogs,
-        ];
-
         nextNotifications = [
           {
-            id: `n_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+            id: generateId("notif"),
             type: "achievement" as const,
-            title: "Course Completed! 🎓",
+            title: "Course Completed",
             message: `You successfully finished ${title}.`,
             time: "Just now",
             read: false,
@@ -400,15 +448,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         ];
 
         if (!nextBadges.some((b) => b.name === "Course Graduate")) {
-          nextBadges = [...nextBadges, { name: "Course Graduate", icon: "🎓" }];
+          nextBadges = [...nextBadges, { name: "Course Graduate", icon: "Award" }];
         }
       }
 
       return {
         ...prev,
-        xp: nextXp,
-        level: nextLevel,
-        xpLogs: nextLogs,
         notifications: nextNotifications,
         recentBadges: nextBadges,
         courseProgress: nextProgressList,
@@ -429,8 +474,22 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updatePassportProfile = async (data: Partial<PassportProfile>) => {
+    let merged: PassportProfile = {
+      headline: "",
+      summary: "",
+      location: "",
+      phone: "",
+      linkedin: "",
+      github: "",
+      university: "",
+      degree: "",
+      gradYear: "",
+      experience: [],
+      customSkills: [],
+    };
+
     setState((prev) => {
-      const merged: PassportProfile = {
+      merged = {
         headline: "",
         summary: "",
         location: "",
@@ -447,22 +506,50 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       };
       return { ...prev, passportProfile: merged };
     });
+
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("insyt_passport_profile", JSON.stringify(merged));
+      } catch (e) {
+        console.warn("Could not cache passport profile to localStorage:", e);
+      }
+    }
+
+    if (user?.$id) {
+      try {
+        await account.updatePrefs({
+          passportProfile: merged,
+        });
+        await syncUserProfile(user.$id, {
+          passportProfile: merged,
+        });
+      } catch (err) {
+        console.warn("Could not immediately sync passport profile to Appwrite:", err);
+      }
+    }
   };
 
   const enrollInPath = (slug: string, title: string) => {
+    if (!slug || slug === "corporate-mto" || slug === "excel-corporate") return;
     setState((prev) => {
       if (prev.enrolledPathSlugs.includes(slug)) return prev; // already enrolled
+      const nextSlugs = [...prev.enrolledPathSlugs, slug];
+      try {
+        localStorage.setItem("insyt_enrolled_paths", JSON.stringify(nextSlugs));
+      } catch {
+        // storage fallback
+      }
       const newNotif = {
-        id: `n_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        id: generateId("notif"),
         type: "course" as const,
-        title: "Enrolled! 🎉",
+        title: "Enrolled Successfully",
         message: `You're now enrolled in "${title}". Start your first lesson!`,
         time: "Just now",
         read: false,
       };
       return {
         ...prev,
-        enrolledPathSlugs: [...prev.enrolledPathSlugs, slug],
+        enrolledPathSlugs: nextSlugs,
         notifications: [newNotif, ...prev.notifications],
       };
     });
@@ -470,29 +557,22 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const claimDailyCheckIn = (): boolean => {
     const todayStr = new Date().toISOString().split("T")[0];
-    if (state.lastCheckInDate === todayStr) return false; // already claimed today
+    if (lastCheckInRef.current === todayStr || state.lastCheckInDate === todayStr) {
+      return false; // already claimed today
+    }
 
-    const alreadyLoggedToday = state.xpLogs.some(
-      (log) => log.reason.includes("Check-in") && log.date.split("T")[0] === todayStr
-    );
-    if (alreadyLoggedToday) return false;
+    // Lock immediately against rapid sequential clicks
+    lastCheckInRef.current = todayStr;
 
     setState((prev) => {
+      if (prev.lastCheckInDate === todayStr) return prev;
+
       const newStreak = prev.streak + 1;
-      const amount = 25;
-      const newXp = prev.xp + amount;
-      const newLevel = Math.floor(newXp / 200) + 1;
-      const newLog = {
-        id: `x_${Date.now()}`,
-        reason: "Daily Check-in Bonus 🔥",
-        amount,
-        date: new Date().toISOString(),
-      };
       const newNotif = {
-        id: `n_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        id: generateId("notif"),
         type: "achievement" as const,
-        title: "Daily Check-in Complete! 🔥",
-        message: `Streak increased to ${newStreak} days! Earned +25 XP.`,
+        title: "Daily Check-in Complete",
+        message: `Streak increased to ${newStreak} days!`,
         time: "Just now",
         read: false,
       };
@@ -503,11 +583,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       return {
         ...prev,
         streak: newStreak,
-        xp: newXp,
-        level: newLevel,
         lastCheckInDate: todayStr,
         weeklyActivity: newActivity,
-        xpLogs: [newLog, ...prev.xpLogs],
         notifications: [newNotif, ...prev.notifications],
       };
     });
@@ -515,23 +592,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   };
 
   const buyStreakFreeze = (): boolean => {
-    if (state.xp < 200) return false;
-
     setState((prev) => {
-      if (prev.xp < 200) return prev;
-      const newXp = prev.xp - 200;
-      const newLevel = Math.floor(newXp / 200) + 1;
       const newFreezes = (prev.streakFreezes || 0) + 1;
-      const newLog: XpLog = {
-        id: `sf_${Date.now()}`,
-        reason: "Purchased 🧊 Streak Freeze Shield (-200 XP)",
-        amount: -200,
-        date: new Date().toISOString(),
-      };
       const newNotif: Notification = {
-        id: `sf_n_${Date.now()}`,
+        id: generateId("sf_notif"),
         type: "achievement",
-        title: "🧊 Streak Freeze Active!",
+        title: "Streak Freeze Active",
         message: "Your learning streak is protected for 1 missed day.",
         time: "Just now",
         read: false,
@@ -539,17 +605,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       return {
         ...prev,
-        xp: newXp,
-        level: newLevel,
         streakFreezes: newFreezes,
-        xpLogs: [newLog, ...prev.xpLogs],
         notifications: [newNotif, ...prev.notifications],
       };
     });
     return true;
   };
 
-  const completeChecklistTask = (taskId: string, title: string, xpAmount = 50): boolean => {
+  const completeChecklistTask = (taskId: string, title: string): boolean => {
     const currentTasks = state.completedChecklistTaskIds || [];
     if (currentTasks.includes(taskId)) return false;
 
@@ -558,31 +621,19 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       if (prevTasks.includes(taskId)) return prev;
 
       const newTasks = [...prevTasks, taskId];
-      const newXp = prev.xp + xpAmount;
-      const newLevel = Math.floor(newXp / 200) + 1;
-      
-      const newLog: XpLog = {
-        id: `chk_${Date.now()}`,
-        reason: `Completed Getting Started Task: ${title} (+${xpAmount} XP)`,
-        amount: xpAmount,
-        date: new Date().toISOString(),
-      };
 
       const newNotif: Notification = {
-        id: `chk_n_${Date.now()}`,
+        id: generateId("chk_notif"),
         type: "achievement",
-        title: `🎯 Task Completed: ${title}`,
-        message: `Congratulations! You earned +${xpAmount} XP on your getting started checklist.`,
+        title: `Task Completed: ${title}`,
+        message: `Congratulations! You completed a getting started task.`,
         time: "Just now",
         read: false,
       };
 
       return {
         ...prev,
-        xp: newXp,
-        level: newLevel,
         completedChecklistTaskIds: newTasks,
-        xpLogs: [newLog, ...prev.xpLogs],
         notifications: [newNotif, ...prev.notifications],
       };
     });
@@ -599,33 +650,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         t.title === taskTitle ? { ...t, done: newDone } : t
       );
 
-      let nextXp = prev.xp;
-      let nextLevel = prev.level;
-      let nextLogs = [...prev.xpLogs];
-
-      if (newDone) {
-        nextXp += taskObj.xp;
-        nextLevel = Math.floor(nextXp / 200) + 1;
-        nextLogs = [
-          {
-            id: `x_${Date.now()}`,
-            reason: `Completed task: ${taskTitle}`,
-            amount: taskObj.xp,
-            date: new Date().toISOString(),
-          },
-          ...nextLogs,
-        ];
-      } else {
-        nextXp = Math.max(nextXp - taskObj.xp, 0);
-        nextLevel = Math.floor(nextXp / 200) + 1;
-        nextLogs = nextLogs.filter((log) => log.reason !== `Completed task: ${taskTitle}`);
-      }
-
       return {
         ...prev,
-        xp: nextXp,
-        level: nextLevel,
-        xpLogs: nextLogs,
         todayTasks: updatedTasks,
       };
     });
@@ -641,20 +667,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     if (user) {
       try {
         await account.updatePrefs({
-          xp: 0,
-          level: 1,
           streak: 0,
           weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
           courseProgress: [],
           notifications: [],
-          xpLogs: [],
           recentBadges: [],
           completedTasks: [],
+          completedChecklistTaskIds: [],
         });
         await syncUserProfile(user.$id, {
           name: cleanState.name,
-          xp: 0,
-          level: 1,
           streak: 0,
           email: cleanState.email,
         });
@@ -664,65 +686,43 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const redeemVoucher = (code: string, amount: number, reason: string): boolean => {
+  const redeemVoucher = (code: string, reason: string): boolean => {
     const cleanCode = code.trim().toUpperCase();
     if (state.redeemedVouchers.includes(cleanCode)) return false;
 
     setState((prev) => {
-      const newXp = prev.xp + amount;
-      const newLevel = Math.floor(newXp / 200) + 1;
-      const newLog = {
-        id: `x_${Date.now()}`,
-        reason: `Voucher Redeemed: ${cleanCode} (${reason})`,
-        amount,
-        date: new Date().toISOString(),
-      };
       const newNotif = {
-        id: `n_${Date.now()}`,
+        id: generateId("notif"),
         type: "achievement" as const,
-        title: "Voucher Redeemed! 🎟️",
-        message: `Successfully redeemed ${cleanCode}! Earned +${amount} XP.`,
+        title: "Voucher Redeemed",
+        message: `Successfully redeemed ${cleanCode}!`,
         time: "Just now",
         read: false,
       };
       return {
         ...prev,
-        xp: newXp,
-        level: newLevel,
         redeemedVouchers: [...prev.redeemedVouchers, cleanCode],
-        xpLogs: [newLog, ...prev.xpLogs],
         notifications: [newNotif, ...prev.notifications],
       };
     });
     return true;
   };
 
-  const completeChallenge = (challengeId: string, amount: number, reason: string) => {
+  const completeChallenge = (challengeId: string, reason: string) => {
     setState((prev) => {
       if (prev.completedChallengeIds.includes(challengeId)) return prev;
 
-      const newXp = prev.xp + amount;
-      const newLevel = Math.floor(newXp / 200) + 1;
-      const newLog = {
-        id: `x_${Date.now()}`,
-        reason: `Completed Challenge: ${reason}`,
-        amount,
-        date: new Date().toISOString(),
-      };
       const newNotif = {
-        id: `n_${Date.now()}`,
+        id: generateId("notif"),
         type: "achievement" as const,
-        title: "Challenge Completed! ⚡",
-        message: `You mastered "${reason}". Earned +${amount} XP!`,
+        title: "Challenge Completed",
+        message: `You mastered "${reason}".`,
         time: "Just now",
         read: false,
       };
       return {
         ...prev,
-        xp: newXp,
-        level: newLevel,
         completedChallengeIds: [...prev.completedChallengeIds, challengeId],
-        xpLogs: [newLog, ...prev.xpLogs],
         notifications: [newNotif, ...prev.notifications],
       };
     });
@@ -732,62 +732,110 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setState((prev) => {
       if (prev.purchasedItemIds.includes(itemId)) return prev;
 
-      const bonusXp = 100;
-      const newXp = prev.xp + bonusXp;
-      const newLevel = Math.floor(newXp / 200) + 1;
-      const newLog = {
-        id: `x_${Date.now()}`,
-        reason: `Purchased Item: ${itemTitle} via ${method}`,
-        amount: bonusXp,
-        date: new Date().toISOString(),
-      };
       const newNotif = {
-        id: `n_${Date.now()}`,
+        id: generateId("notif"),
         type: "achievement" as const,
-        title: "Purchase Successful! 🛍️",
-        message: `Unlocked "${itemTitle}" via ${method}. Earned +${bonusXp} bonus XP!`,
+        title: "Purchase Successful",
+        message: `Unlocked "${itemTitle}" via ${method}.`,
         time: "Just now",
         read: false,
       };
       return {
         ...prev,
-        xp: newXp,
-        level: newLevel,
         purchasedItemIds: [...prev.purchasedItemIds, itemId],
-        xpLogs: [newLog, ...prev.xpLogs],
         notifications: [newNotif, ...prev.notifications],
       };
     });
   };
 
-  const boostUserStats = (xpAmount: number, streakDays: number, reason: string) => {
+  const boostUserStats = (streakDays: number, reason: string) => {
     setState((prev) => {
-      const newXp = prev.xp + xpAmount;
-      const newLevel = Math.floor(newXp / 200) + 1;
       const newStreak = prev.streak + streakDays;
-      const newLog: XpLog = {
-        id: `x_${Date.now()}`,
-        reason,
-        amount: xpAmount,
-        date: new Date().toISOString(),
-      };
       return {
         ...prev,
-        xp: newXp,
-        level: newLevel,
         streak: newStreak,
-        xpLogs: [newLog, ...prev.xpLogs],
       };
     });
+  };
+
+  const updateSubscriptionTier = async (
+    tier: "starter" | "single_course" | "flagship_path" | "pro" | "enterprise",
+    status: "active" | "inactive" | "trialing" = "active"
+  ) => {
+    const planNames: Record<string, string> = {
+      single_course: "Single Course Pass",
+      flagship_path: "Flagship Track Pass",
+      pro: "INSYT Pro All-Access",
+      enterprise: "Enterprise Corporate Pass",
+      starter: "Starter Free Plan",
+    };
+
+    const planName = planNames[tier] || tier;
+
+    // 1. Immediately update React state with notification
+    setState((prev) => {
+      const newNotif: Notification = {
+        id: generateId("sub_notif"),
+        type: "achievement",
+        title: `Plan Upgraded: ${planName}`,
+        message: `Your membership is now active with ${planName}. All perks and course materials for this tier are unlocked!`,
+        time: "Just now",
+        read: false,
+      };
+
+      const newBadge = tier === "pro" 
+        ? { name: "Pro Executive", icon: "Award" }
+        : tier === "flagship_path"
+        ? { name: "Track Specialist", icon: "Sparkles" }
+        : tier === "single_course"
+        ? { name: "Course Scholar", icon: "ShieldCheck" }
+        : null;
+
+      const badges = newBadge && !prev.recentBadges.some(b => b.name === newBadge.name) 
+        ? [...prev.recentBadges, newBadge]
+        : prev.recentBadges;
+
+      return {
+        ...prev,
+        subscriptionTier: tier,
+        subscriptionStatus: status,
+        recentBadges: badges,
+        notifications: [newNotif, ...prev.notifications],
+      };
+    });
+
+    // 2. Persist to localStorage synchronously for instant reactivity
+    try {
+      localStorage.setItem("insyt_subscription_tier", tier);
+      localStorage.setItem("insyt_subscription_status", status);
+    } catch {
+      // storage fallback
+    }
+
+    // 3. Persist to Appwrite account preferences & database user collection
+    try {
+      if (user) {
+        await account.updatePrefs({
+          subscriptionTier: tier,
+          subscriptionStatus: status,
+        });
+        await syncUserProfile(user.$id, {
+          subscriptionTier: tier,
+        });
+      }
+    } catch (err) {
+      console.warn("Could not save subscription to Appwrite prefs/db:", err);
+    }
   };
 
   return (
     <UserContext.Provider
       value={{
         state,
-        addXP,
         markNotificationRead,
         markAllNotificationsRead,
+        deleteNotification,
+        clearAllNotifications,
         addNotification,
         addCommunityPost,
         togglePostLike,
@@ -806,6 +854,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         buyStreakFreeze,
         completeChecklistTask,
         boostUserStats,
+        updateSubscriptionTier,
       }}
     >
       {/*

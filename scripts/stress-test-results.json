@@ -1,0 +1,27 @@
+{
+  "defects": [
+    {
+      "severity": "LOGICAL/MATHEMATICAL",
+      "category": "P&L Reconciliation",
+      "issue": "freight_absorption column exists in fmcg_orders_detail table schema, but is omitted from operating margin calculation in vw_commercial_sales_cube."
+    }
+  ],
+  "warnings": [
+    {
+      "category": "Placeholder Scan",
+      "issue": "Found 13 occurrences of 'bar' in enterprise-bi-lessons.ts"
+    },
+    {
+      "lesson": "bi-3-4-analytical-queries-views",
+      "issue": "Missing explicit Guided Exercise or Deliverable section."
+    },
+    {
+      "lesson": "bi-5-4-model-validation-integrity",
+      "issue": "Missing explicit Guided Exercise or Deliverable section."
+    },
+    {
+      "lesson": "bi-7-4-dax-performance-context-audit",
+      "issue": "Missing explicit Guided Exercise or Deliverable section."
+    }
+  ]
+}

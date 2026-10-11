@@ -17,10 +17,10 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(result);
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Payments Checkout] Error:", error);
     return NextResponse.json(
-      { error: "Payment processing failed. Please try again." },
+      { error: error?.message || "Payment processing failed. Please try again." },
       { status: 500 }
     );
   }

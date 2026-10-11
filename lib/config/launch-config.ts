@@ -7,18 +7,25 @@
 
 export const LAUNCH_CONFIG = {
   /**
-   * The 2 Flagship Learning Paths promoted as primary launch products.
-   * Path 1: Corporate Job / MTO Masterclass (`corporate-mto`)
-   * Path 2: Excel for Corporate Careers & Business Analytics (`excel-corporate`)
+   * The 4 Flagship Learning Paths promoted as primary launch products.
    */
-  flagshipPathSlugs: ["corporate-mto", "excel-corporate"] as const,
+  flagshipPathSlugs: [
+    "ai-workplace-professional",
+    "enterprise-data-analyst",
+    "business-automation-specialist",
+    "corporate-career-accelerator",
+    "video-ai-production",
+  ] as const,
 
   /**
    * Primary launch tracks promoted on onboarding and hero spot.
    */
   primaryLaunchTrackNames: [
-    "Corporate Job & MTO Masterclass",
-    "Business Analytics & Corporate Excel",
+    "AI Workplace Professional (AI, Research & Executive Communication)",
+    "Enterprise Data Analyst (Excel Modeling, SQL, Power BI & Python)",
+    "Business Automation Specialist (Workplace AI, SQL & n8n)",
+    "Corporate Career Accelerator (Project Management, Strategy & MTO Mastery)",
+    "Video Editing + AI Production Systems",
   ],
 
   /**
