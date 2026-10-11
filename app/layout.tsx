@@ -70,10 +70,11 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/logo/logo_white.png" },
+      { url: "/icon.svg", type: "image/svg+xml" },
       { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/logo/logo_white.png" },
     ],
-    apple: "/logo/logo_white.png",
+    apple: "/icon.svg",
   },
   appleWebApp: {
     capable: true,

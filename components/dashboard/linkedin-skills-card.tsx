@@ -323,11 +323,46 @@ export function LinkedInSkillsCard({ state }: LinkedInSkillsCardProps) {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {PLATFORM_BADGES.slice(0, 4).map((badge) => (
-            <PlatformBadge key={badge.id} badge={badge} size="sm" unlocked={true} />
-          ))}
-        </div>
+        {/* Dynamic earned badges only */}
+        {(() => {
+          const unlocked = PLATFORM_BADGES.filter((badge) => {
+            const hasRecent = (state.recentBadges || []).some(
+              (rb) =>
+                rb.name.toLowerCase().trim() === badge.name.toLowerCase().trim() ||
+                badge.id.toLowerCase().includes(rb.name.toLowerCase().trim()) ||
+                (rb.icon && rb.icon.toLowerCase() === badge.iconName.toLowerCase())
+            );
+            if (hasRecent) return true;
+
+            if (badge.id === "excel-architect") {
+              return completedCourses.some(
+                (c) =>
+                  c.id?.includes("excel") ||
+                  c.courseId?.includes("excel") ||
+                  c.title?.toLowerCase().includes("excel")
+              );
+            }
+            if (badge.id === "trust-plane-verified") {
+              return Object.values(state.passportProfile?.verifiedSkillDetails || {}).some((v) => v.verified);
+            }
+            if (badge.id === "velocity-champion") {
+              return state.streak >= 20;
+            }
+            return false;
+          });
+
+          return unlocked.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {unlocked.map((badge) => (
+                <PlatformBadge key={badge.id} badge={badge} size="sm" unlocked={true} />
+              ))}
+            </div>
+          ) : (
+            <div className="py-4 text-center text-xs text-corp-text-tertiary border border-dashed border-corp-border rounded-xl">
+              No platform badges earned yet. Complete verified courses to unlock badges.
+            </div>
+          );
+        })()}
       </div>
 
       {/* ── AI Assessment Modal ── */}

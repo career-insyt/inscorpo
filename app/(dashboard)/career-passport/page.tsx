@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Award, Shield, FileDown, Share2, QrCode, Sparkles, Check, CheckCircle2,
   Trophy, BookOpen, Star, Mail, MapPin, Briefcase, GraduationCap, Link2,
@@ -232,6 +232,67 @@ export default function CareerPassportPage() {
   };
 
   const verificationId = `INSYT-PASS-${(state.name || "USER").substring(0, 3).toUpperCase()}-2026`;
+
+  // Backend-backed earned badges check:
+  // If user does not have it, remove it; if user has it, only then add it!
+  const userUnlockedBadges = useMemo(() => {
+    return PLATFORM_BADGES.filter((badge) => {
+      // 1. Direct recentBadges in state (backend stored):
+      const hasRecentBadge = (state.recentBadges || []).some(
+        (rb) =>
+          rb.name.toLowerCase().trim() === badge.name.toLowerCase().trim() ||
+          badge.id.toLowerCase().includes(rb.name.toLowerCase().trim()) ||
+          (rb.icon && rb.icon.toLowerCase() === badge.iconName.toLowerCase())
+      );
+      if (hasRecentBadge) return true;
+
+      // 2. Course completion mapping (auto-verified from backend):
+      if (badge.id === "excel-architect") {
+        const hasExcelCompleted = (state.courseProgress || []).some(
+          (c) =>
+            (c.id?.includes("excel") ||
+              c.courseId?.includes("excel") ||
+              c.title?.toLowerCase().includes("excel")) &&
+            (c.progress >= 100 || (c.completedLessons && c.totalLessons && c.completedLessons.length >= c.totalLessons))
+        );
+        if (hasExcelCompleted) return true;
+      }
+
+      if (badge.id === "ai-workflow-vanguard") {
+        const hasAiCompleted = (state.courseProgress || []).some(
+          (c) =>
+            (c.id?.includes("automation") || c.id?.includes("ai") || c.title?.toLowerCase().includes("ai")) &&
+            (c.progress >= 100 || (c.completedLessons && c.totalLessons && c.completedLessons.length >= c.totalLessons))
+        );
+        if (hasAiCompleted) return true;
+      }
+
+      if (badge.id === "data-synthesis-expert") {
+        const hasBiCompleted = (state.courseProgress || []).some(
+          (c) =>
+            (c.id?.includes("power-bi") || c.title?.toLowerCase().includes("power bi") || c.title?.toLowerCase().includes("intelligence")) &&
+            (c.progress >= 100 || (c.completedLessons && c.totalLessons && c.completedLessons.length >= c.totalLessons))
+        );
+        if (hasBiCompleted) return true;
+      }
+
+      // 3. Trust plane / credential verification:
+      if (badge.id === "trust-plane-verified") {
+        if (Boolean(verificationId) || Object.values(pp?.verifiedSkillDetails || {}).some((v) => v.verified)) {
+          return true;
+        }
+      }
+
+      // 4. Operational streak / quest multiplier:
+      if (badge.id === "velocity-champion") {
+        if (state.streak >= 20 || (state.completedChallengeIds && state.completedChallengeIds.length >= 20)) {
+          return true;
+        }
+      }
+
+      return false;
+    });
+  }, [state.recentBadges, state.courseProgress, state.streak, state.completedChallengeIds, pp?.verifiedSkillDetails, verificationId]);
 
   const [showProModal, setShowProModal] = useState(false);
 
@@ -491,6 +552,31 @@ export default function CareerPassportPage() {
                 </div>
               </div>
             </div>
+
+            {/* ── Platform Badges Box (Separate box under Academic Education) ── */}
+            <div className="p-5 rounded-2xl space-y-4 border-2 border-blue-500 shadow-[5px_5px_0px_0px_#2563eb]" style={{ background: "var(--corp-surface)" }}>
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
+                  <Award size={15} className="text-corp-accent" /> Platform Badges
+                </h3>
+                <span className="text-[10px] font-mono font-bold text-corp-accent">
+                  {userUnlockedBadges.length} Earned
+                </span>
+              </div>
+
+              {userUnlockedBadges.length > 0 ? (
+                <div className="space-y-3">
+                  {userUnlockedBadges.map((badge) => (
+                    <PlatformBadge key={badge.id} badge={badge} size="sm" unlocked={true} />
+                  ))}
+                </div>
+              ) : (
+                <div className="py-6 px-4 rounded-xl border border-dashed border-corp-border text-center space-y-1">
+                  <p className="text-xs font-semibold text-corp-text-secondary">No platform badges earned yet</p>
+                  <p className="text-[10px] text-corp-text-tertiary">Complete verified courses &amp; credentials to unlock and display your badges.</p>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="lg:col-span-2 space-y-5">
@@ -656,24 +742,6 @@ export default function CareerPassportPage() {
                       </div>
                     );
                   })}
-                </div>
-              </div>
-
-              {/* ── Platform Honors & Badges (Luminous, Animated, Zero Emojis) ── */}
-              <div className="pt-4 border-t border-corp-border space-y-3 font-mono">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 text-corp-text">
-                    <Sparkles size={14} className="text-cyan-400" /> Platform Badges
-                  </h4>
-                  <span className="text-[10px] text-corp-text-tertiary">
-                    Illuminated Vector Badges • Zero Emojis
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {PLATFORM_BADGES.slice(0, 4).map((badge) => (
-                    <PlatformBadge key={badge.id} badge={badge} size="sm" unlocked={true} />
-                  ))}
                 </div>
               </div>
             </div>
