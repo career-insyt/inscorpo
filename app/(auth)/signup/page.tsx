@@ -74,13 +74,18 @@ export default function SignupPage() {
 
   const handleOAuth = (provider: OAuthProvider) => {
     try {
+      const origin = window.location.origin.replace(/\/+$/, "");
+      const successUrl = `${origin}/dashboard`;
+      const failureUrl = `${origin}/signup`;
+
       account.createOAuth2Session(
         provider,
-        `${window.location.origin}/dashboard`,
-        `${window.location.origin}/signup`
+        successUrl,
+        failureUrl
       );
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setError("OAuth sign-in is not ready on this hostname. Please register with Email and Password below.");
     }
   };
 
@@ -171,14 +176,9 @@ export default function SignupPage() {
         </div>
 
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <span className="text-white font-bold text-base">I</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[16px] font-semibold tracking-tight text-white">INSYT</span>
-              <span className="text-[10px] font-medium tracking-[0.2em] uppercase text-white/60">Corporate</span>
-            </div>
+          {/* Logo — Pure Text on Dark */}
+          <Link href="/" className="inline-flex py-1" title="CAREERINSYT">
+            <img src="/logo/logoTextWhite.png" alt="CAREERINSYT" className="h-8 w-auto object-contain" />
           </Link>
 
           <div>
@@ -210,14 +210,9 @@ export default function SignupPage() {
       {/* Right Panel — Signup Form */}
       <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
         <div className="w-full max-w-md">
-          {/* Mobile logo */}
-          <Link href="/" className="lg:hidden flex items-center gap-2.5 mb-8">
-            <div className="w-8 h-8 rounded-lg bg-corp-accent flex items-center justify-center">
-              <span className="text-white font-bold text-sm">I</span>
-            </div>
-            <span className="text-[15px] font-semibold tracking-tight" style={{ color: "var(--corp-text)" }}>
-              INSYT Corporate
-            </span>
+          {/* Mobile logo — Pure Text on Light */}
+          <Link href="/" className="lg:hidden inline-flex mb-8" title="CAREERINSYT">
+            <img src="/logo/logoTextDark.png" alt="CAREERINSYT" className="h-7 w-auto object-contain" />
           </Link>
 
           {/* Progress bar (mobile) */}

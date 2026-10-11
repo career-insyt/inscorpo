@@ -45,16 +45,11 @@ export function FormalFooter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 pb-16 border-b border-[#1F2840]">
           {/* Brand & Description Column */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="inline-flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#1E40AF] to-[#3B82F6] flex items-center justify-center shadow-lg shadow-[#3B5BDB]/20 p-1">
-                <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain" />
-              </div>
-              <div className="flex flex-col">
-                <img src="/logo/logoTextWhite.png" alt="CAREERINSYT" className="h-6 w-auto object-contain" />
-                <span className="text-[10px] font-semibold tracking-[0.22em] uppercase text-[#626C80]">
-                  Career OS
-                </span>
-              </div>
+            <Link href="/" className="inline-flex flex-col group" title="CAREERINSYT">
+              <img src="/logo/logoTextWhite.png" alt="CAREERINSYT" className="h-7 w-auto object-contain group-hover:opacity-90" />
+              <span className="text-[10px] font-semibold tracking-[0.22em] uppercase text-[#626C80] mt-0.5">
+                Career OS
+              </span>
             </Link>
 
             <p className="text-[13px] leading-relaxed text-[#A0ABBC] max-w-sm">

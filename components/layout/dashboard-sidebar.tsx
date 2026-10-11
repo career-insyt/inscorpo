@@ -171,17 +171,9 @@ export function DashboardSidebar() {
               exit={{ opacity: 0, x: -8 }}
               transition={{ duration: 0.18 }}
             >
-              <Link href="/dashboard" className="flex items-center gap-2.5 font-mono">
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-[#2563eb] overflow-hidden"
-                  style={{ boxShadow: "3px 3px 0px 0px #1e3a8a" }}
-                >
-                  <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain p-1" />
-                </div>
-                <div className="flex flex-col">
-                  <img src="/logo/logoTextDark.png" alt="CAREERINSYT" className="h-5 w-auto object-contain" />
-                  <span className="text-[9px] font-black tracking-widest uppercase text-[#2563eb]">Career OS</span>
-                </div>
+              <Link href="/dashboard" className="flex flex-col py-0.5 font-mono group" title="CAREERINSYT — Career OS">
+                <img src="/logo/logoTextDark.png" alt="CAREERINSYT" className="h-5 w-auto object-contain group-hover:opacity-90" />
+                <span className="text-[9px] font-black tracking-widest uppercase text-[#2563eb] mt-0.5">Career OS</span>
               </Link>
             </motion.div>
           )}

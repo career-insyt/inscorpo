@@ -30,12 +30,9 @@ export function MarketingNavbar() {
         )}
       >
         <div className="mx-auto max-w-7xl px-6 flex items-center justify-between">
-          {/* Logo with official logo_white icon and logoTextDark typeface */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative w-9 h-9 rounded-xl bg-[#2563eb] flex items-center justify-center overflow-hidden shadow-md flex-shrink-0">
-              <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain p-1" />
-            </div>
-            <img src="/logo/logoTextDark.png" alt="CAREERINSYT" className="h-6 w-auto object-contain" />
+          {/* Brand Logo: Clean text-only typeface on white/light background */}
+          <Link href="/" className="flex items-center group py-0.5" title="CAREERINSYT">
+            <img src="/logo/logoTextDark.png" alt="CAREERINSYT" className="h-7 sm:h-8 w-auto object-contain transition-opacity hover:opacity-90" />
           </Link>
 
           {/* Desktop Actions */}

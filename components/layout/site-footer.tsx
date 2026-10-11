@@ -40,16 +40,11 @@ export function SiteFooter() {
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
           {/* Brand Column */}
           <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-2.5 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-[#2563eb] flex items-center justify-center shadow-md overflow-hidden">
-                <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain p-1" />
-              </div>
-              <div className="flex flex-col">
-                <img src="/logo/logoTextDark.png" alt="CAREERINSYT" className="h-5 w-auto object-contain" />
-                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-corp-accent">
-                  Career OS
-                </span>
-              </div>
+            <Link href="/" className="flex flex-col mb-4 group" title="CAREERINSYT">
+              <img src="/logo/logoTextDark.png" alt="CAREERINSYT" className="h-6 w-auto object-contain group-hover:opacity-90" />
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-corp-accent mt-0.5">
+                Career OS
+              </span>
             </Link>
             <p className="text-[13px] leading-relaxed mb-6 max-w-xs" style={{ color: "var(--corp-text-secondary)" }}>
               The Career Operating System. Level up your professional career with structured learning, AI tools, and gamified growth.

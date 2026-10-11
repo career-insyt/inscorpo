@@ -85,6 +85,8 @@ export const metadata: Metadata = {
 
 import { LanguageProvider } from "@/components/providers/language-context";
 
+import { SplashScreen } from "@/components/ui/splash-screen";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -108,6 +110,7 @@ export default function RootLayout({
           <ThemeProvider>
             <LanguageProvider>
               <UserProvider>
+                <SplashScreen />
                 {children}
               </UserProvider>
             </LanguageProvider>

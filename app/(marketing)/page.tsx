@@ -1,11 +1,10 @@
 import { HeroSection } from "@/components/landing/hero-section";
 import { TrustedPartners } from "@/components/landing/trusted-partners";
 import { LearningPathsPreview } from "@/components/landing/learning-paths-preview";
-import { FeaturesSection } from "@/components/landing/features-section";
 
 export const metadata = {
   title: "CAREERINSYT — Career OS",
-  description: "Master enterprise modeling, Python automation, Power BI analytics, workplace AI, and digital media production.",
+  description: "আপনার কর্পোরেট ক্যারিয়ারের স্মার্ট অপারেটিং সিস্টেম। এক্সেল মডেলিং, পাইথন, পাওয়ার বিআই এবং এআই অটোমেশন মাস্টার করুন।",
 };
 
 export default function LandingPage() {
@@ -14,7 +13,6 @@ export default function LandingPage() {
       <HeroSection />
       <TrustedPartners />
       <LearningPathsPreview />
-      <FeaturesSection />
     </>
   );
 }
