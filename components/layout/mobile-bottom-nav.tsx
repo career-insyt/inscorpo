@@ -6,9 +6,8 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, BookOpen, ClipboardList, FileText, Briefcase,
-  X, Award, Settings, HelpCircle, Sun, Moon, LogOut, Mic, Zap, Target, Layers
+  X, Award, Settings, HelpCircle, LogOut, Mic, Zap, Target, Layers
 } from "lucide-react";
-import { useTheme } from "@/components/providers/theme-provider";
 import { useUser } from "@/components/providers/user-context";
 import { useAuth } from "@/components/providers/auth-provider";
 
@@ -44,7 +43,6 @@ const utilityItems = [
 export function MobileBottomNav() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
-  const { theme, toggleTheme } = useTheme();
   const { state } = useUser();
   const { logout } = useAuth();
 
@@ -280,15 +278,6 @@ export function MobileBottomNav() {
                         </Link>
                       );
                     })}
-                    <button
-                      onClick={toggleTheme}
-                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-black uppercase transition-all border-2 border-corp-border bg-corp-bg-secondary text-corp-text hover:bg-corp-surface active:scale-95 min-h-[44px] cursor-pointer"
-                    >
-                      {theme === "dark"
-                        ? <Sun size={15} className="text-amber-400 fill-amber-400" />
-                        : <Moon size={15} className="text-[#2563eb] fill-[#2563eb]" />}
-                      <span>{theme === "dark" ? "Light" : "Dark"}</span>
-                    </button>
                     <button
                       onClick={() => { setDrawerOpen(false); logout(); }}
                       className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-black uppercase transition-all border-2 border-rose-500/40 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 active:scale-95 min-h-[44px] cursor-pointer"

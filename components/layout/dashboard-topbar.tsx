@@ -5,13 +5,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
-  Search, Bell, ChevronRight, X, Sun, Moon,
+  Search, Bell, ChevronRight, X,
   BookOpen, Award, LogOut, Crown, User, Building2, Flame,
   CheckCheck, Trash2, AlertCircle, Sparkles, Zap, ArrowRight
 } from "lucide-react";
 import { useUser } from "@/components/providers/user-context";
 import { useAuth } from "@/components/providers/auth-provider";
-import { useTheme } from "@/components/providers/theme-provider";
 import { StreakExplainerModal } from "@/components/dashboard/streak-explainer-modal";
 import { SearchCommandPalette } from "@/components/layout/search-command-palette";
 import { Notification } from "@/lib/state/types";
@@ -48,7 +47,6 @@ function resolveBreadcrumb(pathname: string): string {
 export function DashboardTopbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const {
     state,
@@ -229,18 +227,6 @@ export function DashboardTopbar() {
           <Search size={15} className="text-[#2563eb]" />
         </button>
 
-        {/* Dark / Light Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all border-2 border-corp-border hover:bg-corp-bg-secondary active:scale-95 flex-shrink-0 cursor-pointer"
-          style={{ color: "var(--corp-text-secondary)" }}
-          aria-label="Toggle theme"
-          title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-        >
-          {theme === "dark"
-            ? <Sun size={15} className="text-amber-400 fill-amber-400" />
-            : <Moon size={15} className="text-[#2563eb] fill-[#2563eb]" />}
-        </button>
 
         {/* Streak Pill — Strictly "{streak}d", Yellow colored with dark brown borders and animated fire on hover */}
         <div

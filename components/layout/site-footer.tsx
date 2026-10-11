@@ -41,11 +41,11 @@ export function SiteFooter() {
           {/* Brand Column */}
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2.5 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-[#2563eb] flex items-center justify-center border border-blue-400 p-0.5 shadow-sm overflow-hidden">
-                <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain rounded-md" />
+              <div className="w-8 h-8 rounded-lg bg-[#2563eb] flex items-center justify-center shadow-md overflow-hidden">
+                <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain p-1" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[16px] font-black tracking-tight font-nevera" style={{ color: "var(--corp-text)" }}>
+                <span className="text-[16px] font-black tracking-wider font-nevera" style={{ color: "var(--corp-text)" }}>
                   CAREERINSYT
                 </span>
                 <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-corp-accent">

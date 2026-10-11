@@ -46,11 +46,11 @@ export function FormalFooter() {
           {/* Brand & Description Column */}
           <div className="lg:col-span-2 space-y-4">
             <Link href="/" className="inline-flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#1E40AF] to-[#3B82F6] flex items-center justify-center shadow-lg shadow-[#3B5BDB]/20 p-1.5 border border-blue-400">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#1E40AF] to-[#3B82F6] flex items-center justify-center shadow-lg shadow-[#3B5BDB]/20 p-1">
                 <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
-                <span className="text-base font-black tracking-tight text-white group-hover:text-[#5B7CF6] transition-colors font-nevera">
+                <span className="text-base font-black tracking-wider text-white group-hover:text-[#5B7CF6] transition-colors font-nevera">
                   CAREERINSYT
                 </span>
                 <span className="text-[10px] font-semibold tracking-[0.22em] uppercase text-[#626C80]">

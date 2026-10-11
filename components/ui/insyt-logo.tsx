@@ -27,18 +27,10 @@ export function InsytLogo({ variant = "icon", className = "", size = 32 }: Insyt
 
   return (
     <div className={`relative flex items-center ${className}`}>
-      {/* Light theme logo */}
       <img
         src="/logo/logo.svg"
         alt="Career INSYT"
-        className="dark:hidden h-full w-auto object-contain"
-        style={{ height: size }}
-      />
-      {/* Dark theme logo */}
-      <img
-        src="/logo/logo-white.svg"
-        alt="Career INSYT"
-        className="hidden dark:block h-full w-auto object-contain"
+        className="h-full w-auto object-contain"
         style={{ height: size }}
       />
     </div>

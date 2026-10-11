@@ -70,16 +70,16 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/logo/logo_white.png" },
+      { url: "/logo/logo_white.png", type: "image/png" },
+      { url: "/icon.png", type: "image/png" },
     ],
-    apple: "/icon.svg",
+    shortcut: "/logo/logo_white.png",
+    apple: "/logo/logo_white.png",
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
-    title: "INSYT Corporate",
+    statusBarStyle: "default",
+    title: "CAREERINSYT",
   },
 };
 
@@ -93,15 +93,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Prevent flash of wrong theme before React hydrates */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('insyt-corp-theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.classList.add(t);}catch(e){}})();`,
+            __html: `(function(){try{document.documentElement.classList.remove('dark');localStorage.removeItem('insyt-corp-theme');}catch(e){}})();`,
           }}
         />
-        {/* #48: Dynamic theme-color for browser chrome */}
-        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#080C14" />
-        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FAFBFC" />
+        <meta name="theme-color" content="#F7F8FC" />
       </head>
       <body
         suppressHydrationWarning

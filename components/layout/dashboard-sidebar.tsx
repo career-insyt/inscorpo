@@ -7,9 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Rocket, BookOpen, ClipboardList, FileText, Briefcase,
   Mic, Target, Zap, Award, Settings, HelpCircle,
-  ChevronLeft, ChevronRight, Sun, Moon
+  ChevronLeft, ChevronRight
 } from "lucide-react";
-import { useTheme } from "@/components/providers/theme-provider";
 import { useUser } from "@/components/providers/user-context";
 import { cn } from "@/lib/utils";
 
@@ -174,13 +173,13 @@ export function DashboardSidebar() {
             >
               <Link href="/dashboard" className="flex items-center gap-2.5 font-mono">
                 <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-[#2563eb] border-2 border-blue-400 p-0.5 overflow-hidden"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-[#2563eb] overflow-hidden"
                   style={{ boxShadow: "3px 3px 0px 0px #1e3a8a" }}
                 >
-                  <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain rounded-lg" />
+                  <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain p-1" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-black tracking-tight leading-none text-corp-text font-nevera">CAREERINSYT</span>
+                  <span className="text-sm font-black tracking-wider leading-none text-corp-text font-nevera">CAREERINSYT</span>
                   <span className="text-[9px] font-black tracking-widest uppercase text-[#2563eb]">Career OS</span>
                 </div>
               </Link>
@@ -190,10 +189,10 @@ export function DashboardSidebar() {
         {collapsed && (
           <Link href="/dashboard" className="mx-auto" title="Career INSYT">
             <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#2563eb] border-2 border-blue-400 p-0.5 overflow-hidden"
+              className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#2563eb] overflow-hidden"
               style={{ boxShadow: "2px 2px 0px 0px #1e3a8a" }}
             >
-              <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain rounded-lg" />
+              <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain p-1" />
             </div>
           </Link>
         )}
