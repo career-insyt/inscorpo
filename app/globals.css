@@ -250,7 +250,6 @@
   --shadow-game-teal:   0 6px 20px rgba(59, 91, 219, 0.22);
   --shadow-game-purple: 0 6px 20px rgba(59, 91, 219, 0.22);
 }
-}
 
 /* ─── Notification Target Element Ultra-Glow ─────────────────── */
 @keyframes highlight-pulse-glow {
