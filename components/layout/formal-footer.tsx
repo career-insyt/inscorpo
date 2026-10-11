@@ -50,9 +50,7 @@ export function FormalFooter() {
                 <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
-                <span className="text-base font-black tracking-wider text-white group-hover:text-[#5B7CF6] transition-colors font-nevera">
-                  CAREERINSYT
-                </span>
+                <img src="/logo/logoTextWhite.png" alt="CAREERINSYT" className="h-6 w-auto object-contain" />
                 <span className="text-[10px] font-semibold tracking-[0.22em] uppercase text-[#626C80]">
                   Career OS
                 </span>

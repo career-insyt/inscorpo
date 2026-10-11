@@ -11,15 +11,15 @@ const partners = [
 
 export function TrustedPartners() {
   return (
-    <section className="relative py-16 overflow-hidden bg-gradient-to-b from-[#06091a] to-[#0A0D14] border-t border-[#161B27]">
+    <section className="relative py-14 overflow-hidden bg-white border-y border-slate-200/80">
       <div className="mx-auto max-w-7xl px-6">
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-center text-[12px] font-bold uppercase tracking-[0.2em] mb-8 text-[#626C80]"
+          className="text-center text-[11px] sm:text-[12px] font-mono font-bold uppercase tracking-[0.2em] mb-7 text-slate-500"
         >
-          Trusted by professionals preparing for top MNCs & Institutions
+          Trusted by professionals accelerating careers at top MNCs, Banks & Conglomerates
         </motion.p>
 
         {/* Marquee with smooth CSS alpha mask */}
@@ -34,9 +34,9 @@ export function TrustedPartners() {
             {[...partners, ...partners].map((partner, i) => (
               <div
                 key={`${partner}-${i}`}
-                className="mx-3 flex-shrink-0 px-5 py-2.5 rounded-xl transition-all duration-300 hover:scale-105 cursor-default bg-[#161B27]/80 border border-[#262F45] backdrop-blur-sm"
+                className="mx-2.5 flex-shrink-0 px-4 py-2 rounded-xl transition-all duration-200 hover:border-blue-300 hover:shadow-sm cursor-default bg-slate-50 border border-slate-200/90"
               >
-                <span className="text-[13px] font-semibold whitespace-nowrap text-[#A0ABBC] hover:text-white transition-colors">
+                <span className="text-[13px] font-semibold whitespace-nowrap text-slate-700">
                   {partner}
                 </span>
               </div>

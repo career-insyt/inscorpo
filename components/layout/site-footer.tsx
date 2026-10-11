@@ -45,9 +45,7 @@ export function SiteFooter() {
                 <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain p-1" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[16px] font-black tracking-wider font-nevera" style={{ color: "var(--corp-text)" }}>
-                  CAREERINSYT
-                </span>
+                <img src="/logo/logoTextDark.png" alt="CAREERINSYT" className="h-5 w-auto object-contain" />
                 <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-corp-accent">
                   Career OS
                 </span>

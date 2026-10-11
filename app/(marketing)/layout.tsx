@@ -8,7 +8,7 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="dark bg-corp-bg text-corp-text min-h-screen selection:bg-corp-accent/30 selection:text-corp-accent">
+    <div className="bg-[#F7F8FC] text-[#1A1D2E] min-h-screen selection:bg-[#3B5BDB]/20 selection:text-[#3B5BDB]">
       <OrganizationSchema />
       <MarketingNavbar />
       <main>{children}</main>

@@ -90,7 +90,7 @@ const item = {
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="relative py-28 overflow-hidden">
+    <section id="features" className="relative py-24 sm:py-28 overflow-hidden bg-white border-y border-slate-200/80">
       <div className="absolute inset-0 bg-dot-pattern opacity-40" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-6">

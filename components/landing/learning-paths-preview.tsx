@@ -1,192 +1,264 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { useState } from "react";
+import { motion } from "framer-motion";
 import {
-  Landmark, Briefcase, GraduationCap, Languages,
-  Brain, BarChart3, Presentation, FileText,
-  ArrowRight, BookOpen, Award
+  FileSpreadsheet, Code2, BarChart3, Workflow, Sparkles,
+  Video, ArrowRight, BookOpen, Award, Clock, CheckCircle2, ChevronRight
 } from "lucide-react";
 import Link from "next/link";
-import { fetchPaths, PathDoc } from "@/lib/db";
 
-const iconMap: Record<string, any> = {
-  GraduationCap,
-  Landmark,
-  BarChart3,
-  Presentation,
-  Briefcase,
-  Users: BookOpen, // fallback
-  Brain,
-  Languages,
-  FileText,
-  Award
-};
+interface CareerTrack {
+  slug: string;
+  pathSlug: string;
+  href: string;
+  title: string;
+  subtitle: string;
+  category: "finance" | "analytics" | "ai" | "media";
+  hours: number;
+  lessons: number;
+  credential: string;
+  credentialFull: string;
+  skills: string[];
+  icon: any;
+  color: string;
+  tag: string;
+}
+
+const CAREER_TRACKS: CareerTrack[] = [
+  {
+    slug: "corporate-financial-commercial-modeling-excel",
+    pathSlug: "corporate-analyst",
+    href: "/learn/corporate-analyst/corporate-financial-commercial-modeling-excel",
+    title: "Corporate Financial & Commercial Modeling in Excel",
+    subtitle: "The Complete Financial Analyst, FP&A, and Commercial Modeling Masterclass.",
+    category: "finance",
+    hours: 75,
+    lessons: 53,
+    credential: "CCFCM",
+    credentialFull: "Certified Corporate Financial & Commercial Modeler",
+    skills: ["3-Statement FAST Model", "PVM Variance Bridges", "Power Query ETL", "Debt Sweeps"],
+    icon: FileSpreadsheet,
+    color: "#059669",
+    tag: "Flagship Finance",
+  },
+  {
+    slug: "enterprise-python-corporate-analytics-process-automation",
+    pathSlug: "corporate-analyst",
+    href: "/learn/corporate-analyst/enterprise-python-corporate-analytics-process-automation",
+    title: "Enterprise Python for Corporate Analytics & Process Automation",
+    subtitle: "Turn messy business data into automated reports, reliable data pipelines, and actionable corporate intelligence.",
+    category: "analytics",
+    hours: 80,
+    lessons: 40,
+    credential: "CCDAS",
+    credentialFull: "Certified Corporate Data Automation Specialist",
+    skills: ["Python 3.12", "pandas Wrangling", "openpyxl Automation", "DuckDB SQL"],
+    icon: Code2,
+    color: "#2563eb",
+    tag: "Data Automation",
+  },
+  {
+    slug: "enterprise-business-intelligence-power-bi-sql-corporate-analysts",
+    pathSlug: "business-intelligence-analyst",
+    href: "/learn/business-intelligence-analyst/enterprise-business-intelligence-power-bi-sql-corporate-analysts",
+    title: "Enterprise Business Intelligence: Power BI & SQL for Corporate Analysts",
+    subtitle: "Transform Messy Enterprise Data into Scalable Semantic Models, Executive Dashboards, and Boardroom Decisions.",
+    category: "analytics",
+    hours: 120,
+    lessons: 48,
+    credential: "CEBI",
+    credentialFull: "Certified Enterprise Business Intelligence Analyst",
+    skills: ["PostgreSQL Window Functions", "Kimball Star Schemas", "Advanced DAX", "Row-Level Security"],
+    icon: BarChart3,
+    color: "#7c3aed",
+    tag: "Business Intelligence",
+  },
+  {
+    slug: "applied-workplace-ai-enterprise-workflow-automation",
+    pathSlug: "applied-ai-automation",
+    href: "/learn/applied-ai-automation/applied-workplace-ai-enterprise-workflow-automation",
+    title: "Applied Workplace AI: Enterprise Workflow Automation with n8n & Power Automate",
+    subtitle: "Design, build, secure, and measure enterprise workflows that eliminate repetitive work and deliver measurable ROI.",
+    category: "ai",
+    hours: 120,
+    lessons: 40,
+    credential: "CEAS",
+    credentialFull: "Certified Enterprise Automation Specialist",
+    skills: ["n8n Orchestration", "Power Automate Desktop RPA", "Document AI", "Idempotency & DLQ"],
+    icon: Workflow,
+    color: "#d97706",
+    tag: "Workflow Automation",
+  },
+  {
+    slug: "ai-powered-workplace-professional",
+    pathSlug: "ai-workplace-professional",
+    href: "/learn/ai-workplace-professional/ai-powered-workplace-professional",
+    title: "AI-Powered Workplace Professional",
+    subtitle: "ChatGPT 4o, Gemini 1.5 Pro, Deep Research, Executive Document Writing & Daily Office AI.",
+    category: "ai",
+    hours: 15,
+    lessons: 8,
+    credential: "CAP",
+    credentialFull: "Certified AI Workplace Professional",
+    skills: ["Prompt Engineering", "Gemini Deep Research", "NotebookLM Citations", "BLUF Boardroom Memos"],
+    icon: Sparkles,
+    color: "#0891b2",
+    tag: "Workplace AI",
+  },
+  {
+    slug: "video-ai-production",
+    pathSlug: "digital-media-production",
+    href: "/learn/digital-media-production/video-ai-production",
+    title: "Digital Media & Video Production Systems (CapCut Desktop & AI)",
+    subtitle: "From Social Video Editing to Generative AI Production Pipelines, Audio Normalization and Motion Graphics.",
+    category: "media",
+    hours: 34,
+    lessons: 36,
+    credential: "CVPS",
+    credentialFull: "Certified Video & AI Production Specialist",
+    skills: ["CapCut Desktop", "Keyframe Animation", "Voice Synthesis", "Commercial Pacing"],
+    icon: Video,
+    color: "#e11d48",
+    tag: "Creative Media",
+  },
+];
 
 export function LearningPathsPreview() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-  
-  const [paths, setPaths] = useState<PathDoc[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<string>("all");
 
-  useEffect(() => {
-    async function loadPaths() {
-      try {
-        const dbPaths = await fetchPaths();
-        setPaths(dbPaths.slice(0, 5)); // show top 5
-      } catch (err) {
-        console.error("Failed to fetch paths for preview", err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadPaths();
-  }, []);
-
-  const levelsMap: Record<string, string> = {
-    "gre-gmat": "All Levels",
-    "gmat": "Intermediate → Advanced",
-    "excel-analytics": "Beginner → Advanced",
-    "business-communication": "All Levels",
-    "career-branding": "Beginner → Intermediate",
-    "recruitment-success": "All Levels",
-    "business-strategy": "Intermediate → Advanced",
-  };
-
-  const tagsMap: Record<string, string> = {
-    "excel-analytics": "Most Popular",
-    "gre-gmat": "Trending",
-    "recruitment-success": "Hot",
-  };
+  const filteredTracks = activeTab === "all" 
+    ? CAREER_TRACKS 
+    : CAREER_TRACKS.filter((t) => t.category === activeTab);
 
   return (
-    <section id="paths" className="relative py-28 overflow-hidden" style={{ background: "var(--corp-bg-secondary)" }}>
-      <div className="mx-auto max-w-7xl px-6" ref={ref}>
+    <section id="tracks" className="relative py-20 sm:py-28 overflow-hidden bg-[#F7F8FC]">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-2xl mx-auto mb-16"
-        >
-          <span
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[13px] font-medium mb-6"
-            style={{
-              background: "var(--corp-surface)",
-              color: "var(--corp-accent)",
-              border: "1px solid var(--corp-border)",
-            }}
-          >
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider bg-white border border-slate-200 text-[#2563eb] shadow-sm mb-4">
             <BookOpen size={14} />
-            Learning Paths
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" style={{ color: "var(--corp-text)" }}>
-            Choose Your{" "}
-            <span className="text-gradient">Career Track</span>
-          </h2>
-          <p className="text-lg" style={{ color: "var(--corp-text-secondary)" }}>
-            Structured learning paths designed by industry experts. Each path includes modules, practice, simulations, and certification.
-          </p>
-        </motion.div>
-
-        {/* Scrollable Path Cards */}
-        {isLoading ? (
-          <div className="flex justify-center py-10 text-corp-text-secondary">Loading paths...</div>
-        ) : paths.length === 0 ? (
-          <div className="flex justify-center py-10 text-corp-text-secondary">No paths found in the database.</div>
-        ) : (
-          <div className="relative">
-            <div className="flex gap-5 overflow-x-auto pb-6 snap-x snap-mandatory scrollbar-hide -mx-2 px-2"
-              style={{ scrollbarWidth: "none" }}
-            >
-              {paths.map((path, i) => {
-                const coursesCount = path.modules || 0;
-                const hoursSum = path.hours || 0;
-                const pathLevel = levelsMap[path.slug] || "All Levels";
-                const pathTag = tagsMap[path.slug];
-                const subTopics = Array.isArray(path.topics) ? (path.topics.slice(0, 3).join(" · ") + (path.topics.length > 3 ? "..." : "")) : "";
-                const Icon = (path.icon && iconMap[path.icon]) || BookOpen;
-
-                return (
-                  <Link key={path.slug} href={`/learn/${path.slug}`}>
-                    <motion.div
-                      initial={{ opacity: 0, y: 24 }}
-                      animate={isInView ? { opacity: 1, y: 0 } : {}}
-                      transition={{ delay: i * 0.08, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                      className="group relative flex-shrink-0 w-[300px] snap-start rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer h-full"
-                      style={{
-                        background: "var(--corp-surface)",
-                        border: "1px solid var(--corp-border)",
-                      }}
-                      whileHover={{ y: -4, boxShadow: "0 12px 40px rgba(0,0,0,0.1)" }}
-                    >
-                      {/* Tag */}
-                      {pathTag && (
-                        <div className="absolute top-4 right-4 z-10">
-                          <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold text-white ${
-                            pathTag === "Most Popular" ? "bg-corp-accent" :
-                            pathTag === "Trending" ? "bg-emerald-500" :
-                            "bg-amber-500"
-                          }`}>
-                            {pathTag}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Gradient Header */}
-                      <div className={`h-28 bg-gradient-to-br ${path.gradient} relative overflow-hidden`}>
-                        <div className="absolute inset-0 bg-black/10" />
-                        <div className="absolute bottom-4 left-5">
-                          <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                            <Icon size={20} className="text-white" />
-                          </div>
-                        </div>
-                        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/5" />
-                        <div className="absolute -bottom-8 -left-4 w-20 h-20 rounded-full bg-white/5" />
-                      </div>
-
-                      {/* Content */}
-                      <div className="p-5">
-                        <h3 className="text-[15px] font-semibold mb-1" style={{ color: "var(--corp-text)" }}>
-                          {path.title}
-                        </h3>
-                        <p className="text-[13px] mb-4 min-h-[40px]" style={{ color: "var(--corp-text-secondary)" }}>
-                          {subTopics}
-                        </p>
-
-                        {/* Stats */}
-                        <div className="flex items-center gap-4 text-[12px] font-medium" style={{ color: "var(--corp-text-tertiary)" }}>
-                          <span>{coursesCount} Courses</span>
-                          <span className="w-1 h-1 rounded-full bg-current opacity-40" />
-                          <span>{hoursSum} Hours</span>
-                        </div>
-
-                        {/* Level Badge */}
-                        <div className="mt-4 pt-4 flex items-center justify-between" style={{ borderTop: "1px solid var(--corp-border)" }}>
-                          <span className="text-[12px] font-medium" style={{ color: "var(--corp-text-tertiary)" }}>
-                            {pathLevel}
-                          </span>
-                          <div className="w-7 h-7 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-x-1 group-hover:translate-x-0"
-                            style={{ background: "var(--corp-accent-light)" }}
-                          >
-                            <ArrowRight size={14} className="text-corp-accent" />
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </Link>
-                );
-              })}
-            </div>
-
-            {/* Fade edges */}
-            <div className="absolute left-0 top-0 bottom-6 w-8 pointer-events-none"
-              style={{ background: "linear-gradient(to right, var(--corp-bg-secondary), transparent)" }} />
-            <div className="absolute right-0 top-0 bottom-6 w-8 pointer-events-none"
-              style={{ background: "linear-gradient(to left, var(--corp-bg-secondary), transparent)" }} />
+            <span>EXECUTIVE CURRICULUM</span>
           </div>
-        )}
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 mb-4">
+            Choose Your <span className="text-[#2563eb]">Career Track</span>
+          </h2>
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
+            Deep-dive into rigorous, employer-endorsed career tracks. Fully synchronized with your interactive LMS sandbox and verifiable Career Passport.
+          </p>
+
+          {/* Filter Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-6">
+            {[
+              { id: "all", label: "All Career Tracks" },
+              { id: "finance", label: "Finance & Modeling" },
+              { id: "analytics", label: "Python & Business Intelligence" },
+              { id: "ai", label: "Workplace AI & Automation" },
+              { id: "media", label: "Creative Media Systems" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-2 rounded-full text-xs font-mono font-bold transition-all cursor-pointer ${
+                  activeTab === tab.id
+                    ? "bg-[#2563eb] text-white shadow-sm"
+                    : "bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Tracks Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredTracks.map((track) => {
+            const Icon = track.icon;
+            return (
+              <motion.div
+                key={track.slug}
+                layout
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+                className="group relative bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-blue-300 transition-all duration-300 flex flex-col justify-between"
+              >
+                <div>
+                  {/* Top Meta Bar */}
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <div 
+                      className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm"
+                      style={{ background: `${track.color}15`, color: track.color }}
+                    >
+                      <Icon size={22} />
+                    </div>
+                    <span 
+                      className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
+                      style={{ background: `${track.color}10`, color: track.color, border: `1px solid ${track.color}30` }}
+                    >
+                      {track.tag}
+                    </span>
+                  </div>
+
+                  {/* Title & Subtitle */}
+                  <h3 className="text-lg font-bold text-slate-900 leading-snug mb-2 group-hover:text-[#2563eb] transition-colors">
+                    {track.title}
+                  </h3>
+                  <p className="text-xs text-slate-600 leading-relaxed mb-5 line-clamp-2">
+                    {track.subtitle}
+                  </p>
+
+                  {/* Hours & Lessons Stats */}
+                  <div className="flex items-center gap-4 text-xs font-mono text-slate-500 pb-4 border-b border-slate-100">
+                    <span className="flex items-center gap-1.5">
+                      <Clock size={13} className="text-[#2563eb]" />
+                      <strong>{track.hours}h</strong> Duration
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <BookOpen size={13} className="text-[#2563eb]" />
+                      <strong>{track.lessons}</strong> Lessons
+                    </span>
+                  </div>
+
+                  {/* Skills Pill Grid */}
+                  <div className="py-4 space-y-1.5">
+                    <div className="text-[10px] font-mono uppercase font-bold text-slate-400">Core Competencies:</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {track.skills.map((skill) => (
+                        <span 
+                          key={skill}
+                          className="px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200 text-[10px] font-mono text-slate-700"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Action Footer */}
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-700">
+                    <Award size={14} className="text-amber-500 flex-shrink-0" />
+                    <span>{track.credential}</span>
+                  </div>
+
+                  <Link
+                    href={track.href}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#2563eb] hover:bg-[#1d4ed8] shadow-sm transition-all group-hover:translate-x-0.5"
+                  >
+                    <span>Start Track</span>
+                    <ChevronRight size={14} />
+                  </Link>
+                </div>
+
+              </motion.div>
+            );
+          })}
+        </div>
+
       </div>
     </section>
   );

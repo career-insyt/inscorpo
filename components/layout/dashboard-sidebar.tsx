@@ -179,7 +179,7 @@ export function DashboardSidebar() {
                   <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain p-1" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-black tracking-wider leading-none text-corp-text font-nevera">CAREERINSYT</span>
+                  <img src="/logo/logoTextDark.png" alt="CAREERINSYT" className="h-5 w-auto object-contain" />
                   <span className="text-[9px] font-black tracking-widest uppercase text-[#2563eb]">Career OS</span>
                 </div>
               </Link>
