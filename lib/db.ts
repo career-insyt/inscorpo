@@ -13,7 +13,7 @@ import { generateId } from "@/lib/id";
 export { databases };
 
 export const DB_CONFIG = {
-  databaseId: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "",
+  databaseId: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "6a56075800013fce1aa1",
   collections: {
     users: "users",
     tasks: "tasks",
