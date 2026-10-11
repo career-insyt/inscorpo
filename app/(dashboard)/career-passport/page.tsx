@@ -278,7 +278,11 @@ export default function CareerPassportPage() {
 
       // 3. Trust plane / credential verification:
       if (badge.id === "trust-plane-verified") {
-        if (Boolean(verificationId) || Object.values(pp?.verifiedSkillDetails || {}).some((v) => v.verified)) {
+        if (
+          Object.values(pp?.verifiedSkillDetails || {}).some((v) => v.verified) ||
+          (state.completedMockTests && state.completedMockTests.length > 0) ||
+          (state.courseProgress || []).some((c) => c.progress >= 100)
+        ) {
           return true;
         }
       }
@@ -292,7 +296,7 @@ export default function CareerPassportPage() {
 
       return false;
     });
-  }, [state.recentBadges, state.courseProgress, state.streak, state.completedChallengeIds, pp?.verifiedSkillDetails, verificationId]);
+  }, [state.recentBadges, state.courseProgress, state.streak, state.completedChallengeIds, state.completedMockTests, pp?.verifiedSkillDetails]);
 
   const [showProModal, setShowProModal] = useState(false);
 

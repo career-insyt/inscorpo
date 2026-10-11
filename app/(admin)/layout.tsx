@@ -16,10 +16,24 @@ export default function AdminLayout({
   const { user, isLoading } = useAuth();
   const pathname = usePathname();
 
-  // Admin verification is done server-side in middleware.ts
-  // If the user reaches this layout, they passed the middleware check.
-  // We still show a loading state and a client-side fallback guard.
-  const isAllowedAdmin = !!user;
+  // Strict Role-Based Access Control (RBAC)
+  const ADMIN_AUTHORIZED_EMAILS = [
+    "insyt.bd@gmail.com",
+    "admin@insyt.co",
+    "corporate@insyt.co",
+    "zubair@insyt.co",
+  ];
+
+  const userEmail = (user?.email || "").toLowerCase().trim();
+  const userLabels = (user as any)?.labels || [];
+  const userRole = (user?.prefs as any)?.role || "";
+
+  const isAllowedAdmin =
+    Boolean(user) &&
+    (userLabels.includes("admin") ||
+      userRole === "admin" ||
+      ADMIN_AUTHORIZED_EMAILS.includes(userEmail) ||
+      userEmail.endsWith("@insyt.co"));
 
   // 1. Loading State
   if (isLoading) {
@@ -114,7 +128,7 @@ export default function AdminLayout({
         <div className="p-3 border-t-2 border-blue-400/40 space-y-2 bg-slate-50">
           <div className="px-3 py-2 rounded-sm bg-emerald-500/10 border border-emerald-500/30 text-[10px] text-emerald-800 font-bold flex items-center gap-1.5">
             <ShieldCheck size={14} className="text-emerald-600 shrink-0" />
-            <span className="truncate">{user.email}</span>
+            <span className="truncate">{user?.email || "admin@insyt.co"}</span>
           </div>
 
           <Link
@@ -140,7 +154,7 @@ export default function AdminLayout({
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase bg-blue-500/10 text-[#2563eb] border border-blue-400/40">
               <ShieldAlert size={13} />
-              {user.email}
+              {user?.email || "Super Admin"}
             </span>
           </div>
         </header>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { scanForPromptInjection } from "@/lib/assessment/anti-injection";
+import { scanForPromptInjection, redactPII } from "@/lib/assessment/anti-injection";
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -137,7 +137,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const sanitizedMessage = scanResult.sanitizedText || message;
+    // PII Redaction Shield (Strip phone numbers, emails, financial records)
+    const { redactedText } = redactPII(scanResult.sanitizedText || message);
+    const sanitizedMessage = redactedText;
     const systemPrompt = SYSTEM_PROMPTS[context] || SYSTEM_PROMPTS["general"];
 
     const historyMessages = (history || []).slice(-8).map((m) => ({

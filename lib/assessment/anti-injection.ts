@@ -33,6 +33,40 @@ const INJECTION_SIGNATURES: Array<{ pattern: RegExp; severity: 'SUSPICIOUS' | 'M
 ];
 
 /**
+ * Stage 0: Redacts Personally Identifiable Information (PII) before LLM dispatch.
+ * Neutralizes user emails, phone numbers, and financial account identifiers.
+ */
+export function redactPII(text: string): { redactedText: string; piiDetected: boolean } {
+  if (!text || typeof text !== "string") return { redactedText: "", piiDetected: false };
+
+  let piiDetected = false;
+  let result = text;
+
+  // 1. Redact Email addresses
+  const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g;
+  if (emailRegex.test(result)) {
+    piiDetected = true;
+    result = result.replace(emailRegex, "[REDACTED_EMAIL]");
+  }
+
+  // 2. Redact Phone numbers (Bangladeshi and International formats)
+  const phoneRegex = /(\+?880\s?1[3-9]\d{2}[-\s]?\d{6}|01[3-9]\d{2}[-\s]?\d{6}|\+?\d{1,3}[-.\s]?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4})/g;
+  if (phoneRegex.test(result)) {
+    piiDetected = true;
+    result = result.replace(phoneRegex, "[REDACTED_PHONE]");
+  }
+
+  // 3. Redact Credit Card / Banking Numbers (13 to 19 digits with separators)
+  const cardRegex = /\b(?:\d{4}[-\s]?){3}\d{4}\b|\b\d{15,16}\b/g;
+  if (cardRegex.test(result)) {
+    piiDetected = true;
+    result = result.replace(cardRegex, "[REDACTED_FINANCIAL_CARD]");
+  }
+
+  return { redactedText: result, piiDetected };
+}
+
+/**
  * Stage 1: Neutralizes delimiters, control characters, and enforces length bounds
  */
 export function sanitizeCandidateInput(rawText: string, maxLength: number = 8000): string {
