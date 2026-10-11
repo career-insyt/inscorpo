@@ -491,27 +491,6 @@ export default function CareerPassportPage() {
                 </div>
               </div>
             </div>
-
-            {/* Platform Badges */}
-            <div className="p-5 rounded-2xl space-y-3 border-2 border-blue-500 shadow-[5px_5px_0px_0px_#2563eb]" style={{ background: "var(--corp-surface)" }}>
-              <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
-                <Trophy size={15} className="text-amber-500" /> Platform Badges
-              </h3>
-              {state.recentBadges.length > 0 ? (
-                <div className="grid grid-cols-2 gap-2">
-                  {state.recentBadges.map((b) => (
-                    <div key={b.name} className="p-2.5 rounded-xl flex flex-col items-center text-center gap-1 bg-corp-bg-secondary border-2 border-blue-400">
-                      <span className="text-2xl">{b.icon}</span>
-                      <span className="text-[10px] font-semibold leading-tight" style={{ color: "var(--corp-text)" }}>{b.name}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs italic text-center py-3 text-corp-text-tertiary">
-                  Complete courses to earn verified achievement badges.
-                </p>
-              )}
-            </div>
           </div>
 
           <div className="lg:col-span-2 space-y-5">
@@ -626,7 +605,7 @@ export default function CareerPassportPage() {
                     >
                       <ShieldCheck size={13} className="text-emerald-400 animate-pulse" />
                       <span>{s.name}</span>
-                      <span className="text-[10px] px-2.5 py-0.5 rounded font-extrabold bg-[#022c22] text-white border border-[#065f46] shadow-sm">
+                      <span className="text-[10px] px-2.5 py-0.5 rounded font-black bg-[#065f46] text-white border border-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.3)]">
                         Level 5 Certified
                       </span>
                     </span>
@@ -758,31 +737,26 @@ export default function CareerPassportPage() {
             className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
             onClick={() => setShowPhotoModal(false)}>
             <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }}
-              className="max-w-md w-full rounded-3xl p-6 space-y-6 shadow-2xl border"
+              className="max-w-md w-full rounded-3xl p-6 space-y-6 shadow-2xl border max-h-[85vh] overflow-y-auto"
               style={{ background: "var(--corp-surface)", borderColor: "var(--corp-border)" }}
               onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: "var(--corp-border)" }}>
                 <h3 className="text-base font-bold flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
                   <Camera size={18} className="text-corp-accent" /> Profile Photo & Avatar Selector
                 </h3>
-                <button onClick={() => setShowPhotoModal(false)} className="p-1 rounded-full hover:bg-corp-bg-secondary"><X size={16} /></button>
-              </div>
-
-              {/* Cloud Sync Notice */}
-              <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-400/30 text-xs text-blue-600 dark:text-blue-400 font-medium leading-relaxed">
-                Photos automatically sync to your Top Navbar Profile Avatar and are backed by Appwrite Cloud &amp; Database.
+                <button onClick={() => setShowPhotoModal(false)} className="p-1 rounded-full hover:bg-corp-bg-secondary cursor-pointer"><X size={16} /></button>
               </div>
 
               {/* Upload Custom File Input with Interactive Zoom & Crop */}
               <div className="space-y-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-corp-text-tertiary">
-                  Option 1: Upload &amp; Interactive Crop
+                  Upload Image &amp; Interactive Zoom/Crop
                 </label>
                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full py-3 rounded-2xl border-2 border-dashed border-corp-accent/40 hover:bg-corp-accent/10 transition-colors flex items-center justify-center gap-2 text-xs font-bold text-corp-accent cursor-pointer"
+                  className="w-full py-3.5 rounded-2xl border-2 border-dashed border-corp-accent/40 hover:bg-corp-accent/10 transition-colors flex items-center justify-center gap-2 text-xs font-bold text-corp-accent cursor-pointer"
                 >
                   <Upload size={16} /> Choose Image to Zoom &amp; Crop
                 </button>
@@ -801,15 +775,15 @@ export default function CareerPassportPage() {
                 )}
               </div>
 
-              {/* Option 2: Direct Cloud Image URL */}
+              {/* Direct Cloud Image URL */}
               <div className="space-y-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-corp-text-tertiary">
-                  Option 2: Direct Cloud Image URL
+                  Or Enter Direct Image URL
                 </label>
                 <div className="flex gap-2">
                   <input
                     type="url"
-                    placeholder="https://... cloud or CDN image URL"
+                    placeholder="https://... direct image URL"
                     value={customUrlInput}
                     onChange={(e) => setCustomUrlInput(e.target.value)}
                     className="flex-1 px-3 py-2 text-xs rounded-xl border border-corp-border bg-corp-bg text-corp-text focus:outline-none focus:border-corp-accent"
@@ -830,27 +804,12 @@ export default function CareerPassportPage() {
                 </div>
               </div>
 
-              {/* Preset Avatars */}
-              <div className="space-y-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-corp-text-tertiary">Option 3: Executive Preset Avatars</label>
-                <div className="grid grid-cols-3 gap-3">
-                  {PRESET_AVATARS.map((avatar) => (
-                    <button key={avatar.label} onClick={() => { save({ photoUrl: avatar.url }); setShowPhotoModal(false); }}
-                      className="group flex flex-col items-center gap-1.5 p-2 rounded-2xl hover:bg-corp-bg-secondary border border-transparent hover:border-corp-accent/30 transition-all cursor-pointer">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={avatar.url} alt={avatar.label} className="w-14 h-14 rounded-2xl object-cover shadow-sm group-hover:scale-105 transition-transform" />
-                      <span className="text-[10px] font-semibold truncate w-full text-center" style={{ color: "var(--corp-text-secondary)" }}>{avatar.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Remove Photo */}
               {pp?.photoUrl && (
                 <div className="pt-2 border-t" style={{ borderColor: "var(--corp-border)" }}>
                   <button onClick={() => { save({ photoUrl: undefined }); setShowPhotoModal(false); }}
-                    className="w-full py-2 rounded-xl text-xs font-semibold text-red-500 hover:bg-red-500/10 transition-colors">
-                    Remove Photo & Use Initials
+                    className="w-full py-2 rounded-xl text-xs font-semibold text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer">
+                    Remove Photo &amp; Use Initials
                   </button>
                 </div>
               )}

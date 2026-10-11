@@ -36,11 +36,11 @@ export function MarketingNavbar() {
               <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain rounded-lg" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[15px] font-black tracking-tight" style={{ color: "var(--corp-text)" }}>
-                CAREER INSYT
+              <span className="text-[16px] font-black tracking-tight font-nevera uppercase leading-tight" style={{ color: "var(--corp-text)" }}>
+                CAREERINSYT
               </span>
               <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-corp-accent">
-                Corporate OS
+                Career OS
               </span>
             </div>
           </Link>

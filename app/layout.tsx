@@ -27,28 +27,28 @@ const volteBangla = Hind_Siliguri({
 export const metadata: Metadata = {
   metadataBase: new URL("https://insyt.co"),
   title: {
-    default: "INSYT Corporate — The Career Operating System",
-    template: "%s | INSYT Corporate",
+    default: "CAREERINSYT — Career OS",
+    template: "%s | CAREERINSYT",
   },
   description:
-    "Level up your career with INSYT Corporate. Master banking, management trainee tracks, business analytics, corporate skills, and AI productivity.",
+    "Level up your career with CAREERINSYT. The Career OS for business analytics, corporate modeling, AI productivity, and media production.",
   keywords: [
     "career development",
     "corporate training",
     "video editing",
-    "presentation engineering",
-    "business skills",
+    "financial modeling",
+    "business intelligence",
     "professional development",
     "AI productivity",
-    "GRE preparation",
-    "INSYT Corporate",
+    "CAREERINSYT",
+    "Career OS",
   ],
-  authors: [{ name: "INSYT" }],
+  authors: [{ name: "CAREERINSYT" }],
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "INSYT Corporate",
-    title: "INSYT Corporate — The Career Operating System",
+    siteName: "CAREERINSYT",
+    title: "CAREERINSYT — Career OS",
     description:
       "Level up your skills. Master video editing, presentation engineering, AI automation, and GRE preparation.",
     images: [

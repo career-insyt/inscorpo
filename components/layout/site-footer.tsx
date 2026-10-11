@@ -45,11 +45,11 @@ export function SiteFooter() {
                 <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain rounded-md" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[15px] font-black tracking-tight" style={{ color: "var(--corp-text)" }}>
-                  CAREER INSYT
+                <span className="text-[16px] font-black tracking-tight font-nevera" style={{ color: "var(--corp-text)" }}>
+                  CAREERINSYT
                 </span>
-                <span className="text-[10px] font-medium tracking-[0.2em] uppercase" style={{ color: "var(--corp-text-tertiary)" }}>
-                  Corporate OS
+                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-corp-accent">
+                  Career OS
                 </span>
               </div>
             </Link>

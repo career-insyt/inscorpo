@@ -268,8 +268,8 @@ export function LinkedInSkillsCard({ state }: LinkedInSkillsCardProps) {
               {/* Right Side: Mastery Badge or AI Assessment Action */}
               <div className="flex items-center gap-2 flex-shrink-0">
                 {skill.verified ? (
-                  <div className="px-3 py-1 rounded-md bg-[#022c22] text-white border border-[#065f46] text-xs font-extrabold shadow-[0_0_10px_rgba(16,185,129,0.25)] flex items-center gap-1.5">
-                    <Sparkles size={11} className="text-emerald-400" />
+                  <div className="px-3 py-1 rounded-md bg-[#065f46] text-white border border-[#10b981] text-xs font-black shadow-[0_0_12px_rgba(16,185,129,0.35)] flex items-center gap-1.5">
+                    <Sparkles size={11} className="text-emerald-300" />
                     <span>Level 5 Certified • {skill.mastery}</span>
                   </div>
                 ) : (

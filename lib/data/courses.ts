@@ -1264,7 +1264,7 @@ export const ALL_PATHS: Record<string, LearningPathItem> = {
   "corporate-career-accelerator": {
     slug: "corporate-career-accelerator",
     title: "Corporate Career Accelerator",
-    subtitle: "Project Management, Executive Communication, Strategy & MTO Recruitment Mastery",
+    subtitle: "Project Management, Executive Communication, Strategy & Career Excellence",
     category: "career",
     description: "Comprehensive career launchpad engineered for final-year students, fresh graduates, and MTO applicants. Master project management, executive communication, MECE consulting cases, psychometric tests, and assessment center simulations.",
     gradient: "linear-gradient(135deg, #064e3b 0%, #047857 50%, #2563eb 100%)",
@@ -1678,75 +1678,6 @@ export const ALL_PATHS: Record<string, LearningPathItem> = {
       ENTERPRISE_BI_COURSE
     ]
   },
-  "mto-fast-track": {
-    slug: "mto-fast-track",
-    title: "MTO Fast Track",
-    subtitle: "Management Trainee Officer Preparation for MNCs & Leading Conglomerates",
-    category: "career",
-    description: "Standardized cognitive aptitude, MECE issue tree frameworks, business case cracking, and behavioral STAR interview mastery calibrated for Unilever, BAT, Marico, and top local enterprises.",
-    gradient: "linear-gradient(135deg, #059669 0%, #10b981 100%)",
-    icon: "Target",
-    students: 2150,
-    rating: 4.96,
-    skills: ["Quantitative Aptitude", "Verbal Logic", "Issue Trees", "Profitability Cases", "STAR Interviewing", "Assessment Centers"],
-    capstoneDeliverable: "MNC Assessment Center Case Presentation & Mock Interview Defense",
-    courses: [
-      {
-        slug: "mto-recruitment-mastery",
-        pathSlug: "mto-fast-track",
-        title: "MTO Recruitment Mastery: Aptitude, Case Cracking & Assessment Centers",
-        description: "The complete recruitment system: pass high-speed cognitive aptitude filters, crack live profitability and market entry cases, and excel in proctored assessment center group simulations.",
-        lessons: 6,
-        hours: 25,
-        skills: ["Cognitive Aptitude Drills", "Issue Tree Decomposition", "Market Sizing", "Executive Presentation"],
-        enrolledCount: 1620,
-        rating: 4.97,
-        capstoneProject: {
-          title: "MNC Assessment Center Turnaround Case Presentation",
-          brief: "Analyze a 15-page unstructured corporate case regarding a market share crisis in FMCG, formulate a MECE issue tree, compute financial trade-offs, and deliver an 8-slide executive deck.",
-          deliverable: "Executive slide deck (.pdf) and 3-minute video/recorded case presentation defense.",
-          rubric: [
-            "MECE structuring and clear hypothesis prioritization",
-            "Quantitative data synthesis and margin trade-off analysis",
-            "Synthesized executive recommendation (Pyramid Principle)",
-            "Stress-test objection handling and defense confidence"
-          ]
-        },
-        modules: [
-          {
-            title: "Module 1: Cognitive Aptitude Speed Drills",
-            description: "High-speed mental math, percentage shifts, syllogisms, and data interpretation under tight time limits.",
-            duration: "7h 00m",
-            exercisesCount: 12,
-            lessons: [
-              { slug: "quant-speed-foundations", title: "Speed Math & Estimation Shortcuts", duration: "20m", type: "video" },
-              { slug: "data-interpretation-drills", title: "Complex Chart & Table Forensics", duration: "30m", type: "assessment" }
-            ]
-          },
-          {
-            title: "Module 2: Management Consulting & Corporate Case Frameworks",
-            description: "Deconstruct business problems using MECE issue trees, profitability branches, and market entry logic.",
-            duration: "9h 30m",
-            exercisesCount: 10,
-            lessons: [
-              { slug: "issue-trees-mece", title: "Structuring Problems with MECE Trees", duration: "28m", type: "video" },
-              { slug: "profitability-cases", title: "Live Profitability Turnaround Simulation", duration: "40m", type: "simulation" }
-            ]
-          },
-          {
-            title: "Module 3: Assessment Center Simulations & Executive Defense",
-            description: "Group discussions, in-basket prioritization exercises, and behavioral STAR interviews.",
-            duration: "8h 30m",
-            exercisesCount: 8,
-            lessons: [
-              { slug: "assessment-center-mechanics", title: "Navigating Group Discussion Dynamics", duration: "25m", type: "video" },
-              { slug: "star-interview-mastery", title: "Proctored Behavioral STAR Mock Interview", duration: "35m", type: "assessment" }
-            ]
-          }
-        ]
-      }
-    ]
-  },
   "digital-media-production": {
     slug: "digital-media-production",
     title: "Digital Media & Production Systems",
@@ -1913,8 +1844,7 @@ export function getCourseBySlug(courseSlug: string): CourseItem | null {
         (courseSlug === "enterprise-business-intelligence-power-bi-sql-corporate-analysts" &&
           c.slug === "enterprise-business-intelligence-powerbi-sql") ||
         (courseSlug === "ai-for-work" && c.slug === "ai-powered-workplace-professional") ||
-        (courseSlug === "excel-corporate" && c.slug === "corporate-financial-commercial-modeling-excel") ||
-        (courseSlug === "corporate-mto" && c.slug === "mto-recruitment-mastery")
+        (courseSlug === "excel-corporate" && c.slug === "corporate-financial-commercial-modeling-excel")
     );
     if (found) return found;
   }

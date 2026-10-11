@@ -180,8 +180,8 @@ export function DashboardSidebar() {
                   <img src="/logo/logo_white.png" alt="Career INSYT" className="w-full h-full object-contain rounded-lg" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-black tracking-tight leading-none text-corp-text">CAREER INSYT</span>
-                  <span className="text-[9px] font-black tracking-widest uppercase text-[#2563eb]">Corporate OS</span>
+                  <span className="text-sm font-black tracking-tight leading-none text-corp-text font-nevera">CAREERINSYT</span>
+                  <span className="text-[9px] font-black tracking-widest uppercase text-[#2563eb]">Career OS</span>
                 </div>
               </Link>
             </motion.div>

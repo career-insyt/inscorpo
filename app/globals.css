@@ -11,6 +11,7 @@
   --font-sans: var(--font-inter), "Inter", "system-ui", sans-serif;
   --font-mono: var(--font-jetbrains), "JetBrains Mono", "monospace";
   --font-bangla: "Volte Bangla", var(--font-volte-bangla), sans-serif;
+  --font-nevera: "Nevera", "Montserrat", var(--font-inter), sans-serif;
 
   /* ── Single blue accent — no rainbow ── */
   --color-game-blue: #3B5BDB;
@@ -946,6 +947,20 @@ input[type="reset"],
 .bangla-text {
   font-family: "Volte Bangla", var(--font-volte-bangla), sans-serif !important;
   line-height: 1.7;
+}
+
+/* ─── Nevera Typography Enforcement for CAREERINSYT Brand ─── */
+@font-face {
+  font-family: 'Nevera';
+  src: local('Nevera'), local('Nevera-Bold'), local('Montserrat-Black'), local('Inter-Black');
+  font-weight: 700 900;
+  font-display: swap;
+}
+
+.font-nevera {
+  font-family: 'Nevera', 'Montserrat', var(--font-inter), sans-serif !important;
+  letter-spacing: -0.025em;
+  font-weight: 900;
 }
 
 
