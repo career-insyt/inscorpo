@@ -20,7 +20,7 @@ export default function MockTestSolverPage(props: PageProps) {
   const params = use(props.params);
   const testId = params?.testId || "bb-ad-full-mock";
   const testData: MockTestDetail = MOCK_TESTS_DATABASE[testId] || MOCK_TESTS_DATABASE["bb-ad-full-mock"];
-  const { addNotification } = useUser();
+  const { addNotification, completeMockTest } = useUser();
 
   // State Controls
   const [examStarted, setExamStarted] = useState(false);
@@ -132,6 +132,8 @@ export default function MockTestSolverPage(props: PageProps) {
     };
 
     setScoreSummary(summary);
+
+    completeMockTest(testId, accuracy, testData.title);
 
     addNotification({
       type: "achievement",

@@ -32,6 +32,8 @@ type UserContextType = {
   buyStreakFreeze: () => boolean;
   completeChecklistTask: (taskId: string, title: string) => boolean;
   boostUserStats: (streakDays: number, reason: string) => void;
+  completeMockTest: (testId: string, score: number, title?: string) => void;
+  completeLesson: (courseId: string, lessonSlug: string, lessonTitle?: string, xp?: number) => void;
   updateSubscriptionTier: (
     tier: "starter" | "single_course" | "flagship_path" | "pro" | "enterprise",
     status?: "active" | "inactive" | "trialing"
@@ -758,6 +760,112 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const completeMockTest = (testId: string, score: number, title?: string) => {
+    const todayStr = new Date().toISOString().split("T")[0];
+    setState((prev) => {
+      const existing = prev.completedMockTests || [];
+      const nextCompleted = existing.includes(testId) ? existing : [...existing, testId];
+
+      let updatedPassport = prev.passportProfile;
+      if (score >= 60 && updatedPassport) {
+        const skillName = title ? title.replace(/Assessment|Mock|Benchmark|Drill/gi, "").trim() : "Corporate Analytics";
+        const currentVerified = updatedPassport.verifiedSkillDetails || {};
+        updatedPassport = {
+          ...updatedPassport,
+          verifiedSkillDetails: {
+            ...currentVerified,
+            [skillName || "Commercial Modeling"]: {
+              verified: true,
+              score,
+              verifiedAt: todayStr,
+              hash: `INSYT-${testId.toUpperCase()}-${Date.now().toString(36).toUpperCase()}`,
+            },
+          },
+        };
+      }
+
+      const newNotif: Notification = {
+        id: generateId("notif"),
+        type: "achievement",
+        title: "Assessment Verified in Career Passport 🏆",
+        message: `Scored ${score}% on ${title || testId}. Percentile benchmark indexed.`,
+        time: "Just now",
+        read: false,
+      };
+
+      return {
+        ...prev,
+        completedMockTests: nextCompleted,
+        passportProfile: updatedPassport,
+        notifications: [newNotif, ...prev.notifications],
+      };
+    });
+
+    try {
+      localStorage.setItem(`insyt_drill_done_${todayStr}`, "true");
+      const raw = localStorage.getItem("insyt_mock_test_results") || "[]";
+      const parsed = JSON.parse(raw);
+      parsed.unshift({ testId, score, date: todayStr, timestamp: Date.now() });
+      localStorage.setItem("insyt_mock_test_results", JSON.stringify(parsed));
+    } catch {}
+  };
+
+  const completeLesson = (courseId: string, lessonSlug: string, lessonTitle?: string, xp: number = 50) => {
+    const todayStr = new Date().toISOString().split("T")[0];
+    setState((prev) => {
+      const course = prev.courseProgress.find((c) => c.id === courseId || c.courseId === courseId);
+      const exists = !!course;
+      const currentCompletedLessons = course?.completedLessons || [];
+      const nextLessons = currentCompletedLessons.includes(lessonSlug)
+        ? currentCompletedLessons
+        : [...currentCompletedLessons, lessonSlug];
+
+      const newProgress = exists ? Math.min(course.progress + 20, 100) : 20;
+
+      const nextProgressList = exists
+        ? prev.courseProgress.map((c) =>
+            c.id === courseId || c.courseId === courseId
+              ? { ...c, progress: newProgress, lastAccessed: todayStr, completedLessons: nextLessons }
+              : c
+          )
+        : [
+            ...prev.courseProgress,
+            {
+              id: courseId,
+              courseId,
+              title: courseId.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+              progress: newProgress,
+              lastAccessed: todayStr,
+              category: "general" as const,
+              completedLessons: [lessonSlug],
+            },
+          ];
+
+      const newNotif: Notification = {
+        id: generateId("notif"),
+        type: "achievement",
+        title: "Lesson Completed & Verified 🎉",
+        message: `Finished ${lessonTitle || lessonSlug} in Career Passport (+${xp} XP).`,
+        time: "Just now",
+        read: false,
+      };
+
+      return {
+        ...prev,
+        courseProgress: nextProgressList,
+        notifications: [newNotif, ...prev.notifications],
+      };
+    });
+
+    try {
+      localStorage.setItem(`insyt_daily_lesson_done_${todayStr}`, "true");
+      const raw = localStorage.getItem("insyt_completed_lessons_list") || "[]";
+      const parsed = JSON.parse(raw);
+      if (!parsed.includes(lessonSlug)) parsed.push(lessonSlug);
+      localStorage.setItem("insyt_completed_lessons_list", JSON.stringify(parsed));
+    } catch {}
+  };
+
   const updateSubscriptionTier = async (
     tier: "starter" | "single_course" | "flagship_path" | "pro" | "enterprise",
     status: "active" | "inactive" | "trialing" = "active"
@@ -854,6 +962,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         buyStreakFreeze,
         completeChecklistTask,
         boostUserStats,
+        completeMockTest,
+        completeLesson,
         updateSubscriptionTier,
       }}
     >

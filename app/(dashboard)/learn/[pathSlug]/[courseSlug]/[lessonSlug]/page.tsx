@@ -32,7 +32,7 @@ const trackTitles: Record<string, string> = {
 };
 
 export default function LessonPlayerPage(props: PageProps) {
-  const { state, addNotification, updateCourseProgress, recordStudyMinutes } = useUser();
+  const { state, addNotification, updateCourseProgress, recordStudyMinutes, completeLesson } = useUser();
   const params = use(props.params);
   const pathSlug = params?.pathSlug || "video-ai-production";
   const courseSlug = params?.courseSlug || "capcut-complete-course";
@@ -318,6 +318,7 @@ Mastering **${formattedTitle}** provides you with tangible, production-grade ski
           const currentProgress = currentCourse ? currentCourse.progress : 0;
           const nextProgress = Math.min(currentProgress + 25, 100);
           updateCourseProgress(courseSlug, nextProgress);
+          completeLesson(courseSlug, lessonSlug, lesson.title, lesson.xpReward || 50);
 
           const lessonMinutes = parseInt(lesson.duration) || 20;
           recordStudyMinutes(lessonMinutes);

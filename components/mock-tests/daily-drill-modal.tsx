@@ -441,10 +441,14 @@ export function DailyDrillModal({ isOpen, onClose, isCompletedToday }: DailyDril
     setXpEarned(total);
 
     // Update global state (uses completeChallenge to prevent double-award)
-    const todayKey = `${DRILL_ID}-${new Date().toISOString().split("T")[0]}`;
+    const todayStr = new Date().toISOString().split("T")[0];
+    const todayKey = `${DRILL_ID}-${todayStr}`;
     if (!state.completedChallengeIds.includes(todayKey)) {
       completeChallenge(todayKey, "5-Minute Corporate Skill Rapid Drill");
     }
+    try {
+      localStorage.setItem(`insyt_drill_done_${todayStr}`, "true");
+    } catch {}
 
     // Send notification
     addNotification({
