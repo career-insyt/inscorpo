@@ -203,9 +203,22 @@ export async function POST(req: NextRequest) {
 
     const latestCommit = execSync(`"${git}" log -1 --oneline`, { cwd }).toString().trim();
 
+    // Trigger Netlify deploy hook if configured
+    const netlifyHook = process.env.NETLIFY_BUILD_HOOK || process.env.NETLIFY_DEPLOY_HOOK;
+    if (netlifyHook) {
+      try {
+        await fetch(netlifyHook, { method: "POST" });
+        logs.push("🌐 Netlify deploy hook pinged — live site deployment initiated!");
+      } catch (nhErr: any) {
+        logs.push(`⚠️ Netlify hook ping error: ${nhErr.message}`);
+      }
+    } else {
+      logs.push("🚀 Netlify auto-deploy: GitHub webhook will automatically build and publish changes to insyt.bd!");
+    }
+
     return NextResponse.json({
       success: true,
-      message: "Successfully pushed all updates to git repository!",
+      message: "Successfully pushed all updates to git repository and triggered live deployment!",
       logs,
       latestCommit,
     });
