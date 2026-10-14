@@ -7,7 +7,7 @@ import Link from "next/link";
 import {
   Search, Bell, ChevronRight, X,
   BookOpen, Award, LogOut, Crown, User, Building2, Flame,
-  CheckCheck, Trash2, AlertCircle, Sparkles, Zap, ArrowRight
+  CheckCheck, Trash2, AlertCircle, Sparkles, Zap, ArrowRight, Settings
 } from "lucide-react";
 import { useUser } from "@/components/providers/user-context";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -516,6 +516,14 @@ export function DashboardTopbar() {
                       className="flex items-center gap-2 px-3 py-2 rounded-md text-corp-text hover:bg-corp-bg-secondary transition-colors cursor-pointer"
                     >
                       <User size={14} className="text-[#2563eb]" /> Career Passport
+                    </Link>
+
+                    <Link
+                      href="/settings"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-md text-corp-text hover:bg-corp-bg-secondary transition-colors cursor-pointer"
+                    >
+                      <Settings size={14} className="text-slate-500" /> Account Settings
                     </Link>
 
                     <button

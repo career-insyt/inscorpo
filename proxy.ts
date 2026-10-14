@@ -38,6 +38,7 @@ const PROTECTED_PREFIXES = [
   "/workshops",
   "/simulations",
   "/rewards",
+  "/settings",
 ];
 
 const AUTH_ROUTES = ["/login", "/signup"];

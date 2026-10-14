@@ -32,9 +32,10 @@ function buildNavSections() {
       ],
     },
     accountSection: {
-      label: "Support",
+      label: "System & Settings",
       items: [
-        { icon: HelpCircle, label: "Help Center", href: "/help", color: "blue" },
+        { icon: Settings,   label: "Settings",    href: "/settings", color: "slate" },
+        { icon: HelpCircle, label: "Help Center", href: "/help",     color: "blue" },
       ],
     },
   };
