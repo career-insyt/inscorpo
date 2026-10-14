@@ -18,8 +18,6 @@ export default function AdminLayout({
 
   // Strict Role-Based Access Control (RBAC)
   const ADMIN_AUTHORIZED_EMAILS = [
-    "z65gt9@gmail.com",
-    "zubaiirh@gmail.com",
     "insyt.bd@gmail.com",
     "admin@insyt.co",
     "corporate@insyt.co",

@@ -26,9 +26,9 @@ export default function SettingsPage() {
   const { user } = useAuth();
   const { state, updateProfileName } = useUser();
 
-  // Determine owner privileges: Strictly restricted to z65gt9@gmail.com
+  // Determine owner privileges: Strictly restricted to insyt.bd@gmail.com
   const userEmail = (user?.email || state.email || "").toLowerCase().trim();
-  const isOwner = userEmail === "z65gt9@gmail.com";
+  const isOwner = userEmail === "insyt.bd@gmail.com";
 
   // Profile Form State
   const [fullName, setFullName] = useState(state.name || user?.name || "Candidate");
@@ -153,7 +153,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* ── EXCLUSIVE: OWNER DEVOPS GIT PUSH PANEL (z65gt9@gmail.com only) ── */}
+      {/* ── EXCLUSIVE: OWNER DEVOPS GIT PUSH PANEL (insyt.bd@gmail.com only) ── */}
       {isOwner && (
         <motion.div
           initial={{ opacity: 0, y: 15 }}
@@ -170,7 +170,7 @@ export default function SettingsPage() {
                   <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-amber-400 text-amber-950 border border-amber-600">
                     OWNER ACCESS EXCLUSIVE
                   </span>
-                  <span className="text-[10px] text-corp-text-tertiary">z65gt9@gmail.com</span>
+                  <span className="text-[10px] text-corp-text-tertiary">insyt.bd@gmail.com</span>
                 </div>
                 <h2 className="text-xl font-black uppercase tracking-tight text-corp-text mt-0.5">
                   Git Repository DevOps & Auto-Push

@@ -95,7 +95,7 @@ export default function LoginPage() {
     const finishLogin = (userObj: any) => {
       document.cookie = `insyt_fallback_session=true; path=/; max-age=31536000; SameSite=Lax${secureAttr}`;
       if (userObj.email) {
-        const isAdmin = ["z65gt9@gmail.com", "zubaiirh@gmail.com"].includes(userObj.email.toLowerCase());
+        const isAdmin = ["insyt.bd@gmail.com", "admin@insyt.co"].includes(userObj.email.toLowerCase());
         if (isAdmin) {
           document.cookie = `insyt_admin_email=${encodeURIComponent(userObj.email)}; path=/; max-age=31536000; SameSite=Lax${secureAttr}`;
         }

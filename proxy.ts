@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
  */
 
 // ── Admin emails — server-side only, never shipped to client bundle ──
-const ALLOWED_ADMIN_EMAILS = ["z65gt9@gmail.com", "zubaiirh@gmail.com"];
+const ALLOWED_ADMIN_EMAILS = ["insyt.bd@gmail.com", "corporate@insyt.co", "admin@insyt.co"];
 
 // ── Protected routes requiring an active session ──
 const PROTECTED_PREFIXES = [
