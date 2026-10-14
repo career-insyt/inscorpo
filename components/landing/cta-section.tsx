@@ -1,85 +1,80 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
-import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowRight, Flame, Zap, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 export function CTASection() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
   return (
-    <section className="relative py-28 overflow-hidden" style={{
-      background: "linear-gradient(145deg, #060F24 0%, #0F2040 50%, #0A1A38 100%)"
-    }}>
-      {/* Background grid */}
-      <div className="absolute inset-0 opacity-[0.06]" style={{
-        backgroundImage: "linear-gradient(rgba(37,99,235,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(37,99,235,0.8) 1px, transparent 1px)",
-        backgroundSize: "48px 48px"
-      }} />
-
-
-      <div className="relative z-10 mx-auto max-w-4xl px-6 text-center" ref={ref}>
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+    <section className="relative py-20 sm:py-24 overflow-hidden bg-[#F0F7FF] border-b-2 border-slate-900 font-mono">
+      <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6">
+        <div 
+          className="relative rounded-2xl border-2 border-slate-900 bg-[#2563eb] p-8 sm:p-14 text-center text-white overflow-hidden"
+          style={{
+            boxShadow: "8px 8px 0px 0px #0f172a",
+          }}
         >
-          {/* #22: Removed pill badge — headline speaks for itself */}
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6" style={{ color: "#E8EFFE" }}>
-            Ready to Transform
-            <br />
-            <span className="text-gradient">Your Career?</span>
-          </h2>
+          {/* Subtle grid pattern inside CTA */}
+          <div 
+            className="absolute inset-0 pointer-events-none opacity-10"
+            style={{
+              backgroundImage: "linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px)",
+              backgroundSize: "24px 24px"
+            }}
+          />
 
-          <p className="text-lg md:text-xl mb-10 max-w-2xl mx-auto" style={{ color: "rgba(232,239,254,0.65)" }}>
-            Join thousands of professionals who are leveling up their careers with INSYT Corporate.
-            Start free — no credit card required.
-          </p>
+          <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
+            {/* Gamified Welcome XP Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border-2 border-slate-900 bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#0f172a]">
+              <Flame size={14} className="text-slate-950 fill-amber-500" />
+              <span>CLAIM +100 WELCOME XP ON SIGNUP</span>
+            </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/signup"
-              className="group inline-flex items-center justify-center gap-2 px-8 py-4 text-[16px] font-semibold rounded-xl transition-all duration-300 shadow-xl hover:shadow-2xl hover:gap-3 active:scale-[0.97]"
-              style={{
-                background: "linear-gradient(135deg, #F0D080, #C9A84C)",
-                color: "#0d1f3c",
-                boxShadow: "0 8px 32px rgba(201,168,76,0.3)",
-              }}
-            >
-              Get Started Free
-              <ArrowRight size={18} className="transition-transform duration-300 group-hover:translate-x-0.5" />
-            </Link>
-            <Link
-              href="#features"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 text-[16px] font-semibold rounded-xl transition-all duration-300 active:scale-[0.97]"
-              style={{
-                color: "rgba(232,239,254,0.85)",
-                border: "1px solid rgba(37,99,235,0.4)",
-                background: "rgba(37,99,235,0.08)",
-              }}
-            >
-              Learn More
-            </Link>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white font-sans leading-tight">
+              Ready to Level Up <br />
+              <span className="text-amber-300">Your Corporate Career?</span>
+            </h2>
+
+            <p className="text-sm sm:text-base text-blue-100/90 leading-relaxed font-sans font-normal">
+              Join thousands of corporate analysts, management trainees, and ambitious graduates leveling up on Bangladesh&apos;s leading career operating system.
+            </p>
+
+            {/* Brutalist Action Buttons */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                href="/signup"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl border-2 border-slate-900 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm shadow-[4px_4px_0px_0px_#0f172a] hover:shadow-[2px_2px_0px_0px_#0f172a] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+              >
+                <span>GET STARTED FREE</span>
+                <ArrowRight size={16} />
+              </Link>
+              
+              <Link
+                href="/dashboard"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl border-2 border-slate-900 bg-white hover:bg-slate-50 text-slate-950 font-black text-sm shadow-[4px_4px_0px_0px_#0f172a] hover:shadow-[2px_2px_0px_0px_#0f172a] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+              >
+                <Zap size={16} className="text-[#2563eb]" />
+                <span>EXPLORE COCKPIT</span>
+              </Link>
+            </div>
+
+            {/* Trust Checks */}
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs text-blue-100/80 font-bold">
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck size={14} className="text-amber-300" />
+                No Credit Card Required
+              </span>
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck size={14} className="text-amber-300" />
+                Instant Account Activation
+              </span>
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck size={14} className="text-amber-300" />
+                W3C ED25519 Verified
+              </span>
+            </div>
           </div>
-
-          {/* Trust badges */}
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-[13px]" style={{ color: "rgba(232,239,254,0.4)" }}>
-            <span className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-400" />
-              Free to start
-            </span>
-            <span className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-400" />
-              No credit card required
-            </span>
-            <span className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-400" />
-              Cancel anytime
-            </span>
-          </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

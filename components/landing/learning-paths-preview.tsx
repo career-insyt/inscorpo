@@ -24,6 +24,7 @@ interface CareerTrack {
   icon: any;
   color: string;
   tagBn: string;
+  xpReward: string;
 }
 
 const CAREER_TRACKS: CareerTrack[] = [
@@ -43,6 +44,7 @@ const CAREER_TRACKS: CareerTrack[] = [
     icon: FileSpreadsheet,
     color: "#059669",
     tagBn: "ফ্ল্যাগশিপ ফাইন্যান্স",
+    xpReward: "+1,500 XP",
   },
   {
     slug: "enterprise-python-corporate-analytics-process-automation",
@@ -60,6 +62,7 @@ const CAREER_TRACKS: CareerTrack[] = [
     icon: Code2,
     color: "#2563eb",
     tagBn: "ডাটা অটোমেশন",
+    xpReward: "+1,400 XP",
   },
   {
     slug: "enterprise-business-intelligence-power-bi-sql-corporate-analysts",
@@ -77,6 +80,7 @@ const CAREER_TRACKS: CareerTrack[] = [
     icon: BarChart3,
     color: "#7c3aed",
     tagBn: "বিজনেস ইন্টেলিজেন্স",
+    xpReward: "+1,800 XP",
   },
   {
     slug: "applied-workplace-ai-enterprise-workflow-automation",
@@ -94,6 +98,7 @@ const CAREER_TRACKS: CareerTrack[] = [
     icon: Workflow,
     color: "#d97706",
     tagBn: "এআই ওয়ার্কফ্লো",
+    xpReward: "+1,600 XP",
   },
   {
     slug: "ai-powered-workplace-professional",
@@ -111,6 +116,7 @@ const CAREER_TRACKS: CareerTrack[] = [
     icon: Sparkles,
     color: "#0891b2",
     tagBn: "ওয়ার্কপ্লেস এআই",
+    xpReward: "+800 XP",
   },
   {
     slug: "video-ai-production",
@@ -128,15 +134,16 @@ const CAREER_TRACKS: CareerTrack[] = [
     icon: Video,
     color: "#e11d48",
     tagBn: "ক্রিয়েটিভ মিডিয়া",
+    xpReward: "+1,000 XP",
   },
 ];
 
 const TABS = [
   { key: "all", labelBn: "সবগুলো ট্র্যাক" },
   { key: "finance", labelBn: "ফাইন্যান্স ও কমার্শিয়াল" },
-  { key: "analytics", labelBn: "ডাটা ও বিআই অ্যানালিটিক্স" },
-  { key: "ai", labelBn: "এআই ও ওয়ার্কফ্লো অটোমেশন" },
-  { key: "media", labelBn: "ডিজিটাল মিডিয়া প্রোডাকশন" },
+  { key: "analytics", labelBn: "ডাটা ও বিআই" },
+  { key: "ai", labelBn: "এআই ও অটোমেশন" },
+  { key: "media", labelBn: "ডিজিটাল মিডিয়া" },
 ];
 
 export function LearningPathsPreview() {
@@ -149,43 +156,45 @@ export function LearningPathsPreview() {
   return (
     <section 
       id="tracks" 
-      className="relative py-20 sm:py-28 overflow-hidden bg-[#F0F7FF] font-bangla"
+      className="relative py-20 sm:py-28 overflow-hidden bg-[#F0F7FF] font-bangla border-b-2 border-slate-900"
       style={{
         backgroundImage: `
-          linear-gradient(to right, rgba(59, 130, 246, 0.08) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(59, 130, 246, 0.08) 1px, transparent 1px)
+          linear-gradient(to right, rgba(15, 23, 42, 0.08) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(15, 23, 42, 0.08) 1px, transparent 1px)
         `,
         backgroundSize: "32px 32px"
       }}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         
-        {/* Header in Pure Bangla */}
+        {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-wide backdrop-blur-md bg-white/80 border border-white/90 text-[#2563eb] shadow-sm">
-            <Award size={14} />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border-2 border-slate-900 bg-amber-300 text-slate-950 font-mono font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#0f172a]">
+            <Award size={14} className="text-slate-950" />
             <span>ভেরিফায়েড করপোরেট কারিকুলাম</span>
           </div>
 
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-950 leading-tight font-sans">
             আপনার লক্ষ্য অনুযায়ী <br className="hidden sm:inline" />
-            <span className="text-[#2563eb]">ক্যারিয়ার ট্র্যাক বেছে নিন</span>
+            <span className="text-white bg-[#2563eb] px-3 py-0.5 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0f172a] inline-block mt-1">
+              ক্যারিয়ার ট্র্যাক বেছে নিন
+            </span>
           </h2>
 
-          <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
+          <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-sans">
             কোনো তাত্ত্বিক লেকচার নয়। প্রতিটি ট্র্যাকে রয়েছে রিয়েল করপোরেট ডাটাবেস, বাস্তব ব্যবসায়িক সমস্যা এবং আন্তর্জাতিক মানসম্মত W3C ক্রেডেনশিয়াল।
           </p>
 
-          {/* Interactive Mobile-Friendly Tabs */}
-          <div className="pt-4 flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar pb-2">
+          {/* Brutalist Tabs */}
+          <div className="pt-4 flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar pb-2 font-mono">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 backdrop-blur-md ${
+                className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black border-2 border-slate-900 transition-all ${
                   activeTab === tab.key
-                    ? "bg-[#2563eb] text-white shadow-md shadow-blue-500/20 border border-blue-500"
-                    : "bg-white/70 hover:bg-white text-slate-700 border border-white/90 shadow-xs"
+                    ? "bg-[#2563eb] text-white shadow-[4px_4px_0px_0px_#0f172a] translate-x-[1px] translate-y-[1px]"
+                    : "bg-white hover:bg-slate-50 text-slate-900 shadow-[3px_3px_0px_0px_#0f172a]"
                 }`}
               >
                 {tab.labelBn}
@@ -194,69 +203,8 @@ export function LearningPathsPreview() {
           </div>
         </div>
 
-        {/* 2-Column Vector Spotlight Highlights (Genre Illustrated) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          {/* Spotlight 1: Financial & Commercial Modeling */}
-          <div className="relative rounded-3xl backdrop-blur-2xl bg-white/75 border border-white/90 p-6 sm:p-8 shadow-[0_12px_36px_rgba(37,99,235,0.08)] flex flex-col sm:flex-row items-center gap-6 overflow-hidden">
-            <div className="w-36 h-36 sm:w-44 sm:h-44 flex-shrink-0 rounded-2xl bg-gradient-to-tr from-emerald-100/60 to-teal-50/50 p-2 border border-white/80 flex items-center justify-center">
-              <img 
-                src="/illustrations/vector_finance_mind.png" 
-                alt="Finance & Modeling Vector" 
-                className="w-full h-full object-contain filter drop-shadow-sm hover:scale-105 transition-transform"
-              />
-            </div>
-            <div className="space-y-2.5 text-center sm:text-left">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                কর্পোরেট ফিনান্সিয়াল অ্যানালিস্ট
-              </span>
-              <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                ৩-স্টেটমেন্ট ফিনান্সিয়াল মডেলিং
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
-                ফাস্ট (FAST) স্ট্যান্ডার্ড মডেলিং, পিভিএম ব্রিজেস এবং ভ্যালুয়েশন মডেল তৈরি করুন যা টপ ব্যাংকার ও করপোরেট সিএফওরা সরাসরি ব্যবহার করেন।
-              </p>
-              <Link 
-                href="/learn/corporate-analyst/corporate-financial-commercial-modeling-excel"
-                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-emerald-700 hover:text-emerald-800 pt-1"
-              >
-                <span>সিলেবাস ও প্রজেক্ট দেখুন</span>
-                <ArrowRight size={15} />
-              </Link>
-            </div>
-          </div>
-
-          {/* Spotlight 2: AI & Process Automation */}
-          <div className="relative rounded-3xl backdrop-blur-2xl bg-white/75 border border-white/90 p-6 sm:p-8 shadow-[0_12px_36px_rgba(37,99,235,0.08)] flex flex-col sm:flex-row items-center gap-6 overflow-hidden">
-            <div className="w-36 h-36 sm:w-44 sm:h-44 flex-shrink-0 rounded-2xl bg-gradient-to-tr from-blue-100/60 to-sky-50/50 p-2 border border-white/80 flex items-center justify-center">
-              <img 
-                src="/illustrations/vector_ai_automation.png" 
-                alt="AI & Automation Vector" 
-                className="w-full h-full object-contain filter drop-shadow-sm hover:scale-105 transition-transform"
-              />
-            </div>
-            <div className="space-y-2.5 text-center sm:text-left">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                এআই ও ওয়ার্কফ্লো ইঞ্জিনিয়ারিং
-              </span>
-              <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                অটোনোমাস এন্টারপ্রাইজ অটোমেশন
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
-                দৈনন্দিন ম্যানুয়াল কাজগুলো n8n, পাওয়ার অটোমেট এবং পাইথন বট দিয়ে অটোমেট করুন। বাড়িয়ে নিন নিজের উৎপাদনশীলতা ১০ গুণ।
-              </p>
-              <Link 
-                href="/learn/applied-ai-automation/applied-workplace-ai-enterprise-workflow-automation"
-                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-blue-700 hover:text-blue-800 pt-1"
-              >
-                <span>সিলেবাস ও প্রজেক্ট দেখুন</span>
-                <ArrowRight size={15} />
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* 6 Flagship Tracks Grid (Heavy Glassmorphism Cards) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* 6 Flagship Tracks Grid (Gamified Brutalist Cards) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-mono">
           {filteredTracks.map((track) => {
             const Icon = track.icon;
             return (
@@ -266,16 +214,18 @@ export function LearningPathsPreview() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35 }}
-                className="group relative rounded-3xl backdrop-blur-2xl bg-white/75 border border-white/90 p-6 flex flex-col justify-between shadow-[0_8px_30px_rgba(37,99,235,0.06)] hover:shadow-[0_16px_40px_rgba(37,99,235,0.12)] hover:-translate-y-1 transition-all duration-300"
+                className="group relative rounded-2xl bg-white border-2 border-slate-900 p-6 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1"
+                style={{
+                  boxShadow: `6px 6px 0px 0px #0f172a`,
+                }}
               >
                 <div className="space-y-4">
-                  {/* Top Bar: Icon & Tag */}
+                  {/* Top Bar: Icon, Credential Stamp, and XP Bounty */}
                   <div className="flex items-center justify-between">
                     <div 
-                      className="w-12 h-12 rounded-2xl flex items-center justify-center border shadow-xs"
+                      className="w-12 h-12 rounded-xl border-2 border-slate-900 flex items-center justify-center shadow-[2px_2px_0px_0px_#0f172a]"
                       style={{ 
-                        backgroundColor: `${track.color}15`, 
-                        borderColor: `${track.color}30`,
+                        backgroundColor: `${track.color}20`, 
                         color: track.color
                       }}
                     >
@@ -283,11 +233,11 @@ export function LearningPathsPreview() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-white/80 border border-slate-200 text-slate-700">
-                        {track.tagBn}
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded border-2 border-slate-900 bg-amber-300 text-slate-950 shadow-[1px_1px_0px_0px_#0f172a]">
+                        {track.xpReward}
                       </span>
                       <span 
-                        className="text-[11px] font-mono font-black px-2 py-0.5 rounded-md text-white shadow-xs"
+                        className="text-[11px] font-black px-2.5 py-0.5 rounded border-2 border-slate-900 text-white shadow-[2px_2px_0px_0px_#0f172a]"
                         style={{ backgroundColor: track.color }}
                       >
                         {track.credential}
@@ -297,27 +247,27 @@ export function LearningPathsPreview() {
 
                   {/* Title & English Sub-title */}
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900 group-hover:text-[#2563eb] transition-colors leading-snug">
+                    <h3 className="text-lg font-black text-slate-950 group-hover:text-[#2563eb] transition-colors leading-snug font-bangla">
                       {track.titleBn}
                     </h3>
-                    <p className="text-[11px] font-mono text-slate-500 mt-0.5">
+                    <p className="text-[11px] text-slate-500 mt-0.5">
                       {track.titleEn}
                     </p>
                   </div>
 
                   {/* Description in Simple Bangla */}
-                  <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                  <p className="text-xs text-slate-600 leading-relaxed font-bangla font-normal">
                     {track.subtitleBn}
                   </p>
 
                   {/* Duration & Lessons */}
-                  <div className="flex items-center gap-4 text-xs font-mono font-bold text-slate-500 pt-1 border-t border-slate-100">
+                  <div className="flex items-center gap-4 text-xs font-bold text-slate-600 pt-1 border-t-2 border-slate-100">
                     <span className="flex items-center gap-1.5">
-                      <Clock size={13} className="text-blue-600" />
+                      <Clock size={13} className="text-[#2563eb]" />
                       {track.hours} ঘণ্টা প্র্যাকটিস
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <BookOpen size={13} className="text-blue-600" />
+                      <BookOpen size={13} className="text-[#2563eb]" />
                       {track.lessons}টি লেসন
                     </span>
                   </div>
@@ -327,7 +277,7 @@ export function LearningPathsPreview() {
                     {track.skills.map((skill) => (
                       <span 
                         key={skill}
-                        className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-md bg-white/90 border border-slate-200 text-slate-700"
+                        className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-800"
                       >
                         {skill}
                       </span>
@@ -336,12 +286,12 @@ export function LearningPathsPreview() {
                 </div>
 
                 {/* Direct Action Link */}
-                <div className="pt-6 mt-4 border-t border-slate-100">
+                <div className="pt-6 mt-4 border-t-2 border-slate-100">
                   <Link
                     href={track.href}
-                    className="w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-between transition-all duration-200 group-hover:bg-[#2563eb] group-hover:text-white bg-slate-100 text-slate-800 shadow-xs"
+                    className="w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-black flex items-center justify-between border-2 border-slate-900 bg-slate-950 text-white group-hover:bg-[#2563eb] group-hover:border-[#2563eb] shadow-[3px_3px_0px_0px_#2563eb] transition-all"
                   >
-                    <span>কোর্স শুরু করুন</span>
+                    <span className="font-bangla">কোর্স সিলেবাস দেখুন</span>
                     <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </div>

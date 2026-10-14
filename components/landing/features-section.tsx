@@ -3,174 +3,133 @@
 import { motion } from "framer-motion";
 import {
   BookOpen, Brain, Target, Cpu, ShoppingBag, Users,
-  ArrowRight, BarChart3, Shield, Zap
+  ArrowRight, BarChart3, Shield, Zap, Flame, Award
 } from "lucide-react";
 
 const features = [
   {
-    title: "Flagship Career Courses",
-    description: "Industry-grade courses in Video Production + AI, Presentation Engineering, AI for Work, and GRE Preparation.",
-    icon: BookOpen,
-    variant: "primary",
-    span: "md:col-span-2",
-  },
-  {
-    title: "Mock Test Engine",
-    description: "Timed assessments with negative marking, adaptive difficulty, percentile rankings, and detailed analytics.",
+    title: "Adaptive Mock Test Engine",
+    description: "Timed cognitive assessments with negative marking, adaptive difficulty curves, talent percentile rankings, and institutional error forensics.",
     icon: Target,
-    variant: "primary",
-    span: "",
+    tag: "MODULE // 01 · TESTING",
+    shadow: "#2563eb",
+    xpBadge: "+50 XP / TEST",
+    span: "md:col-span-2",
   },
   {
-    title: "Career Passport",
-    description: "Your professional identity. Skills, certificates, XP, achievements, projects — all in one shareable, verifiable profile.",
+    title: "Cryptographic Career Passport",
+    description: "Your verifiable talent ledger. W3C ED25519 signed skill credentials, tamper-proof project hashes, and recruiter-ready verified exports.",
     icon: Shield,
-    variant: "secondary",
+    tag: "MODULE // 02 · IDENTITY",
+    shadow: "#059669",
+    xpBadge: "VERIFIABLE W3C",
     span: "",
   },
   {
-    title: "AI-Powered Tools",
-    description: "AI Resume Review, Mock Interview, Career Advisor, Skill Gap Analysis, Email Generator, and 8 more intelligent assistants.",
+    title: "Daily Quests & Streak Engine",
+    description: "Every action drives momentum. Daily missions, consecutive velocity streaks, XP multiplier bonuses, and tiered talent promotions.",
+    icon: Flame,
+    tag: "MODULE // 03 · GAMIFICATION",
+    shadow: "#d97706",
+    xpBadge: "1.5x STREAK BOOST",
+    span: "",
+  },
+  {
+    title: "AI Executive Copilot Suite",
+    description: "AI Resume Forensics, Socratic STAR Mock Interview Proctor, BLUF Boardroom Memo Drafter, and Institutional Skill Gap Radar.",
     icon: Brain,
-    variant: "primary",
+    tag: "MODULE // 04 · INTELLIGENCE",
+    shadow: "#7c3aed",
+    xpBadge: "12 SPECIALIZED TOOLS",
     span: "md:col-span-2",
   },
   {
-    title: "Gamified XP & Ranks",
-    description: "Every action earns XP. Rise from Bronze to Legend. Daily streaks, achievements, skill credentials, and rewards.",
-    icon: Zap,
-    variant: "secondary",
+    title: "Institutional Sandbox Capstones",
+    description: "Real-world financial models, seeded FMCG sales data, PVM variance bridges, and Power BI dashboards built from audited corporate case studies.",
+    icon: BookOpen,
+    tag: "MODULE // 05 · SIMULATION",
+    shadow: "#0891b2",
+    xpBadge: "100% PRACTICAL",
     span: "",
   },
   {
-    title: "Marketplace",
-    description: "Premium courses, templates, exam vouchers, resume packs — redeem with XP or purchase directly.",
+    title: "XP Rewards & Voucher Market",
+    description: "Redeem hard-earned talent XP for professional exam vouchers, resume review passes, mock interview tokens, and Pro membership tiers.",
     icon: ShoppingBag,
-    variant: "neutral",
+    tag: "MODULE // 06 · ECONOMY",
+    shadow: "#e11d48",
+    xpBadge: "REDEEMABLE ASSETS",
     span: "",
-  },
-  {
-    title: "Professional Community",
-    description: "Spaces for Excel, Power BI, Finance, AI, Interviews, and more. Earn XP by helping peers.",
-    icon: Users,
-    variant: "neutral",
-    span: "",
-  },
-  {
-    title: "Career Analytics",
-    description: "Skill radar charts, learning velocity, weak area analysis, and career readiness scores — data-driven growth.",
-    icon: BarChart3,
-    variant: "primary",
-    span: "",
-  },
-  {
-    title: "Enterprise Ready",
-    description: "Organization accounts, team dashboards, bulk enrollment, custom learning paths, and compliance tracking.",
-    icon: Cpu,
-    variant: "neutral",
-    span: "md:col-span-2",
   },
 ];
 
-const variantStyles = {
-  primary: { bg: "rgba(37,99,235,0.12)", icon: "#2563EB", border: "rgba(37,99,235,0.15)" },
-  secondary: { bg: "rgba(201,168,76,0.12)", icon: "#C9A84C", border: "rgba(201,168,76,0.2)" },
-  neutral: { bg: "rgba(100,116,139,0.1)", icon: "#64748B", border: "rgba(100,116,139,0.15)" },
-};
-
-const container = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } },
-};
-
 export function FeaturesSection() {
   return (
-    <section id="features" className="relative py-24 sm:py-28 overflow-hidden bg-white border-y border-slate-200/80">
-      <div className="absolute inset-0 bg-dot-pattern opacity-40" />
-
-      <div className="relative z-10 mx-auto max-w-7xl px-6">
+    <section id="features" className="relative py-20 sm:py-28 overflow-hidden bg-[#F0F7FF] border-b-2 border-slate-900 font-mono">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-2xl mx-auto mb-16"
-        >
-          <span
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[13px] font-medium mb-6"
-            style={{
-              background: "var(--corp-accent-light)",
-              color: "var(--corp-accent)",
-              border: "1px solid rgba(37, 99, 235, 0.08)",
-            }}
-          >
-            <Zap size={14} />
-            Platform Features
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4" style={{ color: "var(--corp-text)" }}>
-            Everything You Need to{" "}
-            <span className="text-gradient">Level Up</span>
+        <div className="text-center max-w-3xl mx-auto mb-14 space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border-2 border-slate-900 bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#0f172a]">
+            <Zap size={14} className="text-slate-950 fill-slate-950" />
+            <span>PLATFORM OPERATING CAPABILITIES</span>
+          </div>
+          
+          <h2 className="text-3xl sm:text-5xl font-black text-slate-950 tracking-tight font-sans">
+            Built for Elite Corporate Competency.
           </h2>
-          <p className="text-lg" style={{ color: "var(--corp-text-secondary)" }}>
-            A complete career operating system designed for ambitious professionals.
+          <p className="text-base sm:text-lg text-slate-700 font-sans font-normal leading-relaxed">
+            A comprehensive, gamified talent operating system structured around high-stakes corporate execution, verified skill credentials, and daily accountability.
           </p>
-        </motion.div>
+        </div>
 
         {/* Bento Grid */}
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 md:grid-cols-4 gap-4"
-        >
-          {features.map((feature) => (
-            <motion.div
-              key={feature.title}
-              variants={item}
-              className={`group relative rounded-2xl p-6 transition-all duration-300 cursor-default overflow-hidden ${feature.span}`}
-              style={{
-                background: "var(--corp-surface)",
-                border: `1px solid ${variantStyles[feature.variant as keyof typeof variantStyles].border}`,
-              }}
-              whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(0,0,0,0.08)" }}
-            >
-              {/* Hover gradient overlay */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{
-                background: `linear-gradient(135deg, rgba(37,99,235,0.02) 0%, transparent 60%)`,
-              }} />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {features.map((feature) => {
+            const Icon = feature.icon;
+            return (
+              <div
+                key={feature.title}
+                className={`group relative rounded-2xl p-6 sm:p-7 border-2 border-slate-900 bg-white transition-all duration-200 hover:-translate-y-1 ${feature.span}`}
+                style={{
+                  boxShadow: `6px 6px 0px 0px ${feature.shadow}`,
+                }}
+              >
+                <div className="space-y-4">
+                  {/* Top Bar: Tag & XP Badge */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">
+                      {feature.tag}
+                    </span>
+                    <span 
+                      className="text-[10px] font-black px-2 py-0.5 rounded border-2 border-slate-900 text-slate-950 shadow-[1px_1px_0px_0px_#0f172a]"
+                      style={{ backgroundColor: `${feature.shadow}25` }}
+                    >
+                      {feature.xpBadge}
+                    </span>
+                  </div>
 
-              <div className="relative z-10">
-                <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center mb-4"
-                  style={{ background: variantStyles[feature.variant as keyof typeof variantStyles].bg }}
-                >
-                  <feature.icon
-                    size={20}
-                    style={{ color: variantStyles[feature.variant as keyof typeof variantStyles].icon }}
-                  />
+                  {/* Icon & Title */}
+                  <div className="flex items-center gap-3 pt-1">
+                    <div 
+                      className="w-12 h-12 rounded-xl border-2 border-slate-900 flex items-center justify-center flex-shrink-0 shadow-[2px_2px_0px_0px_#0f172a]"
+                      style={{ backgroundColor: `${feature.shadow}20`, color: feature.shadow }}
+                    >
+                      <Icon size={24} />
+                    </div>
+                    <h3 className="text-lg font-black text-slate-950 font-sans group-hover:text-[#2563eb] transition-colors">
+                      {feature.title}
+                    </h3>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-sans font-normal">
+                    {feature.description}
+                  </p>
                 </div>
-                <h3 className="text-[16px] font-semibold mb-2" style={{ color: "var(--corp-text)" }}>
-                  {feature.title}
-                </h3>
-                <p className="text-[14px] leading-relaxed" style={{ color: "var(--corp-text-secondary)" }}>
-                  {feature.description}
-                </p>
               </div>
-
-              {/* Corner arrow */}
-              <div className="absolute top-5 right-5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-1 group-hover:translate-x-0">
-                <ArrowRight size={16} style={{ color: "var(--corp-text-tertiary)" }} />
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

@@ -92,7 +92,6 @@ export function InteractiveDiagnostic() {
     setCurrentStep('intro');
   };
 
-  // Calculate score & percentile
   const correctCount = DIAGNOSTIC_QUESTIONS.filter(
     q => selectedAnswers[q.id] !== undefined && q.options[selectedAnswers[q.id]].correct
   ).length;
@@ -101,47 +100,49 @@ export function InteractiveDiagnostic() {
   const percentile = scorePct === 100 ? 94 : scorePct >= 66 ? 78 : scorePct >= 33 ? 48 : 22;
 
   return (
-    <section className="relative py-20 px-6 overflow-hidden bg-slate-950 text-slate-100 selection:bg-emerald-500/30">
+    <section className="relative py-20 px-4 sm:px-6 overflow-hidden bg-[#F0F7FF] border-b-2 border-slate-900 font-mono">
       <div className="max-w-4xl mx-auto">
+        
         {/* Step 1: Intro Hook */}
         {currentStep === 'intro' && (
-          <div className="relative rounded-3xl p-8 md:p-12 border border-slate-800 bg-gradient-to-b from-slate-900/90 to-slate-950/90 shadow-2xl text-center space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>3-Minute Psychometric Diagnostic (Free & Un-gated)</span>
+          <div className="relative rounded-2xl p-6 sm:p-10 border-2 border-slate-900 bg-white shadow-[8px_8px_0px_0px_#2563eb] text-center space-y-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border-2 border-slate-900 bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#0f172a]">
+              <Sparkles className="w-4 h-4 text-slate-950 fill-slate-950" />
+              <span>INTERACTIVE RAPID DIAGNOSTIC (+150 XP)</span>
             </div>
 
-            <div className="max-w-2xl mx-auto space-y-3">
-              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-100 tracking-tight">
+            <div className="max-w-2xl mx-auto space-y-3 font-sans">
+              <h2 className="text-2xl sm:text-4xl font-black text-slate-950 tracking-tight">
                 Are You Ready for an FMCG or Corporate Analyst Role?
               </h2>
-              <p className="text-sm md:text-base text-slate-400 leading-relaxed">
+              <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-normal">
                 Take the 3-minute diagnostic test. Benchmark your commercial acumen, financial intuition, and spreadsheet modeling logic against successful candidates at Unilever, BAT, and top commercial banks.
               </p>
             </div>
 
             {/* Quick Metrics */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-xl mx-auto pt-2 text-xs font-mono">
-              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-1">
-                <span className="text-slate-500 block">Questions</span>
-                <span className="text-slate-200 font-bold text-sm">3 Scenarios</span>
+              <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] space-y-1">
+                <span className="text-slate-500 uppercase font-black text-[10px] block">QUESTIONS</span>
+                <span className="text-slate-950 font-black text-sm">3 Scenarios</span>
               </div>
-              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-1">
-                <span className="text-slate-500 block">Time Needed</span>
-                <span className="text-slate-200 font-bold text-sm">~180 Seconds</span>
+              <div className="p-3.5 rounded-xl bg-slate-50 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] space-y-1">
+                <span className="text-slate-500 uppercase font-black text-[10px] block">TIME ESTIMATE</span>
+                <span className="text-slate-950 font-black text-sm">~180 Seconds</span>
               </div>
-              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-1">
-                <span className="text-slate-500 block">Output</span>
-                <span className="text-emerald-400 font-bold text-sm">Instant Skill Radar</span>
+              <div className="p-3.5 rounded-xl bg-emerald-50 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#059669] space-y-1">
+                <span className="text-emerald-700 uppercase font-black text-[10px] block">REWARD</span>
+                <span className="text-emerald-800 font-black text-sm">+150 XP &amp; Radar</span>
               </div>
             </div>
 
-            <div className="pt-4">
+            <div className="pt-2">
               <button
+                type="button"
                 onClick={() => setCurrentStep('quiz')}
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-all shadow-lg shadow-emerald-500/20"
+                className="inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-sm font-black text-white bg-[#2563eb] hover:bg-[#1d4ed8] border-2 border-slate-900 shadow-[5px_5px_0px_0px_#0f172a] hover:shadow-[2px_2px_0px_0px_#0f172a] hover:translate-x-[3px] hover:translate-y-[3px] transition-all"
               >
-                <span>Start Free Diagnostic</span>
+                <span>START FREE DIAGNOSTIC</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -150,29 +151,29 @@ export function InteractiveDiagnostic() {
 
         {/* Step 2: Live Quiz Flow */}
         {currentStep === 'quiz' && (
-          <div className="relative rounded-3xl p-8 md:p-10 border border-slate-800 bg-slate-900/90 shadow-2xl space-y-6">
+          <div className="relative rounded-2xl p-6 sm:p-8 border-2 border-slate-900 bg-white shadow-[8px_8px_0px_0px_#2563eb] space-y-6">
             {/* Header / Progress */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div className="flex items-center gap-2 text-xs font-mono text-emerald-400">
-                <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30">
-                  Question {questionIdx + 1} of {DIAGNOSTIC_QUESTIONS.length}
+            <div className="flex items-center justify-between border-b-2 border-slate-900 pb-4">
+              <div className="flex items-center gap-2 text-xs font-black">
+                <span className="px-2.5 py-1 rounded bg-amber-300 text-slate-950 border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0f172a]">
+                  QUESTION {questionIdx + 1} OF {DIAGNOSTIC_QUESTIONS.length}
                 </span>
-                <span className="text-slate-500">&bull;</span>
-                <span className="text-slate-400">{activeQ.category}</span>
+                <span className="text-slate-400">&bull;</span>
+                <span className="text-slate-700 uppercase tracking-wider">{activeQ.category}</span>
               </div>
-              <span className="text-xs font-mono text-slate-500">
-                {Math.round(((questionIdx + 1) / DIAGNOSTIC_QUESTIONS.length) * 100)}% Complete
+              <span className="text-xs font-black text-[#2563eb]">
+                {Math.round(((questionIdx + 1) / DIAGNOSTIC_QUESTIONS.length) * 100)}% COMPLETE
               </span>
             </div>
 
             {/* Question Body */}
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800/80 text-xs text-slate-300 leading-relaxed">
-                <span className="text-slate-500 uppercase font-bold text-[10px] block mb-1">Corporate Scenario:</span>
+              <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] text-xs text-slate-800 leading-relaxed font-sans">
+                <span className="text-slate-500 uppercase font-black text-[10px] block font-mono mb-1">// CORPORATE SCENARIO:</span>
                 {activeQ.scenario}
               </div>
 
-              <h3 className="text-base md:text-lg font-bold text-slate-100 leading-snug">
+              <h3 className="text-base sm:text-lg font-black text-slate-950 leading-snug font-sans">
                 {activeQ.question}
               </h3>
 
@@ -180,27 +181,28 @@ export function InteractiveDiagnostic() {
               <div className="space-y-3 pt-2">
                 {activeQ.options.map((opt, i) => {
                   const isSelected = selectedAnswers[activeQ.id] === i;
-                  let btnStyle = 'border-slate-800 bg-slate-950/60 hover:bg-slate-800/60 text-slate-200';
+                  let btnStyle = 'border-slate-900 bg-white text-slate-900 hover:bg-blue-50 shadow-[3px_3px_0px_0px_#0f172a]';
 
                   if (showExplanation) {
                     if (opt.correct) {
-                      btnStyle = 'border-emerald-500/60 bg-emerald-500/10 text-emerald-300';
+                      btnStyle = 'border-emerald-600 bg-emerald-50 text-emerald-950 shadow-[3px_3px_0px_0px_#059669]';
                     } else if (isSelected && !opt.correct) {
-                      btnStyle = 'border-rose-500/60 bg-rose-500/10 text-rose-300';
+                      btnStyle = 'border-rose-600 bg-rose-50 text-rose-950 shadow-[3px_3px_0px_0px_#e11d48]';
                     }
                   }
 
                   return (
                     <button
                       key={i}
+                      type="button"
                       onClick={() => handleSelectOption(i)}
                       disabled={showExplanation}
-                      className={`w-full p-4 rounded-xl border text-left text-xs transition-all flex items-start gap-3 ${btnStyle}`}
+                      className={`w-full p-4 rounded-xl border-2 text-left text-xs font-bold transition-all flex items-start gap-3 ${btnStyle}`}
                     >
-                      <span className="w-5 h-5 rounded-full border border-current flex items-center justify-center font-bold text-[10px] flex-shrink-0 mt-0.5">
+                      <span className="w-5 h-5 rounded border-2 border-current flex items-center justify-center font-black text-[10px] flex-shrink-0 mt-0.5">
                         {opt.label}
                       </span>
-                      <span className="flex-1 leading-relaxed">{opt.text}</span>
+                      <span className="flex-1 leading-relaxed font-sans">{opt.text}</span>
                     </button>
                   );
                 })}
@@ -211,17 +213,18 @@ export function InteractiveDiagnostic() {
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3"
+                  className="p-4 rounded-xl bg-slate-950 text-white border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0f172a] space-y-3"
                 >
-                  <div className="text-xs text-slate-300">
-                    <span className="font-bold text-slate-200 block mb-1">Rational Assessment:</span>
+                  <div className="text-xs text-slate-200 font-sans">
+                    <span className="font-mono font-black text-amber-400 block mb-1 uppercase tracking-wider">// RATIONAL ANALYSIS:</span>
                     {activeQ.options[selectedAnswers[activeQ.id] ?? 0].explanation}
                   </div>
                   <button
+                    type="button"
                     onClick={handleNext}
-                    className="inline-flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-black text-slate-950 bg-emerald-400 hover:bg-emerald-300 border-2 border-slate-900 shadow-[2px_2px_0px_0px_#059669] transition-all"
                   >
-                    <span>{questionIdx < DIAGNOSTIC_QUESTIONS.length - 1 ? 'Next Question' : 'View Full Skill Gap Analysis'}</span>
+                    <span>{questionIdx < DIAGNOSTIC_QUESTIONS.length - 1 ? 'NEXT QUESTION →' : 'VIEW SKILL RADAR RESULTS →'}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </motion.div>
@@ -232,16 +235,16 @@ export function InteractiveDiagnostic() {
 
         {/* Step 3: Instant Skill Radar & Gap Analysis */}
         {currentStep === 'results' && (
-          <div className="relative rounded-3xl p-8 md:p-12 border border-slate-800 bg-gradient-to-b from-slate-900/95 to-slate-950/95 shadow-2xl space-y-8">
+          <div className="relative rounded-2xl p-6 sm:p-10 border-2 border-slate-900 bg-white shadow-[8px_8px_0px_0px_#059669] space-y-6">
             <div className="text-center space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                <ShieldCheck className="w-4 h-4" />
-                <span>Diagnostic Assessment Complete</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-black bg-emerald-100 text-emerald-800 border-2 border-emerald-600 shadow-[2px_2px_0px_0px_#059669]">
+                <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                <span>DIAGNOSTIC CALIBRATION COMPLETE</span>
               </div>
-              <h3 className="text-2xl md:text-3xl font-extrabold text-slate-100">
-                Your Corporate Readiness Index
+              <h3 className="text-2xl sm:text-3xl font-black text-slate-950 font-sans">
+                Your Institutional Readiness Index: {percentile}/100
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-600">
                 Benchmarked against 8,400+ candidate evaluations on the INSYT Trust Plane
               </p>
             </div>
@@ -249,100 +252,77 @@ export function InteractiveDiagnostic() {
             {/* Radar Comparison Card */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
               {/* Score breakdown */}
-              <div className="p-6 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <span className="text-xs font-mono text-slate-400">Diagnostic Score</span>
-                  <span className="text-xl font-bold font-mono text-emerald-400">{correctCount} / 3 Correct ({scorePct}%)</span>
+              <div className="p-5 rounded-xl bg-slate-50 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0f172a] space-y-3">
+                <div className="flex items-center justify-between border-b-2 border-slate-200 pb-2">
+                  <span className="text-xs font-bold text-slate-600">CORRECT SCENARIOS</span>
+                  <span className="text-lg font-black text-[#2563eb]">{correctCount} / 3 ({scorePct}%)</span>
                 </div>
 
-                <div className="space-y-3 text-xs">
+                <div className="space-y-2.5 text-xs">
                   <div>
-                    <div className="flex justify-between text-slate-300 mb-1">
-                      <span>FMCG Commercial Acumen</span>
-                      <span className="font-mono text-emerald-400">{selectedAnswers[1] === 1 ? 'Proficient' : 'Needs Practice'}</span>
+                    <div className="flex justify-between text-slate-700 mb-1 font-bold">
+                      <span>Commercial Margin Math</span>
+                      <span className="text-emerald-700">{selectedAnswers[1] === 1 ? '100% · Pro' : '40% · Needs Work'}</span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                      <div className="h-full bg-emerald-400" style={{ width: selectedAnswers[1] === 1 ? '100%' : '30%' }} />
+                    <div className="h-2 rounded-full border border-slate-900 bg-slate-200 overflow-hidden">
+                      <div className="h-full bg-emerald-500" style={{ width: selectedAnswers[1] === 1 ? '100%' : '40%' }} />
                     </div>
                   </div>
 
                   <div>
-                    <div className="flex justify-between text-slate-300 mb-1">
-                      <span>Dynamic Excel & Data Modeling</span>
-                      <span className="font-mono text-emerald-400">{selectedAnswers[2] === 0 ? 'Proficient' : 'Needs Practice'}</span>
+                    <div className="flex justify-between text-slate-700 mb-1 font-bold">
+                      <span>Excel Structure &amp; Table Ranges</span>
+                      <span className="text-blue-700">{selectedAnswers[2] === 0 ? '100% · Pro' : '30% · Needs Work'}</span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                      <div className="h-full bg-emerald-400" style={{ width: selectedAnswers[2] === 0 ? '100%' : '30%' }} />
+                    <div className="h-2 rounded-full border border-slate-900 bg-slate-200 overflow-hidden">
+                      <div className="h-full bg-[#2563eb]" style={{ width: selectedAnswers[2] === 0 ? '100%' : '30%' }} />
                     </div>
                   </div>
 
                   <div>
-                    <div className="flex justify-between text-slate-300 mb-1">
-                      <span>Financial Valuation & Free Cash Flow</span>
-                      <span className="font-mono text-emerald-400">{selectedAnswers[3] === 2 ? 'Proficient' : 'Needs Practice'}</span>
+                    <div className="flex justify-between text-slate-700 mb-1 font-bold">
+                      <span>FCFF &amp; M&amp;A Valuation Logic</span>
+                      <span className="text-purple-700">{selectedAnswers[3] === 2 ? '100% · Pro' : '35% · Needs Work'}</span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                      <div className="h-full bg-emerald-400" style={{ width: selectedAnswers[3] === 2 ? '100%' : '30%' }} />
+                    <div className="h-2 rounded-full border border-slate-900 bg-slate-200 overflow-hidden">
+                      <div className="h-full bg-purple-600" style={{ width: selectedAnswers[3] === 2 ? '100%' : '35%' }} />
                     </div>
                   </div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 space-y-1">
-                  <span className="font-bold flex items-center gap-1">
-                    <TrendingUp className="w-3.5 h-3.5" /> Performance Percentile: Top {100 - percentile}%
-                  </span>
-                  <p className="text-[11px] text-slate-400 leading-relaxed">
-                    {scorePct === 100
-                      ? 'Exceptional technical intuition. You are ready for proctored capstone evaluations.'
-                      : 'You possess baseline concepts, but procedural modeling gaps exist that typically trigger rejections during technical screening tests.'}
-                  </p>
                 </div>
               </div>
 
-              {/* Recommended Solution / Upsell */}
-              <div className="p-6 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-emerald-500/40 space-y-5 text-center flex flex-col justify-between">
-                <div className="space-y-2">
-                  <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-400 text-slate-950">
-                    RECOMMENDED 5-DAY SPRINT
-                  </span>
-                  <h4 className="text-lg font-bold text-slate-100">
-                    5-Day Corporate Excel & Job Test Sprint
-                  </h4>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    Close your diagnostic modeling gaps in 5 days (30 mins/day). Master XLOOKUP, dynamic arrays, and build an executive sales dashboard with zero hardcoding.
-                  </p>
-                </div>
-
-                <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-slate-500 line-through text-xs font-mono">৳1,990</span>
-                    <span className="text-2xl font-bold font-mono text-emerald-400">৳990</span>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold">50% Diagnostic Discount</span>
-                  </div>
-                  <span className="text-[10px] text-slate-500 block">Instant access via bKash / Nagad &bull; 100% Satisfaction Guarantee</span>
-                </div>
-
-                <div className="space-y-2">
+              {/* Action recommendation */}
+              <div className="p-5 rounded-xl border-2 border-slate-900 bg-amber-50 shadow-[4px_4px_0px_0px_#d97706] space-y-3 font-sans">
+                <span className="text-[10px] font-mono font-black uppercase text-amber-800 tracking-wider block">
+                  RECOMMENDED CAREER SPRINT
+                </span>
+                <h4 className="text-base font-black text-slate-950">
+                  Corporate Financial &amp; Commercial Modeling (Excel)
+                </h4>
+                <p className="text-xs text-slate-700 leading-relaxed font-normal">
+                  Master 3-statement models, PVM variance bridges, and dynamic dashboard architecture to bridge your identified skill gaps.
+                </p>
+                <div className="pt-1 flex items-center gap-3">
                   <Link
-                    href="/signup"
-                    className="w-full py-3 rounded-xl text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+                    href="/learn/corporate-analyst/corporate-financial-commercial-modeling-excel"
+                    className="flex-1 py-2.5 px-4 text-center rounded-lg border-2 border-slate-900 bg-[#2563eb] text-white font-mono font-black text-xs shadow-[3px_3px_0px_0px_#0f172a] hover:translate-x-[1px] hover:translate-y-[1px]"
                   >
-                    <span>Claim Sprint Access (৳990)</span>
-                    <ArrowRight className="w-4 h-4" />
+                    START THIS TRACK
                   </Link>
-
                   <button
+                    type="button"
                     onClick={handleRestart}
-                    className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                    className="p-2.5 rounded-lg border-2 border-slate-900 bg-white text-slate-900 hover:bg-slate-100 shadow-[2px_2px_0px_0px_#0f172a]"
+                    title="Retake Diagnostic"
                   >
-                    <RotateCcw className="w-3 h-3" />
-                    <span>Retake Diagnostic</span>
+                    <RotateCcw className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             </div>
           </div>
         )}
+
       </div>
     </section>
   );

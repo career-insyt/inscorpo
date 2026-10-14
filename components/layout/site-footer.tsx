@@ -1,79 +1,76 @@
 import Link from "next/link";
-import { Mail, MapPin } from "lucide-react";
+import { Mail, MapPin, ShieldCheck } from "lucide-react";
 
 const footerLinks = {
-  Product: [
-    { label: "Features", href: "#features" },
-    { label: "Learning Paths", href: "#paths" },
-    { label: "Mock Tests", href: "#" },
-    { label: "Career Passport", href: "#" },
-    { label: "AI Tools", href: "#" },
-    { label: "Marketplace", href: "#" },
+  Platform: [
+    { label: "Features", href: "/#features" },
+    { label: "Learning Paths", href: "/learn" },
+    { label: "Mock Tests", href: "/mock-tests" },
+    { label: "Career Passport", href: "/career-passport" },
+    { label: "AI Tools", href: "/ai" },
   ],
-  Learning: [
-    { label: "Banking Preparation", href: "#" },
-    { label: "Corporate Strategy", href: "#" },
-    { label: "IELTS", href: "#" },
-    { label: "Business Analytics", href: "#" },
-    { label: "AI Productivity", href: "#" },
-    { label: "Corporate Skills", href: "#" },
+  Programs: [
+    { label: "Financial Modeling", href: "/learn/corporate-financial-modeler" },
+    { label: "Executive Presentation", href: "/learn/presentation-engineering" },
+    { label: "AI for Business", href: "/learn/ai-for-work" },
+    { label: "GRE / GMAT Prep", href: "/learn/gre-preparation" },
+    { label: "Corporate Skills", href: "/learn" },
   ],
   Company: [
-    { label: "About INSYT", href: "#about" },
-    { label: "Careers", href: "#" },
-    { label: "Blog", href: "#" },
-    { label: "Partners", href: "#" },
-    { label: "Contact", href: "#" },
-  ],
-  Legal: [
-    { label: "Privacy Policy", href: "#" },
-    { label: "Terms of Service", href: "#" },
-    { label: "Refund Policy", href: "#" },
-    { label: "Cookie Policy", href: "#" },
+    { label: "About INSYT", href: "/about" },
+    { label: "Careers & Jobs", href: "/jobs" },
+    { label: "Community", href: "/community" },
+    { label: "Pro Membership", href: "/subscription" },
+    { label: "Help & Terms", href: "/help" },
   ],
 };
 
 export function SiteFooter() {
   return (
-    <footer style={{ background: "var(--corp-surface)", borderTop: "1px solid var(--corp-border)" }}>
-      <div className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
+    <footer className="relative border-t border-blue-900/60 bg-gradient-to-b from-[#0e214d] via-[#0b1b40] to-[#07132e] text-white">
+      {/* Website Blue Ambient Glow */}
+      <div 
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[1px] bg-gradient-to-r from-transparent via-[#3B5BDB] to-transparent" 
+        aria-hidden="true" 
+      />
+
+      <div className="mx-auto max-w-7xl px-6 py-10">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8 pb-8 border-b border-blue-900/40">
           {/* Brand Column */}
-          <div className="col-span-2">
-            <Link href="/" className="flex flex-col mb-4 group" title="CAREERINSYT">
-              <img src="/logo/logoTextDark.png" alt="CAREERINSYT" className="h-6 w-auto object-contain group-hover:opacity-90" />
-              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-corp-accent mt-0.5">
+          <div className="md:col-span-2 space-y-3">
+            <Link href="/" className="inline-flex flex-col group" title="CAREERINSYT">
+              <img src="/logo/logoTextWhite.png" alt="CAREERINSYT" className="h-6 w-auto object-contain group-hover:opacity-90 transition-opacity" />
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-blue-300/80 mt-1">
                 Career OS
               </span>
             </Link>
-            <p className="text-[13px] leading-relaxed mb-6 max-w-xs" style={{ color: "var(--corp-text-secondary)" }}>
-              The Career Operating System. Level up your professional career with structured learning, AI tools, and gamified growth.
+            <p className="text-[13px] leading-relaxed text-blue-100/75 max-w-sm">
+              The Career Operating System. Level up your corporate career with structured learning, AI tools, and gamified growth.
             </p>
-            <div className="space-y-2">
-              <a href="mailto:hello@insyt.co" className="flex items-center gap-2 text-[13px] transition-colors hover:text-corp-accent" style={{ color: "var(--corp-text-tertiary)" }}>
-                <Mail size={14} />
-                hello@insyt.co
-              </a>
-              <span className="flex items-center gap-2 text-[13px]" style={{ color: "var(--corp-text-tertiary)" }}>
-                <MapPin size={14} />
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px] text-blue-200/80 pt-1">
+              <span className="flex items-center gap-1.5">
+                <MapPin size={13} className="text-blue-400" />
                 Dhaka, Bangladesh
               </span>
+              <a href="mailto:hello@insyt.co" className="flex items-center gap-1.5 hover:text-white transition-colors">
+                <Mail size={13} className="text-blue-400" />
+                hello@insyt.co
+              </a>
             </div>
           </div>
 
           {/* Link Columns */}
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
-              <h4 className="text-[13px] font-semibold uppercase tracking-wider mb-4" style={{ color: "var(--corp-text)" }}>
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-blue-200/90 mb-3">
                 {category}
               </h4>
-              <ul className="space-y-2.5">
+              <ul className="space-y-2">
                 {links.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-[13px] transition-colors duration-200 hover:text-corp-accent"
-                      style={{ color: "var(--corp-text-tertiary)" }}
+                      className="text-[13px] text-blue-100/70 hover:text-white transition-colors duration-150"
                     >
                       {link.label}
                     </Link>
@@ -85,53 +82,35 @@ export function SiteFooter() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4"
-          style={{ borderTop: "1px solid var(--corp-border)" }}
-        >
-          <p className="text-[12px]" style={{ color: "var(--corp-text-tertiary)" }}>
-            © {new Date().getFullYear()} INSYT. All rights reserved. Crafted with excellence in Bangladesh.
-          </p>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-[12px] text-blue-300/60">
+          <div className="flex items-center gap-1.5">
+            <ShieldCheck size={14} className="text-blue-400" />
+            <span>&copy; {new Date().getFullYear()} INSYT. All rights reserved. Crafted with excellence in Bangladesh.</span>
+          </div>
+
           <div className="flex items-center gap-2">
-            {/* LinkedIn */}
             <a href="https://linkedin.com/company/insytcorporate" target="_blank" rel="noopener noreferrer"
               aria-label="INSYT LinkedIn"
-              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-corp-accent/10"
-              style={{ border: "1px solid var(--corp-border)", color: "var(--corp-text-tertiary)" }}
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-all bg-blue-950/60 border border-blue-800/50 text-blue-200 hover:text-white hover:bg-blue-800/40"
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z" />
                 <circle cx="4" cy="4" r="2" />
               </svg>
             </a>
-            {/* Facebook */}
             <a href="https://facebook.com/insytcorporate" target="_blank" rel="noopener noreferrer"
               aria-label="INSYT Facebook"
-              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-corp-accent/10"
-              style={{ border: "1px solid var(--corp-border)", color: "var(--corp-text-tertiary)" }}
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-all bg-blue-950/60 border border-blue-800/50 text-blue-200 hover:text-white hover:bg-blue-800/40"
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
               </svg>
             </a>
-            {/* Instagram */}
-            <a href="https://instagram.com/insytcorporate" target="_blank" rel="noopener noreferrer"
-              aria-label="INSYT Instagram"
-              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-corp-accent/10"
-              style={{ border: "1px solid var(--corp-border)", color: "var(--corp-text-tertiary)" }}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-              </svg>
-            </a>
-            {/* YouTube */}
             <a href="https://youtube.com/@insytcorporate" target="_blank" rel="noopener noreferrer"
               aria-label="INSYT YouTube"
-              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:bg-corp-accent/10"
-              style={{ border: "1px solid var(--corp-border)", color: "var(--corp-text-tertiary)" }}
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-all bg-blue-950/60 border border-blue-800/50 text-blue-200 hover:text-white hover:bg-blue-800/40"
             >
-              <svg width="16" height="12" viewBox="0 0 24 17" fill="currentColor">
+              <svg width="15" height="11" viewBox="0 0 24 17" fill="currentColor">
                 <path d="M23.5 2.5s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.8 0 12 0 12 0S7.2 0 4.7.4c-.6.1-1.9.1-3 1.3C.8 2.5.5 4.5.5 4.5S.2 6.8.2 9v2.1c0 2.2.3 4.5.3 4.5s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7 19.8 12 19.8 12 19.8s4.8 0 7.3-.4c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.2.3-4.5V9c0-2.2-.3-4.5-.3-4.5zM9.7 13V5.8l8.1 3.6-8.1 3.6z" />
               </svg>
             </a>

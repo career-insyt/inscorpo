@@ -23,46 +23,49 @@ export function MarketingNavbar() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300 font-mono",
           scrolled
-            ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200/80 py-3"
-            : "bg-white/80 backdrop-blur-sm border-b border-slate-200/40 py-4"
+            ? "bg-white/95 backdrop-blur-md border-b-2 border-slate-900 py-3 shadow-[0_4px_0px_0px_rgba(15,23,42,0.06)]"
+            : "bg-white/90 backdrop-blur-sm border-b-2 border-slate-900/60 py-3.5"
         )}
       >
-        <div className="mx-auto max-w-7xl px-6 flex items-center justify-between">
-          {/* Brand Logo: Clean text-only typeface on white/light background */}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 flex items-center justify-between">
+          {/* Brand Logo */}
           <Link href="/" className="flex items-center group py-0.5" title="CAREERINSYT">
             <img src="/logo/logoTextDark.png" alt="CAREERINSYT" className="h-7 sm:h-8 w-auto object-contain transition-opacity hover:opacity-90" />
+            <span className="hidden sm:inline-block ml-2 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-amber-300 border-2 border-slate-900 text-slate-950 rounded shadow-[1px_1px_0px_0px_#0f172a]">
+              CAREER OS
+            </span>
           </Link>
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
             <Link
               href="/login"
-              className="px-4 py-2 text-[14px] font-semibold rounded-full transition-colors duration-200 text-slate-700 hover:text-slate-950 hover:bg-slate-100"
+              className="px-4 py-2 text-xs font-bold rounded-lg transition-all text-slate-800 hover:text-slate-950 border-2 border-transparent hover:border-slate-900 hover:bg-slate-100 hover:shadow-[2px_2px_0px_0px_#0f172a]"
             >
               Sign In
             </Link>
             <Link
               href="/dashboard"
-              className="px-5 py-2.5 text-[13px] font-bold rounded-full text-white bg-[#2563eb] hover:bg-[#1d4ed8] border border-blue-600 transition-all duration-200 shadow-sm hover:shadow active:scale-[0.98]"
+              className="px-5 py-2 text-xs font-black rounded-lg text-white bg-[#2563eb] hover:bg-[#1d4ed8] border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] hover:shadow-[1px_1px_0px_0px_#0f172a] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
             >
-              Go to Dashboard
+              Go to Dashboard →
             </Link>
           </div>
 
           {/* Mobile Toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden w-10 h-10 rounded-full flex items-center justify-center transition-colors text-slate-700 hover:bg-slate-100"
+            className="md:hidden w-9 h-9 rounded-lg border-2 border-slate-900 bg-white flex items-center justify-center transition-all shadow-[2px_2px_0px_0px_#0f172a] text-slate-900 active:translate-x-[1px] active:translate-y-[1px]"
             aria-label="Toggle menu"
           >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </motion.header>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Drawer */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -70,21 +73,28 @@ export function MarketingNavbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 top-[68px] z-40 mx-4 rounded-2xl bg-white border border-slate-200 shadow-xl p-6 md:hidden flex flex-col gap-3"
+            className="fixed inset-x-0 top-[60px] z-40 bg-white border-b-2 border-slate-900 p-6 md:hidden shadow-[0_8px_0px_0px_#0f172a] font-mono space-y-3"
           >
+            <Link
+              href="#tracks"
+              onClick={() => setMobileOpen(false)}
+              className="block w-full py-2.5 px-4 rounded-lg border-2 border-slate-900 bg-slate-50 text-slate-900 text-xs font-bold shadow-[2px_2px_0px_0px_#0f172a]"
+            >
+              Career Tracks
+            </Link>
             <Link
               href="/login"
               onClick={() => setMobileOpen(false)}
-              className="px-4 py-2.5 text-[14px] font-semibold rounded-xl text-center transition-colors text-slate-700 hover:bg-slate-100"
+              className="block w-full py-2.5 px-4 rounded-lg border-2 border-slate-900 bg-white text-slate-900 text-xs font-bold shadow-[2px_2px_0px_0px_#0f172a]"
             >
               Sign In
             </Link>
             <Link
               href="/dashboard"
               onClick={() => setMobileOpen(false)}
-              className="px-4 py-2.5 text-[14px] font-bold rounded-xl text-center text-white bg-[#2563eb] hover:bg-[#1d4ed8] shadow-sm"
+              className="block w-full py-2.5 px-4 rounded-lg border-2 border-slate-900 bg-[#2563eb] text-white text-xs font-black shadow-[3px_3px_0px_0px_#0f172a]"
             >
-              Go to Dashboard
+              Go to Dashboard →
             </Link>
           </motion.div>
         )}

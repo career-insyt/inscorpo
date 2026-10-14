@@ -40,4 +40,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.vercel
+# editor / OS artifacts
+.vscode/
+.idea/
+Thumbs.db
+
+# office / binary document dumps
+*.docx
+*.doc
+*.zip
