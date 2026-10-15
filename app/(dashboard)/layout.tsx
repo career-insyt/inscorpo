@@ -9,8 +9,9 @@ import { PageTransition } from "@/components/ui/page-transition";
 import { FloatingChatAssistant } from "@/components/ai/floating-chat-assistant";
 import { ElementHighlighter } from "@/components/ui/element-highlighter";
 
+import { RouteTitleUpdater } from "@/components/layout/route-title-updater";
+
 export const metadata: Metadata = {
-  title: "Dashboard",
   description: "Your personalized career development command center. Track XP, courses, credentials, and upcoming workshops.",
 };
 
@@ -21,6 +22,7 @@ export default function DashboardLayout({
 }) {
   return (
     <AuthGuard>
+      <RouteTitleUpdater />
       <ElementHighlighter />
       {/* #28: Scroll progress indicator */}
       <ScrollProgress />

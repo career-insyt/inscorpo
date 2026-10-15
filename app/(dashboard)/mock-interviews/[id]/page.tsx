@@ -873,14 +873,14 @@ ${
             {/* Proctoring HUD Metrics */}
             <div className="grid grid-cols-2 gap-2 text-[10px] font-bold">
               <div className="p-2 rounded-lg bg-slate-900 border border-slate-800 space-y-0.5">
-                <span className="text-slate-400 block text-[9px]">GAZE MONITOR</span>
-                <span className={gazeStatus === "Verified" ? "text-emerald-400" : "text-rose-400 font-extrabold"}>
+                <span className="text-slate-200 block text-[9px] font-black uppercase">GAZE MONITOR</span>
+                <span className={gazeStatus === "Verified" ? "text-emerald-400 font-bold" : "text-rose-400 font-extrabold"}>
                   {gazeStatus}
                 </span>
               </div>
               <div className="p-2 rounded-lg bg-slate-900 border border-slate-800 space-y-0.5">
-                <span className="text-slate-400 block text-[9px]">TAB SWITCHES</span>
-                <span className={tabSwitchCount === 0 ? "text-emerald-400" : "text-rose-400 font-extrabold"}>
+                <span className="text-slate-200 block text-[9px] font-black uppercase">TAB SWITCHES</span>
+                <span className={tabSwitchCount === 0 ? "text-emerald-400 font-bold" : "text-rose-400 font-extrabold"}>
                   {tabSwitchCount} Violations
                 </span>
               </div>
@@ -934,11 +934,11 @@ ${
               <div className="mt-3 p-4 rounded-xl bg-amber-400/20 border-2 border-amber-400 text-center space-y-3 shadow-md">
                 <Award size={32} className="mx-auto text-amber-500" />
                 <div>
-                  <h4 className="font-extrabold uppercase text-amber-950 dark:text-amber-300 text-xs">Assessment Complete</h4>
-                  <p className="text-base font-black text-emerald-600 dark:text-emerald-400 mt-0.5">
+                  <h4 className="font-extrabold uppercase text-amber-950 text-xs">Assessment Complete</h4>
+                  <p className="text-base font-black text-emerald-700 mt-0.5">
                     Score: {finalScorecard?.overallScore ?? 0}/100
                   </p>
-                  <p className="text-xs font-bold text-amber-800 dark:text-amber-200 mt-0.5">
+                  <p className="text-xs font-bold text-amber-900 mt-0.5">
                     {finalScorecard && finalScorecard.overallScore > 0 ? "+150 XP Credited" : "0 XP (0 Answers)"}
                   </p>
                 </div>

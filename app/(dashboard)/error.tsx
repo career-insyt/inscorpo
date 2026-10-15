@@ -73,7 +73,7 @@ export default function DashboardError({
         </button>
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 px-5 py-3 rounded-xl text-[13px] font-semibold transition-colors hover:bg-corp-accent-light dark:hover:bg-white/5 min-h-[44px]"
+          className="flex items-center gap-2 px-5 py-3 rounded-xl text-[13px] font-semibold transition-colors hover:bg-corp-accent-light min-h-[44px]"
           style={{ border: "1px solid var(--corp-border)", color: "var(--corp-text-secondary)" }}
         >
           <Home size={14} />

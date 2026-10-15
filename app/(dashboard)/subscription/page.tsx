@@ -377,7 +377,7 @@ export default function SubscriptionPage() {
         ))}
       </div>
 
-      {/* Enterprise Contact Card - Soft Brutalist with light blue border & insyt.bd@gmail.com */}
+      {/* Enterprise Contact Card - Soft Brutalist with light blue border & career@insyt.bd */}
       <div className="rounded-2xl p-6 md:p-8 border-2 border-blue-200 shadow-[5px_5px_0px_0px_#bfdbfe] flex flex-col md:flex-row items-center justify-between gap-6 font-bangla bg-white">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-[#2563eb] text-white flex items-center justify-center flex-shrink-0 border-2 border-blue-300 shadow-[2px_2px_0px_0px_#1e3a8a]">
@@ -391,7 +391,7 @@ export default function SubscriptionPage() {
           </div>
         </div>
         <Link
-          href="mailto:insyt.bd@gmail.com?subject=INSYT%20Enterprise%20Cohort%20Inquiry"
+          href="mailto:career@insyt.bd?subject=INSYT%20Enterprise%20Cohort%20Inquiry"
           className="px-6 py-3 rounded-xl text-xs font-black border-2 border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-900 flex-shrink-0 uppercase font-bangla shadow-[3px_3px_0px_0px_#93c5fd] transition-all"
         >
           পার্টনার ডেস্কে যোগাযোগ করুন

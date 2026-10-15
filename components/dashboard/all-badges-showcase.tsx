@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 
 interface AllBadgesShowcaseProps {
   state: UserState;
+  compact?: boolean;
 }
 
 const BADGE_THEMES: Record<
@@ -141,7 +142,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Workflow,
 };
 
-export function AllBadgesShowcase({ state }: AllBadgesShowcaseProps) {
+export function AllBadgesShowcase({ state, compact = false }: AllBadgesShowcaseProps) {
   const [selectedBadge, setSelectedBadge] = useState<PlatformBadgeDefinition | null>(null);
 
   // Derive unlocked badges from user state
@@ -190,27 +191,87 @@ export function AllBadgesShowcase({ state }: AllBadgesShowcaseProps) {
   }, [state.recentBadges, state.courseProgress, state.enrolledPathSlugs, state.passportProfile, state.streak, state.subscriptionTier]);
 
   return (
-    <div className="space-y-4 font-sans">
-      {/* ── Section Title Bar ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-corp-border pb-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-500 text-amber-950 flex items-center justify-center border-2 border-amber-600 shadow-[2px_2px_0px_0px_#78350f]">
-            <Award size={18} className="stroke-[2.5]" />
-          </div>
-          <div>
-            <h2 className="text-sm font-black font-mono uppercase tracking-wider text-corp-text leading-tight flex items-center gap-2">
+    <div className="font-sans">
+      {compact ? (
+        /* ── Compact Executive Badge Ledger (Placed right under Verified Skills & Masteries) ── */
+        <div className="rounded-2xl border-2 border-blue-500 shadow-[5px_5px_0px_0px_#2563eb] p-4 sm:p-5 space-y-3 font-sans bg-white select-none">
+          <div className="flex items-center justify-between border-b-2 border-blue-100 pb-2.5 font-mono">
+            <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider flex items-center gap-2 text-slate-950">
+              <div className="w-6 h-6 rounded-lg bg-amber-400 border-2 border-slate-950 flex items-center justify-center text-slate-950 flex-shrink-0 shadow-[1.5px_1.5px_0px_0px_#000]">
+                <Award size={13} className="text-slate-950 stroke-[2.5]" />
+              </div>
               <span>Executive Badge Ledger</span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs flex items-center gap-1">
-                <Sparkles size={11} className="text-emerald-600 animate-spin" />
-                {unlockedBadgeIds.size} of {PLATFORM_BADGES.length} Unlocked
-              </span>
             </h2>
-            <p className="text-xs text-corp-text-secondary mt-0.5">
-              Interactive career credentials verified through corporate simulations &amp; audits. Tap any badge for full specifications!
-            </p>
+            <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-300">
+              {unlockedBadgeIds.size}/{PLATFORM_BADGES.length} Unlocked
+            </span>
+          </div>
+
+          <p className="text-[11px] font-sans text-slate-700 font-medium leading-tight">
+            Cryptographically anchored credentials. Tap any badge to inspect verification rubric.
+          </p>
+
+          {/* Badge Medallions: Icons Only, No Text - Press opens inspection modal */}
+          <div className="grid grid-cols-6 gap-2 sm:gap-2.5 pt-1">
+            {PLATFORM_BADGES.map((badge) => {
+              const isUnlocked = unlockedBadgeIds.has(badge.id);
+              const theme = BADGE_THEMES[badge.id] || BADGE_THEMES["excel-architect"];
+              const IconComp = ICON_MAP[badge.iconName] || Trophy;
+
+              return (
+                <button
+                  key={badge.id}
+                  type="button"
+                  onClick={() => setSelectedBadge(badge)}
+                  className={cn(
+                    "aspect-square w-full rounded-xl sm:rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-center relative overflow-hidden group select-none active:scale-95 hover:scale-105",
+                    isUnlocked
+                      ? cn("bg-gradient-to-tr", theme.medallionGradient, theme.medallionBorder, "shadow-[3px_3px_0px_0px_#1e3a8a]")
+                      : "bg-slate-100 border-slate-300 shadow-[2px_2px_0px_0px_#cbd5e1] hover:border-blue-400 opacity-80 hover:opacity-100"
+                  )}
+                  title={`${badge.name} (${badge.tier} Tier) - ${isUnlocked ? "Earned & Verified" : "In Progress"}. Tap to inspect specifications.`}
+                  aria-label={`${badge.name} badge`}
+                >
+                  <IconComp
+                    size={20}
+                    className="stroke-[2.2] transition-transform group-hover:scale-110"
+                    style={{ color: isUnlocked ? theme.iconColor : "#475569" }}
+                  />
+
+                  {/* Corner Status Indicator Icon Dot */}
+                  <span
+                    className={cn(
+                      "absolute top-1 right-1 w-2.5 h-2.5 rounded-full border border-white flex items-center justify-center shadow-xs",
+                      isUnlocked ? "bg-emerald-500" : "bg-slate-400"
+                    )}
+                  />
+                </button>
+              );
+            })}
           </div>
         </div>
-      </div>
+      ) : (
+        /* ── Full Expanded Badges Showcase ── */
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-corp-border pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-500 text-amber-950 flex items-center justify-center border-2 border-amber-600 shadow-[2px_2px_0px_0px_#78350f]">
+                <Award size={18} className="stroke-[2.5]" />
+              </div>
+              <div>
+                <h2 className="text-sm font-black font-mono uppercase tracking-wider text-corp-text leading-tight flex items-center gap-2">
+                  <span>Executive Badge Ledger</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs flex items-center gap-1">
+                    <Sparkles size={11} className="text-emerald-600 animate-spin" />
+                    {unlockedBadgeIds.size} of {PLATFORM_BADGES.length} Unlocked
+                  </span>
+                </h2>
+                <p className="text-xs text-corp-text-secondary mt-0.5">
+                  Interactive career credentials verified through corporate simulations &amp; audits. Tap any badge for full specifications!
+                </p>
+              </div>
+            </div>
+          </div>
 
       {/* ── Badges Grid ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
@@ -336,12 +397,14 @@ export function AllBadgesShowcase({ state }: AllBadgesShowcaseProps) {
           );
         })}
       </div>
+    </div>
+  )}
 
       {/* ── Badge Detail Popup Modal ── */}
       <AnimatePresence>
         {selectedBadge && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs font-sans"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs font-sans overscroll-contain"
             onClick={() => setSelectedBadge(null)}
           >
             <motion.div

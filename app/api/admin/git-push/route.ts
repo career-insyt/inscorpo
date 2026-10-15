@@ -3,7 +3,7 @@ import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
 
-const AUTHORIZED_OWNER = "insyt.bd@gmail.com";
+const AUTHORIZED_OWNERS = ["career@insyt.bd", "insyt.bd@gmail.com"];
 const REPO_URL = "https://github.com/insytbd-design/inscorpo.git";
 const TOKEN_FILE = path.join(process.cwd(), ".git_token");
 const ENV_LOCAL_FILE = path.join(process.cwd(), ".env.local");
@@ -67,18 +67,18 @@ function saveToken(token: string) {
 function verifyAuthorization(req: NextRequest, bodyEmail?: string): boolean {
   // Check cookie
   const cookieEmail = req.cookies.get("insyt_admin_email")?.value;
-  if (cookieEmail && decodeURIComponent(cookieEmail).toLowerCase().trim() === AUTHORIZED_OWNER) {
+  if (cookieEmail && AUTHORIZED_OWNERS.includes(decodeURIComponent(cookieEmail).toLowerCase().trim())) {
     return true;
   }
 
   // Check header
   const headerEmail = req.headers.get("x-user-email");
-  if (headerEmail && headerEmail.toLowerCase().trim() === AUTHORIZED_OWNER) {
+  if (headerEmail && AUTHORIZED_OWNERS.includes(headerEmail.toLowerCase().trim())) {
     return true;
   }
 
   // Check body email
-  if (bodyEmail && bodyEmail.toLowerCase().trim() === AUTHORIZED_OWNER) {
+  if (bodyEmail && AUTHORIZED_OWNERS.includes(bodyEmail.toLowerCase().trim())) {
     return true;
   }
 
@@ -89,7 +89,7 @@ function verifyAuthorization(req: NextRequest, bodyEmail?: string): boolean {
 export async function GET(req: NextRequest) {
   if (!verifyAuthorization(req)) {
     return NextResponse.json(
-      { error: "Unauthorized. This endpoint is strictly restricted to account owner insyt.bd@gmail.com." },
+      { error: "Unauthorized. This endpoint is strictly restricted to account owner career@insyt.bd." },
       { status: 403 }
     );
   }
@@ -141,7 +141,7 @@ export async function POST(req: NextRequest) {
   const userEmail = body.userEmail;
   if (!verifyAuthorization(req, userEmail)) {
     return NextResponse.json(
-      { error: "Unauthorized. This endpoint is strictly restricted to account owner insyt.bd@gmail.com." },
+      { error: "Unauthorized. This endpoint is strictly restricted to account owner career@insyt.bd." },
       { status: 403 }
     );
   }
@@ -182,7 +182,7 @@ export async function POST(req: NextRequest) {
     // Configure user identity if not already set
     try {
       execSync(`"${git}" config user.name "INSYT"`, { cwd });
-      execSync(`"${git}" config user.email "insyt.bd@gmail.com"`, { cwd });
+      execSync(`"${git}" config user.email "career@insyt.bd"`, { cwd });
     } catch {}
 
     // Push to GitHub

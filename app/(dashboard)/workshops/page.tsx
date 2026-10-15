@@ -118,7 +118,7 @@ export default function WorkshopsPage() {
     : workshops.filter((w) => bookedIds.has(w.id));
 
   return (
-    <motion.div variants={container} initial="hidden" animate="visible" className="max-w-5xl mx-auto space-y-6 font-sans pb-24 text-slate-900 dark:text-white">
+    <motion.div variants={container} initial="hidden" animate="visible" className="max-w-5xl mx-auto space-y-6 font-sans pb-24 text-slate-900">
       {/* Header */}
       <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div className="space-y-1">

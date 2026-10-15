@@ -297,7 +297,7 @@ export function CvFitModal({ isOpen, job, onClose }: CvFitModalProps) {
                       <div className="flex flex-wrap gap-1">
                         {analysisResult.missingSkills.length > 0 ? (
                           analysisResult.missingSkills.map((sk) => (
-                            <span key={sk} className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-400/30">
+                            <span key={sk} className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-sky-50 text-sky-800 border border-sky-300">
                               {sk.replace(/_/g, " ")}
                             </span>
                           ))

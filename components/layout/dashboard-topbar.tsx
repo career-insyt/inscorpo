@@ -484,7 +484,7 @@ export function DashboardTopbar() {
                                   Candidate
                                 </span>
                               </div>
-                              <p className="text-[10px] text-corp-text-tertiary truncate">{user?.email || state.email || "insyt.bd@gmail.com"}</p>
+                              <p className="text-[10px] text-corp-text-tertiary truncate">{user?.email || state.email || "career@insyt.bd"}</p>
                             </div>
                           </div>
                           <div className="flex items-center justify-between text-[10px] pt-1 border-t border-corp-border/60">

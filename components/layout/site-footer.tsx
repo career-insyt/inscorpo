@@ -52,9 +52,9 @@ export function SiteFooter() {
                 <MapPin size={13} className="text-blue-400" />
                 Dhaka, Bangladesh
               </span>
-              <a href="mailto:insyt.bd@gmail.com" className="flex items-center gap-1.5 hover:text-white transition-colors">
+              <a href="mailto:career@insyt.bd" className="flex items-center gap-1.5 hover:text-white transition-colors">
                 <Mail size={13} className="text-blue-400" />
-                insyt.bd@gmail.com
+                career@insyt.bd
               </a>
             </div>
           </div>

@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const defaultUser = {
             $id: "user-" + Math.random().toString(36).substring(2, 9),
             name: "Corporate Member",
-            email: "member@insyt.bd",
+            email: "career@insyt.bd",
             emailVerification: true,
             status: true,
             prefs: { subscriptionTier: "starter", subscriptionStatus: "active" },

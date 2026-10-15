@@ -24,6 +24,7 @@ export const DB_CONFIG = {
     workshops: "workshops",
     certificates: "certificates",
     workshopRegistrations: "workshop_registrations",
+    eventRegistrations: "event_registrations",
     testAttempts: "test_attempts",
     paths: "paths",
     courses: "courses",
@@ -607,3 +608,91 @@ export async function updateApplicationStatus(
     return false;
   }
 }
+
+// ─── Event Registrations Collection ──────────────────────────────────────────
+
+export interface EventRegistrationDoc {
+  $id?: string;
+  userId: string;
+  eventId: string;
+  eventTitle: string;
+  registeredAt: string;
+}
+
+export async function registerForEvent(
+  userId: string,
+  eventId: string,
+  eventTitle: string
+): Promise<boolean> {
+  const item: EventRegistrationDoc = {
+    userId,
+    eventId,
+    eventTitle,
+    registeredAt: new Date().toISOString(),
+  };
+
+  // LocalStorage persistence (always works even offline / CORS issues)
+  if (typeof window !== "undefined") {
+    try {
+      const key = `insyt_event_regs_${userId}`;
+      const generalKey = `insyt_all_event_registrations`;
+      const existing: EventRegistrationDoc[] = JSON.parse(localStorage.getItem(key) || "[]");
+      if (!existing.some((r) => r.eventId === eventId)) {
+        existing.push(item);
+        localStorage.setItem(key, JSON.stringify(existing));
+      }
+      const generalExisting: string[] = JSON.parse(localStorage.getItem(generalKey) || "[]");
+      if (!generalExisting.includes(eventId)) {
+        generalExisting.push(eventId);
+        localStorage.setItem(generalKey, JSON.stringify(generalExisting));
+      }
+    } catch (e) {
+      console.warn("Could not save event registration to localStorage:", e);
+    }
+  }
+
+  // Appwrite persistence
+  try {
+    await databases.createDocument(
+      DB_CONFIG.databaseId,
+      DB_CONFIG.collections.eventRegistrations,
+      ID.unique(),
+      item
+    );
+    return true;
+  } catch {
+    return true;
+  }
+}
+
+export async function fetchUserEventRegistrations(
+  userId: string
+): Promise<EventRegistrationDoc[]> {
+  let localList: EventRegistrationDoc[] = [];
+  if (typeof window !== "undefined") {
+    try {
+      const key = `insyt_event_regs_${userId}`;
+      localList = JSON.parse(localStorage.getItem(key) || "[]");
+    } catch {
+      localList = [];
+    }
+  }
+
+  try {
+    const response = await databases.listDocuments(
+      DB_CONFIG.databaseId,
+      DB_CONFIG.collections.eventRegistrations,
+      [Query.equal("userId", userId), Query.limit(100)]
+    );
+    const dbDocs = response.documents as unknown as EventRegistrationDoc[];
+    
+    // Merge DB and local (deduplicate by eventId)
+    const map = new Map<string, EventRegistrationDoc>();
+    localList.forEach((item) => map.set(item.eventId, item));
+    dbDocs.forEach((item) => map.set(item.eventId, item));
+    return Array.from(map.values());
+  } catch {
+    return localList;
+  }
+}
+

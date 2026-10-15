@@ -87,7 +87,18 @@ export function FloatingChatAssistant() {
     }
   };
 
-  if (isDismissed) return null;
+  if (isDismissed) {
+    return (
+      <button
+        type="button"
+        onClick={() => setIsDismissed(false)}
+        className="fixed bottom-6 right-5 z-40 w-12 h-12 rounded-full aspect-square flex items-center justify-center font-mono font-black text-sm text-white bg-[#2563eb] opacity-80 hover:opacity-100 hover:scale-105 active:scale-95 transition-all cursor-pointer select-none border-2 border-[#1e3a8a] shadow-[3px_3px_0px_0px_#1e3a8a]"
+        title="Reopen INSYT AI Assistant"
+      >
+        AI
+      </button>
+    );
+  }
 
   return (
     <>

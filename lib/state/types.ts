@@ -122,6 +122,7 @@ export type UserState = {
   // Enrollment
   enrolledPathSlugs: string[];
   lastCheckInDate?: string;
+  lastNameChangeDate?: string;
   streakFreezes?: number;
   redeemedVouchers: string[];
   completedChallengeIds: string[];

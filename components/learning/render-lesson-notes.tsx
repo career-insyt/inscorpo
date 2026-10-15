@@ -110,7 +110,7 @@ export function RenderLessonNotes({ notes, lessonSlug }: { notes: string; lesson
         return (
           <div
             key={idx}
-            className="prose dark:prose-invert max-w-none text-xs md:text-sm whitespace-pre-line leading-relaxed font-sans"
+            className="prose max-w-none text-xs md:text-sm whitespace-pre-line leading-relaxed font-sans text-slate-800"
           >
             {part}
           </div>

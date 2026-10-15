@@ -190,6 +190,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             passportProfile: prefs.passportProfile ?? (typeof window !== "undefined" ? JSON.parse(localStorage.getItem("insyt_passport_profile") || "null") : undefined) ?? undefined,
             enrolledPathSlugs: cleanEnrolled.length ? cleanEnrolled : ["excel-modeling"],
             lastCheckInDate: prefs.lastCheckInDate ?? undefined,
+            lastNameChangeDate: prefs.lastNameChangeDate ?? (typeof window !== "undefined" ? localStorage.getItem("insyt_last_name_change_date") : null) ?? undefined,
             redeemedVouchers: prefs.redeemedVouchers ?? [],
             completedChallengeIds: prefs.completedChallengeIds ?? [],
             purchasedItemIds: prefs.purchasedItemIds ?? [],
@@ -271,6 +272,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             completedChallengeIds: state.completedChallengeIds,
             purchasedItemIds: state.purchasedItemIds,
             completedChecklistTaskIds: state.completedChecklistTaskIds ?? [],
+            lastNameChangeDate: state.lastNameChangeDate ?? null,
             careerGoals: state.careerGoals ?? [],
             experienceLevel: state.experienceLevel ?? "",
             subscriptionTier: state.subscriptionTier ?? "starter",
@@ -449,14 +451,28 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateProfileName = async (name: string) => {
+    const nowIso = new Date().toISOString();
     try {
       if (user) {
         await account.updateName(name);
+        await account.updatePrefs({
+          lastNameChangeDate: nowIso,
+        });
       }
-      setState((prev) => ({ ...prev, name }));
+      setState((prev) => ({ ...prev, name, lastNameChangeDate: nowIso }));
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("insyt_last_name_change_date", nowIso);
+        } catch {}
+      }
     } catch (err) {
       console.error("Failed to update profile name in Appwrite:", err);
-      throw err;
+      setState((prev) => ({ ...prev, name, lastNameChangeDate: nowIso }));
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("insyt_last_name_change_date", nowIso);
+        } catch {}
+      }
     }
   };
 

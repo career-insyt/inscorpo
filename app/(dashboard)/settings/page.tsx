@@ -26,9 +26,9 @@ export default function SettingsPage() {
   const { user } = useAuth();
   const { state, updateProfileName } = useUser();
 
-  // Determine owner privileges: Strictly restricted to insyt.bd@gmail.com
+  // Determine owner privileges: Strictly restricted to career@insyt.bd & insyt.bd@gmail.com
   const userEmail = (user?.email || state.email || "").toLowerCase().trim();
-  const isOwner = userEmail === "insyt.bd@gmail.com";
+  const isOwner = ["career@insyt.bd", "insyt.bd@gmail.com"].includes(userEmail);
 
   // Profile Form State
   const [fullName, setFullName] = useState(state.name || user?.name || "Candidate");
@@ -170,7 +170,7 @@ export default function SettingsPage() {
                   <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-amber-400 text-amber-950 border border-amber-600">
                     OWNER ACCESS EXCLUSIVE
                   </span>
-                  <span className="text-[10px] text-corp-text-tertiary">insyt.bd@gmail.com</span>
+                  <span className="text-[10px] text-corp-text-tertiary">career@insyt.bd</span>
                 </div>
                 <h2 className="text-xl font-black uppercase tracking-tight text-corp-text mt-0.5">
                   Git Repository DevOps & Auto-Push
@@ -317,7 +317,7 @@ export default function SettingsPage() {
           {/* Realtime Execution Output Log */}
           {pushLogs.length > 0 && (
             <div className="mt-6">
-              <div className="flex items-center justify-between px-3 py-1.5 bg-slate-900 text-slate-400 rounded-t-lg text-[10px] font-mono border-x-2 border-t-2 border-slate-700">
+              <div className="flex items-center justify-between px-3 py-1.5 bg-slate-900 text-slate-200 rounded-t-lg text-[10px] font-mono border-x-2 border-t-2 border-slate-700">
                 <span className="flex items-center gap-1.5">
                   <Terminal size={12} className="text-emerald-400" />
                   <span>DevOps Execution Log</span>
@@ -365,7 +365,7 @@ export default function SettingsPage() {
               <input
                 type="email"
                 disabled
-                value={userEmail || "member@insyt.bd"}
+                value={userEmail || "career@insyt.bd"}
                 className="w-full px-3.5 py-2.5 rounded-lg border-2 border-corp-border bg-corp-bg-secondary text-xs font-mono text-corp-text-secondary cursor-not-allowed"
               />
               <p className="text-[10px] text-corp-text-tertiary mt-1">

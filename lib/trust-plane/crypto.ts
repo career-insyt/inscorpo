@@ -394,7 +394,7 @@ export function createOpenBadges3Credential(params: IssueCredentialParams) {
       type: 'Profile',
       name: 'INSYT Corporate Certification Authority',
       url: baseUrl,
-      email: 'credentials@insyt.co',
+      email: 'career@insyt.bd',
     },
     validFrom: params.validFrom || new Date().toISOString(),
     ...(params.validUntil ? { validUntil: params.validUntil } : {}),

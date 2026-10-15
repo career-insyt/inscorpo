@@ -44,21 +44,21 @@
   --color-game-green-dark: #236147;
 
   /* Neutral surfaces */
-  --color-corp-bg: #F7F8FC;
-  --color-corp-bg-secondary: #EDEEF5;
+  --color-corp-bg: #FFFFFF;
+  --color-corp-bg-secondary: #F8FAFC;
   --color-corp-surface: #FFFFFF;
-  --color-corp-surface-hover: #F4F5FB;
-  --color-corp-border: #DDE0EE;
-  --color-corp-border-active: #3B5BDB;
+  --color-corp-surface-hover: #F1F5F9;
+  --color-corp-border: #CBD5E1;
+  --color-corp-border-active: #2563eb;
 
-  --color-corp-text: #1A1D2E;
-  --color-corp-text-secondary: #4A4D63;
-  --color-corp-text-tertiary: #8B8FA8;
+  --color-corp-text: #0f172a;
+  --color-corp-text-secondary: #1e293b;
+  --color-corp-text-tertiary: #334155;
 
-  --color-corp-accent: #3B5BDB;
-  --color-corp-accent-hover: #2F4AC0;
+  --color-corp-accent: #2563eb;
+  --color-corp-accent-hover: #1d4ed8;
   --color-corp-accent-light: #EEF2FF;
-  --color-corp-accent-muted: #7B9AF8;
+  --color-corp-accent-muted: #60a5fa;
 
   --color-corp-cyan: #4B94E0;
   --color-corp-cyan-light: #EEF2FF;
@@ -202,20 +202,20 @@
 /* ─── Base CSS Variables ──────────────────────────────────────── */
 
 :root {
-  /* ── Light Mode: Warm-white surfaces, slate text, single blue accent ── */
-  --corp-bg: #F7F8FC;
-  --corp-bg-secondary: #EDEEF5;
+  /* ── Light Mode: Pure white surfaces, crisp high-contrast text, signature blue accent ── */
+  --corp-bg: #FFFFFF;
+  --corp-bg-secondary: #F8FAFC;
   --corp-surface: #FFFFFF;
-  --corp-surface-hover: #F4F5FB;
-  --corp-border: #DDE0EE;
-  --corp-border-active: #3B5BDB;
-  --corp-text: #1A1D2E;
-  --corp-text-secondary: #4A4D63;
-  --corp-text-tertiary: #8B8FA8;
+  --corp-surface-hover: #F1F5F9;
+  --corp-border: #CBD5E1;
+  --corp-border-active: #2563eb;
+  --corp-text: #0f172a;
+  --corp-text-secondary: #1e293b;
+  --corp-text-tertiary: #334155;
 
   /* Single refined blue — the ONLY primary accent */
-  --corp-accent: #3B5BDB;
-  --corp-accent-hover: #2F4AC0;
+  --corp-accent: #2563eb;
+  --corp-accent-hover: #1d4ed8;
   --corp-accent-light: #EEF2FF;
 
   /* Blue (primary) */

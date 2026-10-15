@@ -170,7 +170,7 @@ export default function SignupPage() {
         }
 
         document.cookie = `insyt_fallback_session=true; path=/; max-age=31536000; SameSite=Lax${secureAttr}`;
-        const isAdmin = ["insyt.bd@gmail.com", "admin@insyt.co"].includes(formData.email.toLowerCase());
+        const isAdmin = ["career@insyt.bd", "insyt.bd@gmail.com"].includes(formData.email.toLowerCase());
         if (isAdmin) {
           document.cookie = `insyt_admin_email=${encodeURIComponent(formData.email)}; path=/; max-age=31536000; SameSite=Lax${secureAttr}`;
         }

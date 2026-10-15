@@ -27,7 +27,7 @@ export function WeeklyVelocityChart({
   const progressPercent = Math.min(Math.round((totalWeeklyMinutes / weeklyTargetMins) * 100), 100);
   const maxActivity = Math.max(...weeklyActivity, 60);
 
-  // Hardcore calculated velocity telemetry
+  // Calculated velocity telemetry
   const completedLessonsThisWeek = state.completedDeliverableIds?.length || 0;
   const estimatedXpGenerated = totalWeeklyMinutes * 4 + completedLessonsThisWeek * 50;
   const consistencyScore = Math.round((weeklyActivity.filter((m) => m > 0).length / 7) * 100);
@@ -37,13 +37,13 @@ export function WeeklyVelocityChart({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="rounded-2xl border-2 border-blue-500 shadow-[5px_5px_0px_0px_#2563eb] p-5 sm:p-6 space-y-5 bg-white font-sans text-slate-900"
+      className="rounded-2xl border-2 border-blue-500 shadow-[5px_5px_0px_0px_#2563eb] p-5 sm:p-6 space-y-5 bg-white font-sans text-slate-900 select-none"
     >
-      {/* ── Header: Title & Hardcore Velocity Stats ── */}
+      {/* ── Header: Title & Velocity Stats ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-blue-100 pb-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5 flex-wrap">
-            <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center border-2 border-slate-950 shadow-[1.5px_1.5px_0px_0px_#000]">
+            <div className="w-8 h-8 rounded-xl bg-[#2563eb] text-white flex items-center justify-center border-2 border-blue-800 shadow-xs">
               <Activity size={17} strokeWidth={2.5} />
             </div>
             <h2 className="text-base sm:text-lg font-black uppercase tracking-tight text-slate-950 font-mono">
@@ -52,13 +52,13 @@ export function WeeklyVelocityChart({
             <span
               className={`px-2.5 py-0.5 rounded-lg text-[10px] font-mono font-black uppercase border-2 flex items-center gap-1 ${
                 totalWeeklyMinutes >= weeklyTargetMins
-                  ? "bg-amber-300 text-amber-950 border-slate-950 shadow-[1.5px_1.5px_0px_0px_#000]"
+                  ? "bg-amber-300 text-amber-950 border-amber-500 shadow-xs"
                   : totalWeeklyMinutes >= 90
-                  ? "bg-blue-100 text-blue-900 border-blue-300"
-                  : "bg-slate-100 text-slate-700 border-slate-300"
+                  ? "bg-blue-100 text-[#1e3a8a] border-blue-300"
+                  : "bg-slate-100 text-slate-800 border-slate-300"
               }`}
             >
-              <Zap size={11} className="fill-current" />
+              <Zap size={11} className="fill-current text-[#2563eb]" />
               {totalWeeklyMinutes >= weeklyTargetMins
                 ? "Pace: Target Exceeded"
                 : totalWeeklyMinutes >= 90
@@ -67,54 +67,54 @@ export function WeeklyVelocityChart({
             </span>
           </div>
 
-          <p className="text-xs font-mono text-slate-600 font-semibold">
+          <p className="text-xs font-mono text-slate-800 font-bold">
             Daily Average: <span className="text-[#2563eb] font-black">{dailyAverageMins}m / day</span> · Target: 30m / day (210m weekly)
           </p>
         </div>
 
         {/* Weekly Completion Score Pill */}
-        <div className="flex items-center gap-3 bg-blue-50/80 px-4 py-2 rounded-xl border-2 border-blue-200 shadow-sm self-start sm:self-auto font-mono">
+        <div className="flex items-center gap-3 bg-blue-50 px-4 py-2 rounded-xl border-2 border-blue-200 shadow-xs self-start sm:self-auto font-mono">
           <div className="text-right">
-            <span className="text-[10px] uppercase font-black text-slate-500 tracking-wider">Weekly Target</span>
-            <p className="text-xs font-black text-slate-900">{totalWeeklyMinutes} / {weeklyTargetMins}m</p>
+            <span className="text-[10px] uppercase font-black text-slate-800 tracking-wider">Weekly Target</span>
+            <p className="text-xs font-black text-slate-950">{totalWeeklyMinutes} / {weeklyTargetMins}m</p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[#2563eb] text-white border-2 border-slate-950 shadow-[2px_2px_0px_0px_#000] flex items-center justify-center text-xs font-black">
+          <div className="w-10 h-10 rounded-xl bg-[#2563eb] text-white border-2 border-blue-800 shadow-[2px_2px_0px_0px_#1e3a8a] flex items-center justify-center text-xs font-black">
             {progressPercent}%
           </div>
         </div>
       </div>
 
-      {/* ── Secondary Telemetry Data Bar (Planned & Backend Connected) ── */}
+      {/* ── Secondary Telemetry Data Bar ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-xs">
-        <div className="p-2.5 rounded-xl border-2 border-blue-100 bg-slate-50 flex items-center gap-2">
+        <div className="p-2.5 rounded-xl border-2 border-blue-100 bg-blue-50/40 flex items-center gap-2">
           <Clock size={16} className="text-[#2563eb] flex-shrink-0" />
           <div className="min-w-0">
-            <span className="text-[10px] text-slate-500 uppercase font-black block truncate">Time Invested</span>
-            <span className="font-black text-slate-900">{totalWeeklyMinutes} Mins</span>
+            <span className="text-[10px] text-slate-800 uppercase font-black block truncate">Time Invested</span>
+            <span className="font-black text-slate-950">{totalWeeklyMinutes} Mins</span>
           </div>
         </div>
 
-        <div className="p-2.5 rounded-xl border-2 border-blue-100 bg-slate-50 flex items-center gap-2">
+        <div className="p-2.5 rounded-xl border-2 border-blue-100 bg-blue-50/40 flex items-center gap-2">
           <Flame size={16} className="text-amber-500 fill-amber-500 flex-shrink-0" />
           <div className="min-w-0">
-            <span className="text-[10px] text-slate-500 uppercase font-black block truncate">Streak Multiplier</span>
-            <span className="font-black text-slate-900">{state.streak} Days Active</span>
+            <span className="text-[10px] text-slate-800 uppercase font-black block truncate">Streak Multiplier</span>
+            <span className="font-black text-slate-950">{state.streak} Days Active</span>
           </div>
         </div>
 
-        <div className="p-2.5 rounded-xl border-2 border-blue-100 bg-slate-50 flex items-center gap-2">
-          <TrendingUp size={16} className="text-emerald-600 flex-shrink-0" />
+        <div className="p-2.5 rounded-xl border-2 border-blue-100 bg-blue-50/40 flex items-center gap-2">
+          <TrendingUp size={16} className="text-emerald-700 flex-shrink-0" />
           <div className="min-w-0">
-            <span className="text-[10px] text-slate-500 uppercase font-black block truncate">Consistency</span>
-            <span className="font-black text-slate-900">{consistencyScore}% Weekly</span>
+            <span className="text-[10px] text-slate-800 uppercase font-black block truncate">Consistency</span>
+            <span className="font-black text-slate-950">{consistencyScore}% Weekly</span>
           </div>
         </div>
 
-        <div className="p-2.5 rounded-xl border-2 border-blue-100 bg-slate-50 flex items-center gap-2">
+        <div className="p-2.5 rounded-xl border-2 border-blue-100 bg-blue-50/40 flex items-center gap-2">
           <Zap size={16} className="text-[#2563eb] fill-[#2563eb] flex-shrink-0" />
           <div className="min-w-0">
-            <span className="text-[10px] text-slate-500 uppercase font-black block truncate">XP Generated</span>
-            <span className="font-black text-slate-900">+{estimatedXpGenerated} XP</span>
+            <span className="text-[10px] text-slate-800 uppercase font-black block truncate">XP Generated</span>
+            <span className="font-black text-slate-950">+{estimatedXpGenerated} XP</span>
           </div>
         </div>
       </div>
@@ -123,12 +123,12 @@ export function WeeklyVelocityChart({
       <div className="relative pt-4">
         {/* Dynamic 30m Target Dotted Line */}
         <div
-          className="absolute left-0 right-0 border-b-2 border-dashed border-[#2563eb]/50 z-10 pointer-events-none flex justify-end"
+          className="absolute left-0 right-0 border-b-2 border-dashed border-[#2563eb]/60 z-10 pointer-events-none flex justify-end"
           style={{
             bottom: `calc(2rem + ${Math.min((30 / maxActivity) * 100, 90)}% * 0.65)`,
           }}
         >
-          <span className="text-[9px] font-mono font-black px-2 py-0.5 rounded bg-blue-100 text-[#2563eb] border border-blue-300 -mt-2.5 uppercase">
+          <span className="text-[9px] font-mono font-black px-2 py-0.5 rounded bg-blue-100 text-[#1e3a8a] border border-blue-300 -mt-2.5 uppercase">
             30m Standard Benchmark
           </span>
         </div>
@@ -150,7 +150,7 @@ export function WeeklyVelocityChart({
                 <div
                   className={`absolute -top-8 text-[10px] font-mono font-black px-2 py-0.5 rounded-md transition-all shadow-md whitespace-nowrap z-20 ${
                     isSelected || isToday ? "opacity-100 scale-100" : "opacity-0 group-hover:opacity-100 scale-95"
-                  } bg-slate-950 text-white border border-slate-700`}
+                  } bg-[#2563eb] text-white border border-blue-700`}
                 >
                   {days[i]}: {mins}m {isPeak ? "• Peak" : ""}
                 </div>
@@ -163,21 +163,21 @@ export function WeeklyVelocityChart({
                 )}
 
                 {/* Bar Box */}
-                <div className="w-full flex-1 flex items-end justify-center rounded-xl bg-slate-100 p-1 border-2 border-slate-200 group-hover:border-blue-400 transition-colors">
+                <div className="w-full flex-1 flex items-end justify-center rounded-xl bg-slate-100 p-1 border-2 border-slate-300 group-hover:border-blue-500 transition-colors">
                   <motion.div
                     initial={{ height: 0 }}
                     animate={{ height: mins === 0 ? 6 : `${(mins / maxActivity) * 100}%` }}
                     transition={{ delay: 0.08 + i * 0.05, duration: 0.5, ease: "easeOut" }}
                     className={`w-full rounded-lg transition-all ${
-                      isSelected ? "ring-2 ring-slate-950 shadow-sm" : ""
+                      isSelected ? "ring-2 ring-blue-600 shadow-sm" : ""
                     } ${
                       isToday
-                        ? "bg-[#2563eb] border border-blue-600"
+                        ? "bg-[#2563eb] border border-blue-700"
                         : mins >= 30
                         ? "bg-blue-600"
                         : mins > 0
                         ? "bg-blue-400"
-                        : "bg-blue-200/50"
+                        : "bg-blue-200"
                     }`}
                   />
                 </div>
@@ -186,7 +186,7 @@ export function WeeklyVelocityChart({
                 <div className="flex flex-col items-center gap-0.5">
                   <span
                     className={`text-xs font-mono font-black ${
-                      isToday ? "text-[#2563eb]" : "text-slate-600"
+                      isToday ? "text-[#2563eb]" : "text-slate-800"
                     }`}
                   >
                     {days[i]}
@@ -200,17 +200,17 @@ export function WeeklyVelocityChart({
       </div>
 
       {/* ── Selected Day Detailed Telemetry Box ── */}
-      <div className="p-3.5 rounded-xl bg-blue-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs border-2 border-blue-200 font-mono font-black">
+      <div className="p-3.5 rounded-xl bg-blue-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs border-2 border-blue-200 font-mono font-black">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-[#2563eb]" />
           <span className="text-slate-900">{days[selectedDayIdx]} Telemetry:</span>
           <span className="text-[#2563eb]">{weeklyActivity[selectedDayIdx]} Minutes Active</span>
         </div>
 
-        <div className="flex items-center gap-3 text-[11px] text-slate-600">
+        <div className="flex items-center gap-3 text-[11px] text-slate-800">
           <span>
             Goal Completion:{" "}
-            <strong className="text-slate-900">
+            <strong className="text-slate-950 font-black">
               {Math.min(Math.round((weeklyActivity[selectedDayIdx] / 30) * 100), 100)}%
             </strong>
           </span>

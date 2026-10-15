@@ -198,7 +198,7 @@ export default function IndividualWorkshopPage() {
       variants={container}
       initial="hidden"
       animate="visible"
-      className="max-w-5xl mx-auto space-y-6 font-sans pb-24 text-slate-900 dark:text-white"
+      className="max-w-5xl mx-auto space-y-6 font-sans pb-24 text-slate-900"
     >
       {/* Back Button */}
       <motion.div variants={item}>
@@ -398,7 +398,7 @@ export default function IndividualWorkshopPage() {
 
               {/* Host & Credential Card */}
               <div className="p-5 rounded-2xl border-2 border-amber-400 bg-amber-400/10 space-y-3 shadow-md">
-                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-black text-xs uppercase">
+                <div className="flex items-center gap-2 text-amber-700 font-black text-xs uppercase">
                   <Award size={16} /> Partner Host Organization
                 </div>
                 <h4 className="text-sm font-black uppercase text-corp-text">{workshop.hostOrg}</h4>
@@ -467,9 +467,9 @@ export default function IndividualWorkshopPage() {
                         let optStyle = "border-corp-border bg-corp-surface text-corp-text hover:border-[#2563eb]";
                         if (isExamSubmitted) {
                           if (isCorrectOpt) {
-                            optStyle = "border-emerald-500 bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold";
+                            optStyle = "border-emerald-500 bg-emerald-500/20 text-emerald-800 font-bold";
                           } else if (isThisSelected && !isCorrectOpt) {
-                            optStyle = "border-rose-500 bg-rose-500/20 text-rose-700 dark:text-rose-300";
+                            optStyle = "border-rose-500 bg-rose-500/20 text-rose-800";
                           }
                         } else if (isThisSelected) {
                           optStyle = "border-[#2563eb] bg-[#2563eb]/15 text-[#2563eb] font-bold";

@@ -18,10 +18,8 @@ export default function AdminLayout({
 
   // Strict Role-Based Access Control (RBAC)
   const ADMIN_AUTHORIZED_EMAILS = [
+    "career@insyt.bd",
     "insyt.bd@gmail.com",
-    "admin@insyt.co",
-    "corporate@insyt.co",
-    "zubair@insyt.co",
   ];
 
   const userEmail = (user?.email || "").toLowerCase().trim();
@@ -33,7 +31,7 @@ export default function AdminLayout({
     (userLabels.includes("admin") ||
       userRole === "admin" ||
       ADMIN_AUTHORIZED_EMAILS.includes(userEmail) ||
-      userEmail.endsWith("@insyt.co"));
+      userEmail.endsWith("@insyt.bd"));
 
   // 1. Loading State
   if (isLoading) {
@@ -128,7 +126,7 @@ export default function AdminLayout({
         <div className="p-3 border-t-2 border-blue-400/40 space-y-2 bg-slate-50">
           <div className="px-3 py-2 rounded-sm bg-emerald-500/10 border border-emerald-500/30 text-[10px] text-emerald-800 font-bold flex items-center gap-1.5">
             <ShieldCheck size={14} className="text-emerald-600 shrink-0" />
-            <span className="truncate">{user?.email || "admin@insyt.co"}</span>
+            <span className="truncate">{user?.email || "career@insyt.bd"}</span>
           </div>
 
           <Link

@@ -95,7 +95,7 @@ export default function LoginPage() {
     const finishLogin = (userObj: any) => {
       document.cookie = `insyt_fallback_session=true; path=/; max-age=31536000; SameSite=Lax${secureAttr}`;
       if (userObj.email) {
-        const isAdmin = ["insyt.bd@gmail.com", "admin@insyt.co"].includes(userObj.email.toLowerCase());
+        const isAdmin = ["career@insyt.bd", "insyt.bd@gmail.com"].includes(userObj.email.toLowerCase());
         if (isAdmin) {
           document.cookie = `insyt_admin_email=${encodeURIComponent(userObj.email)}; path=/; max-age=31536000; SameSite=Lax${secureAttr}`;
         }
@@ -178,16 +178,9 @@ export default function LoginPage() {
         return;
       }
 
-      // If Appwrite failed due to CORS / Network on insyt.bd, log user in directly
-      const directUser = {
-        $id: "user-" + Math.random().toString(36).substring(2, 9),
-        name: email.split("@")[0],
-        email: email,
-        emailVerification: true,
-        status: true,
-        prefs: { subscriptionTier: "starter", subscriptionStatus: "active" },
-      };
-      finishLogin(directUser);
+      // If Appwrite failed due to CORS / Network, show error instead of fallback
+      setError("Unable to connect to the authentication server. Please check your internet connection and try again.");
+      setIsLoading(false);
     }
   };
 

@@ -543,9 +543,9 @@ export default function MockTestSolverPage(props: PageProps) {
 
                         let optStyle = "bg-corp-bg-secondary text-corp-text border-corp-border";
                         if (isRightAnswer) {
-                          optStyle = "bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-500 font-black";
+                          optStyle = "bg-emerald-50 text-emerald-800 border-emerald-500 font-black";
                         } else if (isUserSelected && !isCorrect) {
-                          optStyle = "bg-rose-500/20 text-rose-800 dark:text-rose-300 border-rose-500 font-black";
+                          optStyle = "bg-rose-50 text-rose-800 border-rose-500 font-black";
                         }
 
                         return (
@@ -560,15 +560,15 @@ export default function MockTestSolverPage(props: PageProps) {
                               <span className="font-extrabold">{String.fromCharCode(65 + optIdx)}.</span>
                               <span>{opt}</span>
                             </span>
-                            {isRightAnswer && <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase">Correct Answer</span>}
-                            {isUserSelected && !isRightAnswer && <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase">Your Choice</span>}
+                            {isRightAnswer && <span className="text-[10px] font-black text-emerald-700 uppercase">Correct Answer</span>}
+                            {isUserSelected && !isRightAnswer && <span className="text-[10px] font-black text-rose-700 uppercase">Your Choice</span>}
                           </div>
                         );
                       })}
                     </div>
 
                     {/* Explanation Box */}
-                    <div className="p-4 rounded-xl bg-blue-50 dark:bg-slate-900 border border-blue-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 font-sans space-y-1">
+                    <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs text-slate-800 font-sans space-y-1">
                       <span className="font-black uppercase text-[#2563eb] text-[10px] block">Solution &amp; Explanation</span>
                       <p className="leading-relaxed font-medium">{q.explanation}</p>
                     </div>

@@ -62,9 +62,9 @@ export function FormalFooter() {
                 <MapPin size={13} className="text-blue-400" />
                 Dhaka, Bangladesh
               </span>
-              <a href="mailto:insyt.bd@gmail.com" className="flex items-center gap-1.5 hover:text-white transition-colors">
+              <a href="mailto:career@insyt.bd" className="flex items-center gap-1.5 hover:text-white transition-colors">
                 <Mail size={13} className="text-blue-400" />
-                insyt.bd@gmail.com
+                career@insyt.bd
               </a>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-950/70 border border-blue-500/30 text-[11px] text-blue-200">
                 <span className="relative flex h-1.5 w-1.5">

@@ -85,7 +85,7 @@ export function InstituteIntelligenceCard({ institute, onSelectJob, isExpanded, 
               {institute.highValueDegrees.slice(0, 5).map((deg) => (
                 <span
                   key={deg}
-                  className="px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-400/30"
+                  className="px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase bg-sky-50 text-sky-700 border border-sky-300"
                 >
                   {deg}
                 </span>

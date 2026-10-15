@@ -363,7 +363,7 @@ export default function CareerPassportPage() {
         doc.setFontSize(12);
         doc.text(pp?.headline || "Corporate Business Analyst", 20, 35);
         doc.setFontSize(10);
-        doc.text(`Email: ${state.email || "insyt.bd@gmail.com"} | Verification: ${verificationId}`, 20, 43);
+        doc.text(`Email: ${state.email || "career@insyt.bd"} | Verification: ${verificationId}`, 20, 43);
         doc.text(`Location: ${pp?.location || "Dhaka, Bangladesh"} | Phone: ${pp?.phone || "+880..."}`, 20, 49);
         doc.setFontSize(14);
         doc.text("Executive Bio", 20, 62);
@@ -541,7 +541,7 @@ export default function CareerPassportPage() {
 
             {/* Bottom Contact Row */}
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-mono pt-3 border-t border-white/20 text-blue-100">
-              <span className="flex items-center gap-1.5"><Mail size={12} />{state.email || "insyt.bd@gmail.com"}</span>
+              <span className="flex items-center gap-1.5"><Mail size={12} />{state.email || "career@insyt.bd"}</span>
               <span className="flex items-center gap-1.5"><MapPin size={12} /><EditableField value={pp?.location ?? ""} placeholder="Location (e.g. Dhaka)" onSave={(v) => save({ location: v })} /></span>
               <span className="flex items-center gap-1.5"><Phone size={12} /><EditableField value={pp?.phone ?? ""} placeholder="Phone (+880...)" onSave={(v) => save({ phone: v })} /></span>
               <span className="flex items-center gap-1.5"><Link2 size={12} /><EditableField value={pp?.linkedin ?? ""} placeholder="linkedin.com/in/..." onSave={(v) => save({ linkedin: v })} /></span>
@@ -1093,10 +1093,10 @@ export default function CareerPassportPage() {
                             className={cn(
                               "w-10 h-10 rounded-xl flex items-center justify-center text-base flex-shrink-0 border-2 font-mono font-black",
                               !isUnlocked
-                                ? "bg-slate-200 border-slate-300 text-slate-400"
+                                ? "bg-slate-200 border-slate-300 text-slate-600"
                                 : isVisible
                                 ? "bg-blue-600 text-white border-blue-700 shadow-xs"
-                                : "bg-white border-slate-400 text-slate-400"
+                                : "bg-white border-slate-400 text-slate-700"
                             )}
                           >
                             {!isUnlocked ? "🔒" : isVisible ? "✓" : "—"}

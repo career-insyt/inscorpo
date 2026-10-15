@@ -53,7 +53,7 @@ const FAQS = [
   {
     category: "General",
     q: "How do I report technical issues or curriculum errors?",
-    a: "You can submit a ticket using the Contact Support form below or message our engineering desk directly at support@insyt.co. Corporate candidates receive response priority within 2 hours.",
+    a: "You can submit a ticket using the Contact Support form below or message our engineering desk directly at career@insyt.bd. Corporate candidates receive response priority within 2 hours.",
   },
 ];
 
@@ -139,11 +139,11 @@ export default function HelpPage() {
 
           <div className="flex items-center gap-2 font-mono flex-shrink-0">
             <a
-              href="mailto:support@insyt.co"
+              href="mailto:career@insyt.bd"
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border-2 border-slate-300 hover:border-slate-800 bg-slate-50 text-slate-800 transition-all shadow-xs"
             >
               <Mail size={13} className="text-[#2563eb]" />
-              <span>support@insyt.co</span>
+              <span>career@insyt.bd</span>
             </a>
           </div>
         </div>
@@ -199,15 +199,15 @@ export default function HelpPage() {
         <div className="lg:col-span-7 space-y-4">
           <div className="rounded-2xl border-2 border-blue-500 shadow-[5px_5px_0px_0px_#2563eb] bg-white p-5 sm:p-6 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-slate-100 pb-3 font-mono">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <HelpCircle size={17} className="text-[#2563eb]" />
                 <h2 className="text-xs font-black uppercase tracking-wider text-slate-900">
                   Frequently Answered Questions
                 </h2>
               </div>
 
-              {/* Category Pills */}
-              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar text-[10px]">
+              {/* Category Pills: flex-wrap ensures clean layout without an ugly horizontal scrollbar */}
+              <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
                 {(["All", "General", "Certificates", "Testing", "Subscription"] as const).map(
                   (cat) => (
                     <button
@@ -215,10 +215,10 @@ export default function HelpPage() {
                       type="button"
                       onClick={() => setSelectedCategory(cat)}
                       className={cn(
-                        "px-2.5 py-1 rounded-lg font-black transition-all cursor-pointer",
+                        "px-2.5 py-1 rounded-lg font-black transition-all cursor-pointer border whitespace-nowrap",
                         selectedCategory === cat
-                          ? "bg-[#2563eb] text-white shadow-xs"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          ? "bg-[#2563eb] text-white border-blue-700 shadow-xs"
+                          : "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
                       )}
                     >
                       {cat}

@@ -225,7 +225,7 @@ export default function PublicPassportVerificationPage({
               <h2 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
                 <Award size={16} className="text-emerald-500" /> Trust Plane Standing
               </h2>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700">
                 <span className="text-xs font-bold">{passportData.rankName}</span>
                 <span className="text-xs font-mono font-bold">100% Psychometrically Calibrated</span>
               </div>

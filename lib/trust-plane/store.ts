@@ -128,7 +128,7 @@ export function issueAndStoreCredential(params: {
   issueAndStoreCredential({
     trackId: 'financial-modeling',
     recipientName: 'Alex Mercer',
-    recipientEmail: 'alex.mercer@insyt.co',
+    recipientEmail: 'alex.mercer@insyt.bd',
     badgeName: 'Certified Financial Modeling & Valuation Analyst (FMVA)',
     badgeDescription: 'Mastery in building dynamic three-statement models, DCF valuations, and sensitivity tables with zero hardcoding.',
     badgeImageUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400&auto=format&fit=crop&q=80',
@@ -140,7 +140,7 @@ export function issueAndStoreCredential(params: {
   issueAndStoreCredential({
     trackId: 'corporate-finance',
     recipientName: 'Sarah Jenkins',
-    recipientEmail: 'sarah.jenkins@insyt.co',
+    recipientEmail: 'sarah.jenkins@insyt.bd',
     badgeName: 'Chartered Corporate Capital Analyst',
     badgeDescription: 'Excellence in capital budgeting, WACC optimization, and M&A enterprise valuation.',
     badgeImageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&auto=format&fit=crop&q=80',

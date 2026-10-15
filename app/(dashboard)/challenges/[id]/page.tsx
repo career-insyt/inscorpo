@@ -243,14 +243,14 @@ Verification Hash: INSYT-CERT-${challenge.id.toUpperCase()}-${Date.now()}
           </Link>
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-500/15 text-amber-700 border border-amber-500/30 flex items-center gap-1">
                 <Zap size={11} className="fill-amber-500" /> {challenge.category}
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-blue-500/15 text-[#2563eb] border border-blue-500/30">
                 {challenge.difficulty}
               </span>
               {challenge.ppoOffered && (
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 flex items-center gap-1">
                   <Trophy size={11} /> PPI Offer Included
                 </span>
               )}
@@ -286,7 +286,7 @@ Verification Hash: INSYT-CERT-${challenge.id.toUpperCase()}-${Date.now()}
 
           {/* Completion Badge */}
           {isCompletedAlready ? (
-            <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-bold text-xs">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 font-bold text-xs">
               <CheckCircle2 size={16} /> Completed ({evaluationResult?.score ?? 100}/100)
             </div>
           ) : (
@@ -410,7 +410,7 @@ Verification Hash: INSYT-CERT-${challenge.id.toUpperCase()}-${Date.now()}
             {/* Dataset Download Card */}
             <div className="p-6 rounded-3xl border space-y-3 bg-gradient-to-br from-amber-500/5 to-corp-accent/5 border-amber-500/30">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-amber-600 dark:text-amber-400 flex items-center gap-2">
+                <span className="text-xs font-extrabold text-amber-700 flex items-center gap-2">
                   <Download size={16} /> Dataset File (.CSV)
                 </span>
                 <span className="text-[10px] font-mono text-amber-500">{datasetRows.length} Rows</span>
@@ -640,7 +640,7 @@ Example Structure:
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-2 text-corp-text"
                 >
-                  <span className="font-extrabold text-amber-600 dark:text-amber-400 block flex items-center gap-1.5">
+                  <span className="font-extrabold text-amber-700 block flex items-center gap-1.5">
                     <Lightbulb size={14} /> Benchmark Formula Cheat Sheet:
                   </span>
                   <ul className="list-disc list-inside space-y-1 font-mono text-[11px] text-corp-text-secondary">
@@ -683,7 +683,7 @@ Example Structure:
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-xs text-purple-700 dark:text-purple-300 space-y-1"
+                  className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-xs text-purple-700 space-y-1"
                 >
                   <span className="font-extrabold block">AI Evaluator Guidance Hint:</span>
                   {challenge.hints.map((hint, idx) => (
@@ -762,7 +762,7 @@ Example Structure:
                   <div className="flex flex-col items-center justify-center p-6 rounded-3xl bg-corp-bg-secondary border border-corp-border flex-shrink-0 min-w-[180px]">
                     <span className="text-4xl font-black text-emerald-500">{evaluationResult.score}/100</span>
                     <span className="text-xs font-extrabold text-corp-text-tertiary uppercase mt-1">Grade {evaluationResult.grade}</span>
-                    <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 mt-2 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-md">
+                    <span className="text-[10px] font-mono text-emerald-700 mt-2 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-md">
                       Evaluated &amp; Certified
                     </span>
                   </div>
@@ -823,7 +823,7 @@ Example Structure:
                 <div className="lg:col-span-2 space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="p-6 rounded-3xl border space-y-3 bg-emerald-500/5 border-emerald-500/20">
-                      <h4 className="font-extrabold text-xs uppercase text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+                      <h4 className="font-extrabold text-xs uppercase text-emerald-700 flex items-center gap-2">
                         <CheckCircle2 size={16} /> Key Analytical Strengths
                       </h4>
                       <ul className="space-y-2 text-xs text-corp-text-secondary leading-relaxed">
@@ -837,7 +837,7 @@ Example Structure:
                     </div>
 
                     <div className="p-6 rounded-3xl border space-y-3 bg-rose-500/5 border-rose-500/20">
-                      <h4 className="font-extrabold text-xs uppercase text-rose-600 dark:text-rose-400 flex items-center gap-2">
+                      <h4 className="font-extrabold text-xs uppercase text-rose-700 flex items-center gap-2">
                         <AlertCircle size={16} /> Key Areas for Improvement
                       </h4>
                       <ul className="space-y-2 text-xs text-corp-text-secondary leading-relaxed">

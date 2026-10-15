@@ -99,7 +99,7 @@ async function runSuperStressTest() {
     const res = await request("/api/events/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: { name: "Super Tester", email: "tester@insyt.co", eventTitle: "BAUBC Business Competition", eventId: "BAUBC2026" },
+      body: { name: "Super Tester", email: "tester@insyt.bd", eventTitle: "BAUBC Business Competition", eventId: "BAUBC2026" },
     });
     logResult("API", "Event Registration (Valid Payload)", res.status === 200 && res.data?.ticketId, res.duration, `Ticket: ${res.data?.ticketId}`);
   }
@@ -121,7 +121,7 @@ async function runSuperStressTest() {
       request("/api/events/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: { name: `Tester ${i}`, email: `test${i}@insyt.co`, eventTitle: "Excel Workshop BAUBC", eventId: "EXCEL26" },
+        body: { name: `Tester ${i}`, email: `test${i}@insyt.bd`, eventTitle: "Excel Workshop BAUBC", eventId: "EXCEL26" },
       })
     );
     const results = await Promise.all(promises);

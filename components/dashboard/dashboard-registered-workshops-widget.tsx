@@ -94,65 +94,60 @@ export function DashboardRegisteredWorkshopsWidget() {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="font-mono"
+      className="font-mono select-none"
     >
-      <div
-        className="p-5 rounded-2xl border-2 border-emerald-500 shadow-[5px_5px_0px_0px_#047857] text-white flex flex-col md:flex-row md:items-center justify-between gap-4 overflow-hidden relative"
-        style={{
-          background: "linear-gradient(135deg, #064e3b 0%, #0f2b48 50%, #1e1b4b 100%)",
-        }}
-      >
+      <div className="p-5 rounded-2xl border-2 border-emerald-500 shadow-[5px_5px_0px_0px_#047857] bg-white text-slate-900 flex flex-col md:flex-row md:items-center justify-between gap-4 overflow-hidden relative">
         <div className="space-y-1.5 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase bg-emerald-400 text-emerald-950 border border-emerald-500 flex items-center gap-1">
-              <CheckCircle2 size={12} /> SEAT CONFIRMED &amp; REGISTERED
+            <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-400 flex items-center gap-1">
+              <CheckCircle2 size={12} className="stroke-[3]" /> SEAT CONFIRMED &amp; REGISTERED
             </span>
-            <span className="px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase bg-amber-400 text-amber-950 border border-amber-500">
+            <span className="px-2 py-0.5 rounded-lg text-[10px] font-black uppercase bg-amber-100 text-amber-900 border border-amber-400">
               INSYT Live Workshop
             </span>
           </div>
-          <h3 className="text-base sm:text-lg font-black uppercase text-white tracking-wide truncate">
+          <h3 className="text-base sm:text-lg font-black uppercase text-slate-900 tracking-wide truncate">
             🎟️ {registeredWorkshops[0].title}
           </h3>
-          <div className="flex flex-wrap gap-4 text-xs font-bold text-emerald-200 font-sans">
-            <span className="flex items-center gap-1"><Calendar size={13} className="text-emerald-400" /> {registeredWorkshops[0].date}</span>
-            <span className="flex items-center gap-1"><Clock size={13} className="text-emerald-400" /> {registeredWorkshops[0].time}</span>
-            <span className="flex items-center gap-1"><ShieldCheck size={13} className="text-emerald-400" /> Verified Pass Issued</span>
+          <div className="flex flex-wrap gap-4 text-xs font-bold text-slate-800 font-sans">
+            <span className="flex items-center gap-1"><Calendar size={13} className="text-[#2563eb]" /> {registeredWorkshops[0].date}</span>
+            <span className="flex items-center gap-1"><Clock size={13} className="text-[#2563eb]" /> {registeredWorkshops[0].time}</span>
+            <span className="flex items-center gap-1"><ShieldCheck size={13} className="text-emerald-700" /> Verified Pass Issued</span>
           </div>
         </div>
 
         {/* Countdown Timer Block */}
         <div className="flex flex-col items-start md:items-end gap-1 flex-shrink-0">
-          <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1">
-            <Timer size={12} className="animate-pulse" /> Event Starts In
+          <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 flex items-center gap-1">
+            <Timer size={12} className="animate-pulse text-amber-600" /> Event Starts In
           </span>
-          <div className="flex items-center gap-1 bg-slate-950/70 p-2 sm:p-2.5 rounded-xl border border-emerald-500/50 shadow-[3px_3px_0px_0px_#047857]">
+          <div className="flex items-center gap-1 bg-slate-50 p-2 sm:p-2.5 rounded-xl border-2 border-emerald-500 shadow-[3px_3px_0px_0px_#047857]">
             <div className="flex flex-col items-center px-1.5 min-w-[34px]">
-              <span className="text-base sm:text-lg font-black text-amber-400 leading-none">
+              <span className="text-base sm:text-lg font-black text-slate-900 leading-none">
                 {String(timeLeft.days).padStart(2, "0")}
               </span>
-              <span className="text-[8px] font-black uppercase text-emerald-300/90 mt-0.5">DAYS</span>
+              <span className="text-[8px] font-black uppercase text-slate-700 mt-0.5">DAYS</span>
             </div>
-            <span className="text-emerald-400 font-black text-sm pb-2">:</span>
+            <span className="text-emerald-600 font-black text-sm pb-2">:</span>
             <div className="flex flex-col items-center px-1.5 min-w-[34px]">
-              <span className="text-base sm:text-lg font-black text-amber-400 leading-none">
+              <span className="text-base sm:text-lg font-black text-slate-900 leading-none">
                 {String(timeLeft.hours).padStart(2, "0")}
               </span>
-              <span className="text-[8px] font-black uppercase text-emerald-300/90 mt-0.5">HRS</span>
+              <span className="text-[8px] font-black uppercase text-slate-700 mt-0.5">HRS</span>
             </div>
-            <span className="text-emerald-400 font-black text-sm pb-2">:</span>
+            <span className="text-emerald-600 font-black text-sm pb-2">:</span>
             <div className="flex flex-col items-center px-1.5 min-w-[34px]">
-              <span className="text-base sm:text-lg font-black text-amber-400 leading-none">
+              <span className="text-base sm:text-lg font-black text-slate-900 leading-none">
                 {String(timeLeft.minutes).padStart(2, "0")}
               </span>
-              <span className="text-[8px] font-black uppercase text-emerald-300/90 mt-0.5">MIN</span>
+              <span className="text-[8px] font-black uppercase text-slate-700 mt-0.5">MIN</span>
             </div>
-            <span className="text-emerald-400 font-black text-sm pb-2">:</span>
+            <span className="text-emerald-600 font-black text-sm pb-2">:</span>
             <div className="flex flex-col items-center px-1.5 min-w-[34px]">
-              <span className="text-base sm:text-lg font-black text-amber-400 leading-none">
+              <span className="text-base sm:text-lg font-black text-slate-900 leading-none">
                 {String(timeLeft.seconds).padStart(2, "0")}
               </span>
-              <span className="text-[8px] font-black uppercase text-emerald-300/90 mt-0.5">SEC</span>
+              <span className="text-[8px] font-black uppercase text-slate-700 mt-0.5">SEC</span>
             </div>
           </div>
         </div>

@@ -212,7 +212,7 @@ export function WorkshopRegistrationModal({
 
               {workshop.registrationUrl && (
                 <div className="p-3 rounded-xl bg-amber-400/15 border border-amber-500/40 flex items-center justify-between gap-3 text-xs font-mono">
-                  <span className="font-bold text-amber-600 dark:text-amber-400">
+                  <span className="font-bold text-amber-800">
                     Prefer the official BAUCC Google Form?
                   </span>
                   <a

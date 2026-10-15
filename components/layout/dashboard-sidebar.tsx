@@ -18,7 +18,7 @@ function buildNavSections() {
     primaryPillars: [
       { icon: Rocket,        label: "Dashboard",       href: "/dashboard",     subLabel: "Career Command Center", color: "blue" },
       { icon: BookOpen,      label: "Learn",           href: "/learn",         subLabel: "Courses, Paths & Drills", color: "emerald" },
-      { icon: ClipboardList, label: "Evaluate",        href: "/evaluate",      subLabel: "Assessments & Diagnostics", color: "amber" },
+      { icon: ClipboardList, label: "Evaluate",        href: "/evaluate",      subLabel: "Assessments & Diagnostics", color: "red" },
       { icon: FileText,      label: "Career Passport", href: "/passport",      subLabel: "Proof-of-Work Identity", color: "blue", isNew: true },
       { icon: Briefcase,     label: "Opportunities",   href: "/opportunities", subLabel: "Curated Employer Matching", color: "rose" },
     ],
@@ -28,8 +28,8 @@ function buildNavSections() {
         { icon: Calendar, label: "Corporate Events", href: "/events", color: "blue" },
         { icon: Mic,    label: "AI Mock Interviews", href: "/mock-interviews", color: "indigo" },
         { icon: Target, label: "Career Strategy Hub", href: "/career-hub", color: "indigo" },
-        { icon: Zap,    label: "Case Challenges",    href: "/challenges", color: "amber" },
-        { icon: Award,  label: "Credentials Archive", href: "/certificates", color: "emerald" },
+        { icon: Zap,    label: "Case Challenges",    href: "/challenges", color: "red" },
+        { icon: Award,  label: "Credentials Archive", href: "/certificates", color: "blue" },
       ],
     },
     accountSection: {
@@ -48,6 +48,7 @@ const colorMap: Record<string, { bg: string; text: string; lightBg: string; bord
   emerald: { bg: "#10b981", text: "#ffffff", lightBg: "rgba(16,185,129,0.12)", border: "#047857" },
   amber:   { bg: "#f59e0b", text: "#78350f", lightBg: "rgba(245,158,11,0.15)", border: "#b45309" },
   rose:    { bg: "#e11d48", text: "#ffffff", lightBg: "rgba(225,29,72,0.12)", border: "#9f1239" },
+  red:     { bg: "#dc2626", text: "#ffffff", lightBg: "rgba(220,38,38,0.12)", border: "#991b1b" },
   slate:   { bg: "#64748b", text: "#ffffff", lightBg: "rgba(100,116,139,0.12)", border: "#334155" },
 };
 

@@ -238,7 +238,7 @@ export function DailyQuestEngine() {
                     {nextLesson ? nextLesson.title : `Complete next module in ${enrolledCourse.title}`}
                   </h3>
                   {nextLesson?.moduleTitle && (
-                    <p className="text-[11px] text-slate-600 mt-0.5 line-clamp-1">
+                    <p className="text-[11px] text-slate-800 mt-0.5 line-clamp-1 font-medium">
                       {nextLesson.moduleTitle}
                     </p>
                   )}

@@ -15,11 +15,10 @@ import { LinkedInExperienceCard } from "@/components/dashboard/linkedin-experien
 import { LinkedInSkillsCard } from "@/components/dashboard/linkedin-skills-card";
 import { WeeklyVelocityChart } from "@/components/dashboard/weekly-velocity-chart";
 import { ActivityHeatmap } from "@/components/dashboard/activity-heatmap";
-import { DailyQuestEngine } from "@/components/dashboard/daily-quest-engine";
 import { DashboardRegisteredWorkshopsWidget } from "@/components/dashboard/dashboard-registered-workshops-widget";
+import { DashboardEventsHub } from "@/components/dashboard/dashboard-events-hub";
 import { StreakExplainerModal } from "@/components/dashboard/streak-explainer-modal";
 import { CockpitCommandCenter } from "@/components/dashboard/cockpit-command-center";
-import { YouTubeShortsWidget } from "@/components/dashboard/youtube-shorts-widget";
 import { AllBadgesShowcase } from "@/components/dashboard/all-badges-showcase";
 
 const container = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } };
@@ -29,9 +28,6 @@ const item = {
 };
 
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-// Animated Noto emoji URLs
-const FIRE_EMOJI_URL = "https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.webp";
 
 export default function LinkedInDashboardPage() {
   const { state } = useUser();
@@ -65,15 +61,15 @@ export default function LinkedInDashboardPage() {
       animate="visible"
       className="max-w-7xl mx-auto space-y-6 pb-20 font-sans"
     >
-      {/* ── 0. Candidate Profile Header (Restored) ── */}
+      {/* ── 0. Candidate Profile Header ── */}
       <LinkedInProfileHeader state={state} />
 
-      {/* ── 1. Career Command Center & Readiness Index ── */}
+      {/* ── 1. Career Command Center (Readiness Index + Quick Learnings Reels) ── */}
       <CockpitCommandCenter state={state} />
 
-      {/* ── 2. Live Workshops & Event Pass Widget ── */}
+      {/* ── 2. Live Workshops Pass & Continuous Corporate Events Carousel ── */}
       <DashboardRegisteredWorkshopsWidget />
-
+      <DashboardEventsHub />
 
       {/* ── 3. Main 2-Column Profile Layout ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -84,7 +80,7 @@ export default function LinkedInDashboardPage() {
           {/* Enrolled Tracks */}
           <LinkedInExperienceCard state={state} />
 
-          {/* Activity Heatmap */}
+          {/* Activity Heatmap & Commit Graph (Blue Outline) */}
           <ActivityHeatmap heatmapGrid={heatmapGrid} totalLogsCount={0} />
 
           {/* Weekly Learning Velocity Chart */}
@@ -98,51 +94,12 @@ export default function LinkedInDashboardPage() {
 
         {/* ── RIGHT SIDEBAR (4 Columns) ── */}
         <div className="lg:col-span-4 space-y-6">
-          
-          {/* Daily Quests Engine Widget (1 Enrolled Task) */}
-          <DailyQuestEngine />
-
-          {/* Upcoming Masterclasses Widget */}
-          <motion.div
-            variants={item}
-            className="rounded-xl border-2 border-corp-border p-5 space-y-3 font-sans"
-            style={{ background: "var(--corp-surface)" }}
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-extrabold font-mono uppercase tracking-wider text-corp-text flex items-center gap-2">
-                <Calendar size={14} className="text-[#2563eb]" /> Corporate Events
-              </h3>
-              <Link href="/events" className="text-[11px] font-mono font-extrabold text-[#2563eb] hover:underline">
-                All Events →
-              </Link>
-            </div>
-            <div className="p-3 rounded-lg border-2 border-corp-border bg-corp-bg-secondary/60 space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded text-[9px] font-mono font-extrabold bg-[#2563eb] text-white">
-                  AUG 15
-                </span>
-                <span className="text-xs font-bold text-corp-text truncate">
-                  CV Writing &amp; LinkedIn Hacks
-                </span>
-              </div>
-              <p className="text-[10px] text-corp-text-tertiary font-medium">
-                Live with Niaz Ahmed (Founder &amp; CEO, Corporate Ask)
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Verified Skills & Masteries (Placed under Corporate Events) */}
+          {/* Verified Skills & Masteries */}
           <LinkedInSkillsCard state={state} />
 
-          {/* YouTube Shorts / Reels Widget right below Verified Skills, height capped to not exceed left side */}
-          <YouTubeShortsWidget />
-
+          {/* Executive Badge Ledger (Compact directly below Verified Skills & Masteries) */}
+          <AllBadgesShowcase state={state} compact={true} />
         </div>
-      </div>
-
-      {/* ── 4. Badges Directory & Showcase at the bottom ── */}
-      <div className="pt-2">
-        <AllBadgesShowcase state={state} />
       </div>
 
       {/* ── Streak Modal ── */}
