@@ -434,7 +434,7 @@ export function DashboardTopbar() {
               <>
                 <button
                   onClick={toggleUserMenu}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all border-2 border-corp-border hover:bg-corp-bg-secondary active:scale-95 flex-shrink-0 cursor-pointer relative overflow-hidden bg-[#2563eb] text-white shadow-sm font-mono font-black text-xs"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all border-2 border-corp-border hover:bg-slate-100 active:scale-95 flex-shrink-0 cursor-pointer relative overflow-hidden bg-transparent text-slate-900 shadow-xs font-mono font-black text-xs"
                   aria-label="User menu"
                   title={`User menu (${userDisplayName})`}
                 >
@@ -442,10 +442,12 @@ export function DashboardTopbar() {
                     <img
                       src={userPhoto}
                       alt={userDisplayName}
-                      className="w-full h-full object-cover rounded-full"
+                      className="w-full h-full object-cover rounded-full bg-transparent"
                     />
                   ) : (
-                    userInitial
+                    <span className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-900">
+                      {userInitial}
+                    </span>
                   )}
                 </button>
 
@@ -466,15 +468,17 @@ export function DashboardTopbar() {
                           className="p-4 border-b-2 border-corp-border bg-corp-bg-secondary space-y-3 font-mono"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full border-2 border-corp-border overflow-hidden bg-[#2563eb] text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm">
+                            <div className="w-10 h-10 rounded-full border-2 border-corp-border overflow-hidden bg-transparent text-slate-900 flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-xs">
                               {userPhoto ? (
                                 <img
                                   src={userPhoto}
                                   alt={userDisplayName}
-                                  className="w-full h-full object-cover rounded-full"
+                                  className="w-full h-full object-cover rounded-full bg-transparent"
                                 />
                               ) : (
-                                userInitial
+                                <span className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-900">
+                                  {userInitial}
+                                </span>
                               )}
                             </div>
                             <div className="min-w-0 flex-1">

@@ -1,25 +1,17 @@
+import { LoadingIcon } from "@/components/ui/loading-icon";
+
 export default function DashboardLoading() {
   return (
-    <div className="max-w-7xl mx-auto space-y-6 animate-pulse">
-      {/* Hero skeleton */}
-      <div className="h-36 rounded-2xl" style={{ background: "var(--corp-surface)" }} />
-
-      {/* Stats row skeleton */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-20 rounded-xl" style={{ background: "var(--corp-surface)" }} />
-        ))}
-      </div>
-
-      {/* Main grid skeleton */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
-          <div className="h-48 rounded-xl" style={{ background: "var(--corp-surface)" }} />
-          <div className="h-48 rounded-xl" style={{ background: "var(--corp-surface)" }} />
-        </div>
-        <div className="space-y-4">
-          <div className="h-36 rounded-xl" style={{ background: "var(--corp-surface)" }} />
-          <div className="h-36 rounded-xl" style={{ background: "var(--corp-surface)" }} />
+    <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 font-mono select-none">
+      <div className="p-8 rounded-2xl border-2 border-blue-500 shadow-[5px_5px_0px_0px_#2563eb] bg-white flex flex-col items-center space-y-4 max-w-sm w-full text-center">
+        <LoadingIcon size="lg" variant="blue" />
+        <div className="space-y-1">
+          <h2 className="text-sm font-black uppercase tracking-wider text-slate-900">
+            Calibrating Dashboard
+          </h2>
+          <p className="text-xs font-sans text-slate-600 font-medium">
+            Fetching competencies, passes &amp; activity telemetry...
+          </p>
         </div>
       </div>
     </div>

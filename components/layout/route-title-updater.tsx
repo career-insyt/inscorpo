@@ -24,6 +24,8 @@ const ROUTE_TITLES: Record<string, string> = {
   "/help": "Help & Support Center",
   "/marketplace": "Executive Talent Marketplace",
   "/subscription": "Membership & Passes",
+  "/audit": "Platform Segment Auditor",
+  "/error-preview": "Error Screen Inspector",
 };
 
 export function RouteTitleUpdater() {
