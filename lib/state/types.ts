@@ -87,6 +87,7 @@ export type PassportProfile = {
   >;
   verificationHash?: string;
   isPublic?: boolean;
+  unselectedBadgeIds?: string[];
 };
 
 export type UserState = {

@@ -46,6 +46,7 @@ export default function MockInterviewChatPage() {
   const [cameraLoading, setCameraLoading] = useState(false);
   const [cameraErrorMessage, setCameraErrorMessage] = useState<string | null>(null);
   const [isSimulatedCamera, setIsSimulatedCamera] = useState(false);
+  const [noCameraDetected, setNoCameraDetected] = useState(false);
 
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
   const [gazeStatus, setGazeStatus] = useState<"Verified" | "Looking Away">("Verified");
@@ -65,6 +66,7 @@ export default function MockInterviewChatPage() {
     proctoringIntegrity: number;
     tabSwitches: number;
     roundsCompleted: number;
+    noCameraDetected?: boolean;
   } | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -120,12 +122,14 @@ export default function MockInterviewChatPage() {
 
       setCameraActive(true);
       setIsSimulatedCamera(false);
+      setNoCameraDetected(false);
       setCameraLoading(false);
       setCameraErrorMessage(null);
     } catch (err: any) {
       console.warn("Hardware Camera Error, auto-engaging AI Vision Matrix:", err);
       // Auto-fallback to simulated AI vision matrix so candidate is never blocked
       setIsSimulatedCamera(true);
+      setNoCameraDetected(true);
       setCameraActive(true);
       setCameraLoading(false);
       if (err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError") {
@@ -358,6 +362,7 @@ export default function MockInterviewChatPage() {
       proctoringIntegrity,
       tabSwitches: tabSwitchCount,
       roundsCompleted: userMsgCount,
+      noCameraDetected: Boolean(noCameraDetected),
     };
   };
 
@@ -1001,15 +1006,36 @@ ${
                 </div>
               </div>
 
+              {/* No Camera Detected Warning Tag if desktop has no webcam */}
+              {finalScorecard.noCameraDetected && (
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-amber-500/20 border-2 border-amber-400 text-amber-200 text-xs font-mono">
+                  <AlertTriangle size={18} className="text-amber-400 flex-shrink-0" />
+                  <div>
+                    <span className="font-black uppercase text-amber-300 block text-[11px]">
+                      No Camera Found for Desktop
+                    </span>
+                    <span className="text-[10px] text-amber-100 font-sans">
+                      No AI proctoring could be done for this session due to missing hardware webcam.
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {/* Proctoring Integrity Strip */}
               <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950/70 border border-emerald-400/40 text-xs">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck size={16} className="text-emerald-400" />
+                  <ShieldCheck size={16} className={finalScorecard.noCameraDetected ? "text-amber-400" : "text-emerald-400"} />
                   <span className="font-bold text-white">AI WebCam Proctoring Compliance:</span>
                 </div>
-                <span className={finalScorecard.proctoringIntegrity >= 90 ? "text-emerald-400 font-black" : "text-rose-400 font-black"}>
-                  {finalScorecard.proctoringIntegrity}% ({finalScorecard.tabSwitches} Tab Switches)
-                </span>
+                {finalScorecard.noCameraDetected ? (
+                  <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded bg-amber-400 text-amber-950 border border-amber-500 shadow-xs">
+                    No AI Proctoring Done (No Camera Found)
+                  </span>
+                ) : (
+                  <span className={finalScorecard.proctoringIntegrity >= 90 ? "text-emerald-400 font-black" : "text-rose-400 font-black"}>
+                    {finalScorecard.proctoringIntegrity}% ({finalScorecard.tabSwitches} Tab Switches)
+                  </span>
+                )}
               </div>
 
               {/* 4 STAR Dimensions Breakdown Bars */}

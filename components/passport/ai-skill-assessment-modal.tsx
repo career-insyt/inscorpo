@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   ShieldCheck,
-  Cpu,
   CheckCircle2,
   AlertCircle,
   Clock,
@@ -14,7 +13,9 @@ import {
   X,
   FileCheck,
   BrainCircuit,
+  RotateCcw,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface AssessmentQuestion {
   question: string;
@@ -56,10 +57,9 @@ export function AiSkillAssessmentModal({
     setSecondsRemaining(180);
 
     const timer = setTimeout(() => {
-      // Procedurally generate high-fidelity technical and situational questions
       const questions: AssessmentQuestion[] = [
         {
-          context: `Enterprise Scenario for ${candidateName || "Candidate"}: A high-growth corporate division is deploying solutions requiring "${skillName}".`,
+          context: `Enterprise Operational Scenario for ${candidateName || "Candidate"}: A high-growth corporate division is deploying solutions requiring "${skillName}".`,
           question: `In an audited corporate environment, what is the single most critical quality assurance measure when deploying "${skillName}"?`,
           options: [
             `Ensuring deterministic reproducibility, error-trapping bounds, and traceable documentation.`,
@@ -98,7 +98,7 @@ export function AiSkillAssessmentModal({
 
       setGeneratedQuestions(questions);
       setStep("test");
-    }, 1800);
+    }, 1600);
 
     return () => clearTimeout(timer);
   }, [isOpen, skillName, candidateName]);
@@ -143,7 +143,6 @@ export function AiSkillAssessmentModal({
         }
       });
 
-      // Passing score calculation: e.g. 2/3 = 67% -> lenient passing threshold >= 65%
       const calculatedScore = Math.max(75, Math.round((correct / generatedQuestions.length) * 100));
       setScore(calculatedScore);
 
@@ -157,7 +156,7 @@ export function AiSkillAssessmentModal({
       } else {
         setStep("failed");
       }
-    }, 1500);
+    }, 1400);
   };
 
   if (!isOpen) return null;
@@ -168,60 +167,56 @@ export function AiSkillAssessmentModal({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md font-sans">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs font-sans">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 16 }}
+          initial={{ opacity: 0, scale: 0.94, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 16 }}
-          className="relative w-full max-w-2xl bg-corp-surface border-2 border-blue-500 rounded-2xl shadow-[0_0_50px_rgba(37,99,235,0.35)] overflow-hidden flex flex-col max-h-[90vh]"
+          exit={{ opacity: 0, scale: 0.94, y: 15 }}
+          className="relative w-full max-w-2xl bg-white border-2 border-slate-900 rounded-2xl shadow-[8px_8px_0px_0px_#0f172a] overflow-hidden flex flex-col max-h-[92vh] text-slate-900"
         >
-          {/* Header */}
-          <div className="px-6 py-4 border-b border-corp-border bg-gradient-to-r from-blue-900/40 via-blue-950/20 to-corp-surface flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-blue-500/20 border border-blue-400 flex items-center justify-center text-blue-400">
-                <BrainCircuit size={20} className="animate-pulse" />
+          {/* ── Soft Brutalist Header ── */}
+          <div className="px-6 py-4 border-b-2 border-slate-900 bg-[#2563eb] text-white flex items-center justify-between font-mono">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-400 text-amber-950 border border-amber-500 shadow-xs flex items-center justify-center font-black">
+                <BrainCircuit size={22} className="stroke-[2.5]" />
               </div>
               <div>
-                <h3 className="text-sm font-mono font-black uppercase text-corp-text flex items-center gap-1.5">
-                  <span>AI Skill Verification Proctor</span>
-                  <span className="text-[10px] font-sans font-extrabold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/40">
-                    Adaptive Engine
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-black uppercase text-white tracking-wide">
+                    AI Skill Verification Proctor
+                  </h3>
+                  <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-white text-[#2563eb] shadow-xs">
+                    Live Adaptive Exam
                   </span>
-                </h3>
-                <p className="text-[11px] font-mono text-corp-text-secondary">
-                  Target: <strong className="text-corp-text">{skillName}</strong> • Candidate: {candidateName || "Authenticated Candidate"}
+                </div>
+                <p className="text-[11px] text-blue-100 font-sans mt-0.5">
+                  Target: <strong className="text-white">{skillName}</strong> • Candidate: {candidateName || "Authenticated Candidate"}
                 </p>
               </div>
             </div>
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-corp-text-tertiary hover:text-corp-text hover:bg-corp-bg-secondary transition-colors"
+              className="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 text-white flex items-center justify-center border border-white/30 transition-colors cursor-pointer"
+              aria-label="Close Exam"
             >
-              <X size={18} />
+              <X size={16} strokeWidth={2.5} />
             </button>
           </div>
 
-          {/* Modal Body */}
+          {/* ── Modal Body ── */}
           <div className="p-6 overflow-y-auto flex-1 font-sans">
             {step === "generating" && (
-              <div className="py-16 text-center space-y-4 font-mono">
-                <div className="relative w-16 h-16 mx-auto">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-0 rounded-full border-2 border-dashed border-blue-500"
-                  />
-                  <div className="absolute inset-2 rounded-full bg-blue-600/20 flex items-center justify-center text-blue-400">
-                    <Sparkles size={24} />
-                  </div>
+              <div className="py-14 text-center space-y-4 font-mono">
+                <div className="w-16 h-16 rounded-2xl bg-blue-50 border-2 border-[#2563eb] shadow-[4px_4px_0px_0px_#2563eb] flex items-center justify-center mx-auto text-[#2563eb]">
+                  <Sparkles size={28} className="animate-spin" />
                 </div>
-                <div className="space-y-1">
-                  <h4 className="text-sm font-bold text-corp-text">
+                <div className="space-y-1.5">
+                  <h4 className="text-base font-black uppercase text-slate-900">
                     Generating Adaptive AI Assessment...
                   </h4>
-                  <p className="text-xs text-corp-text-secondary max-w-md mx-auto">
-                    Synthesizing realistic corporate scenarios, diagnostic problem questions, and evaluation rubric customized specifically for &ldquo;{skillName}&rdquo;.
+                  <p className="text-xs text-slate-600 max-w-md mx-auto font-sans leading-relaxed">
+                    Synthesizing realistic corporate cases, diagnostic problem solving questions, and evaluation rubric customized specifically for &ldquo;{skillName}&rdquo;.
                   </p>
                 </div>
               </div>
@@ -230,29 +225,32 @@ export function AiSkillAssessmentModal({
             {step === "test" && currentQ && (
               <div className="space-y-5">
                 {/* Status Bar */}
-                <div className="flex items-center justify-between text-xs font-mono pb-3 border-b border-corp-border">
-                  <span className="text-blue-400 font-bold">
+                <div className="flex items-center justify-between text-xs font-mono pb-3 border-b-2 border-slate-100">
+                  <span className="px-3 py-1 rounded-full bg-blue-100 text-[#2563eb] font-black uppercase border border-blue-300">
                     Question {currentQuestionIndex + 1} of {generatedQuestions.length}
                   </span>
-                  <span className="flex items-center gap-1.5 font-bold text-amber-400">
-                    <Clock size={14} />
+                  <span className="flex items-center gap-1.5 font-black text-amber-950 bg-amber-300 px-3 py-1 rounded-full border border-amber-400 shadow-xs">
+                    <Clock size={14} className="stroke-[2.5]" />
                     {minutes}:{seconds < 10 ? `0${seconds}` : seconds} Remaining
                   </span>
                 </div>
 
-                {/* Scenario Context */}
-                <div className="p-3.5 rounded-lg bg-blue-500/10 border border-blue-500/30 text-xs font-mono text-blue-300">
-                  <p className="font-semibold">{currentQ.context}</p>
+                {/* Scenario Context Box */}
+                <div className="p-4 rounded-xl bg-blue-50 border-2 border-blue-200 text-xs font-mono text-slate-800 shadow-xs">
+                  <span className="text-[10px] font-black uppercase text-blue-700 block mb-1">
+                    Operational Context
+                  </span>
+                  <p className="font-semibold leading-relaxed">{currentQ.context}</p>
                 </div>
 
-                {/* Question */}
+                {/* Question Prompt */}
                 <div>
-                  <h4 className="text-sm font-bold text-corp-text leading-snug">
+                  <h4 className="text-sm font-black text-slate-900 leading-snug font-sans">
                     {currentQ.question}
                   </h4>
                 </div>
 
-                {/* Options */}
+                {/* Multiple Choice Options (Neo-Brutalist cards) */}
                 <div className="space-y-2.5 font-mono">
                   {currentQ.options.map((option, optIdx) => {
                     const isSelected = selectedAnswers[currentQuestionIndex] === optIdx;
@@ -260,109 +258,106 @@ export function AiSkillAssessmentModal({
                       <div
                         key={optIdx}
                         onClick={() => handleSelectOption(optIdx)}
-                        className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all flex items-start gap-3 ${
+                        className={cn(
+                          "p-3.5 rounded-xl border-2 cursor-pointer transition-all flex items-start gap-3 select-none",
                           isSelected
-                            ? "bg-blue-600/20 border-blue-500 text-corp-text shadow-[0_0_15px_rgba(37,99,235,0.25)]"
-                            : "bg-corp-bg-secondary/60 border-corp-border text-corp-text-secondary hover:border-blue-400/60"
-                        }`}
+                            ? "bg-[#2563eb] border-slate-900 text-white shadow-[4px_4px_0px_0px_#0f172a] -translate-y-0.5"
+                            : "bg-slate-50 border-slate-300 text-slate-800 hover:border-slate-800 hover:bg-white shadow-[2px_2px_0px_0px_#cbd5e1]"
+                        )}
                       >
                         <div
-                          className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold border mt-0.5 ${
+                          className={cn(
+                            "w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-xs font-black border mt-0.5",
                             isSelected
-                              ? "bg-blue-500 text-white border-blue-400"
-                              : "border-corp-border text-corp-text-tertiary"
-                          }`}
+                              ? "bg-amber-400 text-amber-950 border-amber-500 shadow-xs"
+                              : "bg-white border-slate-400 text-slate-600"
+                          )}
                         >
                           {String.fromCharCode(65 + optIdx)}
                         </div>
-                        <span className="text-xs font-medium leading-relaxed">{option}</span>
+                        <span className="text-xs font-medium leading-relaxed font-sans">{option}</span>
                       </div>
                     );
                   })}
                 </div>
 
                 {/* Navigation Button */}
-                <div className="pt-4 flex justify-end">
+                <div className="pt-4 flex justify-end font-mono">
                   <button
                     disabled={selectedAnswers[currentQuestionIndex] === undefined}
                     onClick={handleNext}
-                    className="px-6 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_4px_14px_rgba(37,99,235,0.4)] flex items-center gap-2"
+                    className="px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-[#2563eb] hover:bg-blue-600 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <span>
                       {currentQuestionIndex === generatedQuestions.length - 1
                         ? "Submit for AI Evaluation"
                         : "Next Question"}
                     </span>
-                    <ArrowRight size={14} />
+                    <ArrowRight size={14} className="stroke-[2.5]" />
                   </button>
                 </div>
               </div>
             )}
 
             {step === "evaluating" && (
-              <div className="py-16 text-center space-y-4 font-mono">
-                <div className="relative w-16 h-16 mx-auto">
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-emerald-400"
-                  >
-                    <FileCheck size={28} />
-                  </motion.div>
+              <div className="py-14 text-center space-y-4 font-mono">
+                <div className="w-16 h-16 rounded-2xl bg-amber-400 text-amber-950 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0f172a] flex items-center justify-center mx-auto">
+                  <FileCheck size={32} className="stroke-[2.5]" />
                 </div>
-                <div className="space-y-1">
-                  <h4 className="text-sm font-bold text-corp-text">
+                <div className="space-y-1.5">
+                  <h4 className="text-base font-black uppercase text-slate-900">
                     Auditing Responses Against Standards...
                   </h4>
-                  <p className="text-xs text-corp-text-secondary max-w-md mx-auto">
-                    Scoring reasoning consistency, technical validity, and generating cryptographically signed skill proof.
+                  <p className="text-xs text-slate-600 max-w-md mx-auto font-sans leading-relaxed">
+                    Scoring reasoning consistency, technical validity, and generating cryptographically signed skill proof for {skillName}.
                   </p>
                 </div>
               </div>
             )}
 
             {step === "passed" && (
-              <div className="py-8 text-center space-y-6 font-mono">
-                <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-emerald-400 mx-auto shadow-[0_0_30px_rgba(16,185,129,0.4)]">
-                  <ShieldCheck size={36} />
+              <div className="py-6 text-center space-y-5 font-mono">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-400 text-emerald-950 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0f172a] flex items-center justify-center mx-auto">
+                  <ShieldCheck size={36} className="stroke-[2.5]" />
                 </div>
 
-                <div className="space-y-1.5">
-                  <span className="text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
-                    AI Verified Credential Issued
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black tracking-wider uppercase px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs inline-block">
+                    ✓ Verified Credential Conferred
                   </span>
-                  <h3 className="text-lg font-bold text-corp-text pt-2">
+                  <h3 className="text-lg font-black uppercase text-slate-900 pt-1">
                     Skill Verified: {skillName}
                   </h3>
-                  <p className="text-xs text-corp-text-secondary max-w-md mx-auto">
-                    Congratulations! Your responses met the institutional rubric with a score of{" "}
-                    <strong className="text-emerald-400 font-extrabold">{score}%</strong>. This skill is now permanently verified and illuminated on your Career Passport.
+                  <p className="text-xs text-slate-600 max-w-md mx-auto font-sans">
+                    Congratulations! Your responses met the evaluation rubric with a score of{" "}
+                    <strong className="text-emerald-700 font-black">{score}%</strong>. This skill is now permanently verified on your Career Passport.
                   </p>
                 </div>
 
-                <div className="p-4 rounded-xl bg-corp-bg-secondary/60 border border-emerald-500/30 max-w-md mx-auto text-left text-xs space-y-1.5 text-corp-text-secondary">
-                  <div className="flex justify-between">
-                    <span>Verified For:</span>
-                    <strong className="text-corp-text">{candidateName || "Candidate"}</strong>
+                {/* Scorecard Table Card */}
+                <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] max-w-md mx-auto text-left text-xs space-y-2">
+                  <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                    <span className="text-slate-500 uppercase">Verified For:</span>
+                    <strong className="text-slate-900">{candidateName || "Candidate"}</strong>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Evaluation Score:</span>
-                    <strong className="text-emerald-400">{score}% / 100%</strong>
+                  <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                    <span className="text-slate-500 uppercase">Evaluation Score:</span>
+                    <strong className="text-emerald-600 font-black">{score}% / 100%</strong>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Proctor:</span>
-                    <strong className="text-blue-400">INSYT AI Autonomous Evaluator</strong>
+                  <div className="flex justify-between border-b border-slate-200 pb-1.5">
+                    <span className="text-slate-500 uppercase">Proctor Protocol:</span>
+                    <strong className="text-[#2563eb]">INSYT AI Autonomous Engine</strong>
                   </div>
-                  <div className="flex justify-between text-[11px] text-corp-text-tertiary">
-                    <span>Standard:</span>
-                    <span>W3C VC 2.0 &amp; Open Badges 3.0 Compatible</span>
+                  <div className="flex justify-between text-[11px] text-slate-500">
+                    <span>Cryptographic Standard:</span>
+                    <span className="font-bold text-slate-700">W3C VC 2.0 &amp; Open Badges 3.0</span>
                   </div>
                 </div>
 
                 <div className="pt-2">
                   <button
                     onClick={onClose}
-                    className="px-8 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-500 transition-all shadow-[0_4px_14px_rgba(16,185,129,0.4)]"
+                    className="px-8 py-3 rounded-xl text-xs font-black uppercase text-white bg-emerald-600 hover:bg-emerald-500 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] transition-all cursor-pointer active:translate-x-0.5 active:translate-y-0.5"
                   >
                     Done &amp; View on Passport
                   </button>
@@ -371,16 +366,16 @@ export function AiSkillAssessmentModal({
             )}
 
             {step === "failed" && (
-              <div className="py-8 text-center space-y-6 font-mono">
-                <div className="w-16 h-16 rounded-2xl bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-amber-400 mx-auto">
-                  <AlertCircle size={36} />
+              <div className="py-6 text-center space-y-5 font-mono">
+                <div className="w-16 h-16 rounded-2xl bg-rose-400 text-rose-950 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0f172a] flex items-center justify-center mx-auto">
+                  <AlertCircle size={36} className="stroke-[2.5]" />
                 </div>
 
-                <div className="space-y-1.5">
-                  <h3 className="text-base font-bold text-corp-text">
+                <div className="space-y-1">
+                  <h3 className="text-base font-black uppercase text-slate-900">
                     Assessment Not Yet Passed ({score}%)
                   </h3>
-                  <p className="text-xs text-corp-text-secondary max-w-md mx-auto">
+                  <p className="text-xs text-slate-600 max-w-md mx-auto font-sans">
                     A minimum passing score of 65% is required to obtain AI Verification for &ldquo;{skillName}&rdquo;.
                   </p>
                 </div>
@@ -393,13 +388,13 @@ export function AiSkillAssessmentModal({
                       setSelectedAnswers([]);
                       setSecondsRemaining(180);
                     }}
-                    className="px-5 py-2 rounded-xl text-xs font-bold uppercase text-white bg-blue-600 hover:bg-blue-500 transition-all"
+                    className="px-5 py-2.5 rounded-xl text-xs font-black uppercase text-white bg-[#2563eb] hover:bg-blue-600 border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0f172a] transition-all cursor-pointer"
                   >
                     Retake Assessment
                   </button>
                   <button
                     onClick={onClose}
-                    className="px-5 py-2 rounded-xl text-xs font-bold uppercase text-corp-text-secondary bg-corp-bg-secondary hover:bg-corp-border transition-all"
+                    className="px-5 py-2.5 rounded-xl text-xs font-black uppercase text-slate-700 bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 transition-all cursor-pointer"
                   >
                     Close
                   </button>

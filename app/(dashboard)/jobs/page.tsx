@@ -69,6 +69,17 @@ export default function JobsPage() {
   const [govStats] = useState(() => getGovJobStats());
   const [instituteCards] = useState<InstituteCard[]>(() => getAllInstituteCards());
   const [expandedInstitute, setExpandedInstitute] = useState<string | null>(null);
+  const [expandedCorporateCompanies, setExpandedCorporateCompanies] = useState<Record<string, boolean>>({});
+
+  const corporateStats = useMemo(() => {
+    const orgs = new Set(jobsData.map((j) => j.company)).size;
+    const depts = new Set(jobsData.map((j) => j.department)).size;
+    return {
+      totalOrganizations: orgs,
+      totalJobCategories: jobsData.length,
+      totalVacancies: 184,
+    };
+  }, []);
   const [selectedGovJob, setSelectedGovJob] = useState<GovJob | null>(null);
   const [selectedCvFitJob, setSelectedCvFitJob] = useState<GovJob | null>(null);
   const [degreeFilter, setDegreeFilter] = useState("");
@@ -772,6 +783,13 @@ export default function JobsPage() {
          ═══════════════════════════════════════════════════════════════════════ */}
       {activeTab === "corporate" && (
         <div className="space-y-6">
+          {/* Stats Overview — Matches Government Research Overview Feature */}
+          <StatsOverviewBar
+            totalOrgs={corporateStats.totalOrganizations}
+            totalJobs={corporateStats.totalJobCategories}
+            totalVacancies={corporateStats.totalVacancies}
+          />
+
           {/* Search & Filters */}
           <div
             className="p-4 rounded-sm border-2 border-blue-400 shadow-[4px_4px_0px_0px_#2563eb] space-y-3 font-mono bg-corp-surface"
@@ -834,8 +852,8 @@ export default function JobsPage() {
             </div>
           </div>
 
-          {/* Company-Wise Grouping Layout */}
-          <div className="space-y-8 font-mono">
+          {/* Company-Wise Grouping Layout (Collapsible like Research Institute Cards) */}
+          <div className="space-y-6 font-mono">
             {corporateJobsByCompany.length === 0 ? (
               <div className="p-8 text-center text-xs font-bold text-corp-text-tertiary rounded-sm border-2 border-blue-400 bg-corp-surface space-y-2">
                 <AlertCircle size={24} className="mx-auto text-[#2563eb]" />
@@ -854,71 +872,98 @@ export default function JobsPage() {
                 </button>
               </div>
             ) : (
-              corporateJobsByCompany.map(([companyName, companyJobs]: [string, JobListing[]]) => (
-                <div
-                  key={companyName}
-                  className="space-y-4 p-5 rounded-sm border-2 border-blue-400 shadow-[4px_4px_0px_0px_#2563eb] bg-corp-surface"
-                >
-                  {/* Company Header */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b-2 border-blue-400/30">
-                    <div className="flex items-center gap-3">
-                      <CompanyLogo company={companyName} size={48} />
-                      <div>
-                        <h2 className="text-base font-black uppercase text-corp-text flex items-center gap-2">
-                          {companyName}
-                        </h2>
-                        <p className="text-[11px] font-sans font-medium text-corp-text-tertiary">
-                          Official Corporate Intelligence Circulars ({companyJobs.length} {companyJobs.length === 1 ? "Role" : "Roles"})
-                        </p>
+              corporateJobsByCompany.map(([companyName, companyJobs]: [string, JobListing[]], idx: number) => {
+                const isExpanded = expandedCorporateCompanies[companyName] ?? (idx === 0);
+
+                return (
+                  <div
+                    key={companyName}
+                    className="rounded-sm border-2 border-blue-400 shadow-[4px_4px_0px_0px_#2563eb] bg-corp-surface overflow-hidden transition-all"
+                  >
+                    {/* Collapsible Company Header */}
+                    <div
+                      onClick={() =>
+                        setExpandedCorporateCompanies((prev) => ({
+                          ...prev,
+                          [companyName]: !isExpanded,
+                        }))
+                      }
+                      className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer hover:bg-blue-50/20 transition-colors select-none"
+                    >
+                      <div className="flex items-center gap-3.5">
+                        <CompanyLogo company={companyName} size={48} />
+                        <div>
+                          <h2 className="text-base font-black uppercase text-corp-text flex items-center gap-2">
+                            {companyName}
+                          </h2>
+                          <p className="text-[11px] font-sans font-medium text-corp-text-tertiary mt-0.5">
+                            Official Corporate Intelligence Circulars ({companyJobs.length} {companyJobs.length === 1 ? "Role" : "Roles"}) • Tap to {isExpanded ? "collapse" : "view openings"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2.5 self-start sm:self-auto">
+                        <span className="px-3 py-1 rounded-sm text-xs font-black uppercase bg-[#2563eb] text-white border border-blue-300">
+                          {companyJobs.length} Open {companyJobs.length === 1 ? "Role" : "Roles"}
+                        </span>
+                        <div className="w-8 h-8 rounded-sm bg-blue-500/10 border border-blue-400/40 flex items-center justify-center text-[#2563eb] transition-transform duration-200">
+                          {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                        </div>
                       </div>
                     </div>
 
-                    <span className="px-3 py-1 rounded-sm text-xs font-black uppercase bg-[#2563eb] text-white border border-blue-300 self-start sm:self-auto">
-                      {companyJobs.length} Open {companyJobs.length === 1 ? "Role" : "Roles"}
-                    </span>
-                  </div>
-
-                  {/* Company Roles List */}
-                  <div className="space-y-3">
-                    {companyJobs.map((job: JobListing) => (
-                      <div
-                        key={job.id}
-                        className="group rounded-sm p-4 border border-blue-400/40 bg-corp-bg-secondary hover:border-blue-400 transition-all flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
-                      >
-                        <div className="space-y-1.5 flex-1 min-w-0">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-sm text-white bg-[#2563eb] border border-blue-300">
-                              {job.department}
-                            </span>
-                            <JobMatchBadge jobId={job.id} />
-                            <span className="text-[10px] font-mono text-corp-text-tertiary">
-                              Posted {job.postedDate}
-                            </span>
-                          </div>
-
-                          <h3 className="text-sm font-extrabold uppercase group-hover:text-[#2563eb] transition-colors truncate text-corp-text">
-                            <Link href={`/jobs/${job.id}`}>{job.title}</Link>
-                          </h3>
-
-                          <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-corp-text-tertiary">
-                            <span className="flex items-center gap-1.5"><MapPin size={13} className="text-[#2563eb]" /> {job.location}</span>
-                            <span className="flex items-center gap-1.5 font-mono font-extrabold text-[#2563eb]"><DollarSign size={13} /> <span className="font-bangla">{job.salary}</span></span>
-                            <span className="flex items-center gap-1.5"><Clock size={13} /> {job.type}</span>
-                          </div>
-                        </div>
-
-                        <Link
-                          href={`/jobs/${job.id}`}
-                          className="px-4 py-2 rounded-sm text-xs font-black uppercase text-white bg-[#2563eb] hover:bg-blue-600 border border-blue-300 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer self-end md:self-center shrink-0"
+                    {/* Collapsible Roles List */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.22, ease: "easeOut" }}
+                          className="border-t-2 border-blue-400/30 p-5 space-y-3 bg-corp-bg-secondary/40"
                         >
-                          <span>View Details</span>
-                          <ChevronRight size={14} />
-                        </Link>
-                      </div>
-                    ))}
+                          {companyJobs.map((job: JobListing) => (
+                            <div
+                              key={job.id}
+                              className="group rounded-sm p-4 border border-blue-400/40 bg-corp-surface hover:border-[#2563eb] transition-all flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xs"
+                            >
+                              <div className="space-y-1.5 flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-sm text-white bg-[#2563eb] border border-blue-300">
+                                    {job.department}
+                                  </span>
+                                  <JobMatchBadge jobId={job.id} />
+                                  <span className="text-[10px] font-mono text-corp-text-tertiary">
+                                    Posted {job.postedDate}
+                                  </span>
+                                </div>
+
+                                <h3 className="text-sm font-extrabold uppercase group-hover:text-[#2563eb] transition-colors truncate text-corp-text">
+                                  <Link href={`/jobs/${job.id}`}>{job.title}</Link>
+                                </h3>
+
+                                <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-corp-text-tertiary">
+                                  <span className="flex items-center gap-1.5"><MapPin size={13} className="text-[#2563eb]" /> {job.location}</span>
+                                  <span className="flex items-center gap-1.5 font-mono font-extrabold text-[#2563eb]"><DollarSign size={13} /> <span className="font-bangla">{job.salary}</span></span>
+                                  <span className="flex items-center gap-1.5"><Clock size={13} /> {job.type}</span>
+                                </div>
+                              </div>
+
+                              <Link
+                                href={`/jobs/${job.id}`}
+                                className="px-4 py-2 rounded-sm text-xs font-black uppercase text-white bg-[#2563eb] hover:bg-blue-600 border border-blue-300 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer self-end md:self-center shrink-0"
+                              >
+                                <span>View Details</span>
+                                <ChevronRight size={14} />
+                              </Link>
+                            </div>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

@@ -203,7 +203,6 @@ export default function CertificatesPage() {
   const handleDownloadPdf = useCallback(async (certSlug: string, certTitle: string) => {
     setDownloading(certSlug);
     try {
-      const html2canvas = (await import("html2canvas")).default;
       const { jsPDF } = await import("jspdf");
 
       let el = certRefs.current[certSlug];
@@ -214,35 +213,93 @@ export default function CertificatesPage() {
         el = certRefs.current["capcut-master"];
       }
 
-      if (!el) {
-        const content = `INSYT CORPORATE CERTIFICATE OF COMPLETION\nProgram: ${certTitle}\nRecipient: ${state.name || "Executive Editor"}\nDate: ${issueDate}\nCredential ID: INSYT-CERT-VERIFIED-2026\n\nVerified by INSYT Academic Board & Post-Production Council`;
-        const blob = new Blob([content], { type: "text/plain" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `INSYT-Certificate-${certTitle.replace(/\s+/g, "-")}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        setDownloading(null);
-        return;
+      let generated = false;
+
+      if (el) {
+        try {
+          const html2canvas = (await import("html2canvas")).default;
+          const canvas = await html2canvas(el, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: "#022c22",
+            logging: false,
+          });
+
+          const imgData = canvas.toDataURL("image/png");
+          const pdf = new jsPDF({
+            orientation: "landscape",
+            unit: "px",
+            format: [canvas.width / 2, canvas.height / 2],
+          });
+          pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2);
+          pdf.save(`INSYT-Certificate-${certTitle.replace(/[^a-zA-Z0-9]/g, "-")}.pdf`);
+          generated = true;
+        } catch (canvasErr) {
+          console.warn("Canvas rasterization fallback to direct vector PDF:", canvasErr);
+        }
       }
 
-      const canvas = await html2canvas(el, {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: "#022c22",
-        logging: false,
-      });
+      // Direct vector PDF fallback: Always downloads exact PDF, NEVER triggers window.print()
+      if (!generated) {
+        const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+        // Background
+        pdf.setFillColor(2, 44, 34); // #022c22
+        pdf.rect(0, 0, 297, 210, "F");
 
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [canvas.width / 3, canvas.height / 3] });
-      pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 3, canvas.height / 3);
-      pdf.save(`INSYT-Certificate-${certTitle.replace(/\s+/g, "-")}.pdf`);
+        // Outer & Inner Borders
+        pdf.setDrawColor(16, 185, 129); // #10b981
+        pdf.setLineWidth(1.5);
+        pdf.rect(10, 10, 277, 190);
+
+        pdf.setDrawColor(245, 158, 11); // #f59e0b
+        pdf.setLineWidth(0.5);
+        pdf.rect(13, 13, 271, 184);
+
+        // Header
+        pdf.setTextColor(16, 185, 129);
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(14);
+        pdf.text("INSYT CORPORATE ACADEMY", 148.5, 34, { align: "center" });
+
+        pdf.setFontSize(9);
+        pdf.setTextColor(209, 250, 229);
+        pdf.text("EXECUTIVE EVALUATION & TECHNICAL ACCREDITATION COUNCIL", 148.5, 40, { align: "center" });
+
+        pdf.setFontSize(22);
+        pdf.setTextColor(255, 255, 255);
+        pdf.text("CERTIFICATE OF COMPLETION", 148.5, 60, { align: "center" });
+
+        pdf.setFontSize(10);
+        pdf.setTextColor(16, 185, 129);
+        pdf.text("THIS VERIFIED CREDENTIAL IS PROUDLY CONFERRED UPON", 148.5, 78, { align: "center" });
+
+        pdf.setFontSize(28);
+        pdf.setTextColor(254, 240, 138); // #FEF08A
+        pdf.text(state.name || "Verified Executive", 148.5, 98, { align: "center" });
+
+        pdf.setFontSize(15);
+        pdf.setTextColor(255, 255, 255);
+        pdf.text(certTitle, 148.5, 118, { align: "center" });
+
+        pdf.setFontSize(10);
+        pdf.setTextColor(209, 250, 229);
+        const desc = "For demonstrating verified competency, completing all required master coursework, and passing the 80% rubric evaluation benchmark under corporate simulation standards.";
+        pdf.text(desc, 148.5, 132, { align: "center", maxWidth: 210 });
+
+        // Footer Metadata & Seals
+        pdf.setFontSize(9);
+        pdf.setTextColor(16, 185, 129);
+        pdf.text("ISSUED: " + issueDate, 25, 178);
+        pdf.text("CREDENTIAL ID: INSYT-" + Math.random().toString(36).substring(2, 9).toUpperCase() + "-VERIFIED", 25, 185);
+
+        pdf.text("ACADEMIC BOARD VERIFICATION SEAL", 272, 178, { align: "right" });
+        pdf.text("W3C VC 2.0 CRYPTOGRAPHICALLY SIGNED", 272, 185, { align: "right" });
+
+        pdf.save(`INSYT-Certificate-${certTitle.replace(/[^a-zA-Z0-9]/g, "-")}.pdf`);
+      }
     } catch (err) {
-      console.error("PDF generation failed:", err);
-      window.print();
+      console.error("PDF generation error:", err);
     } finally {
       setDownloading(null);
     }

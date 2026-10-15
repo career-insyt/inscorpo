@@ -127,6 +127,7 @@ export default function CareerPassportPage() {
   const [isEditingExp, setIsEditingExp] = useState(false);
   const [isEditingSkills, setIsEditingSkills] = useState(false);
   const [showBadgesModal, setShowBadgesModal] = useState(false);
+  const [tempUnselectedBadges, setTempUnselectedBadges] = useState<string[]>([]);
 
   const [alertDialog, setAlertDialog] = useState<{
     isOpen: boolean;
@@ -313,6 +314,12 @@ export default function CareerPassportPage() {
       return false;
     });
   }, [state.recentBadges, state.courseProgress, state.streak, state.completedChallengeIds, state.completedMockTests, pp?.verifiedSkillDetails]);
+
+  // User-selected badges to show on Passport
+  const displayedBadges = useMemo(() => {
+    const unselected = new Set(pp?.unselectedBadgeIds || []);
+    return userUnlockedBadges.filter((b) => !unselected.has(b.id));
+  }, [userUnlockedBadges, pp?.unselectedBadgeIds]);
 
   const [showProModal, setShowProModal] = useState(false);
 
@@ -606,22 +613,34 @@ export default function CareerPassportPage() {
                 </h3>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-mono font-bold text-corp-accent">
-                    {userUnlockedBadges.length} Earned
+                    {displayedBadges.length} Displayed ({userUnlockedBadges.length} Earned)
                   </span>
-                  <PassportEditPen onClick={() => setShowBadgesModal(true)} title="Inspect & Manage Platform Badges" />
+                  <PassportEditPen
+                    onClick={() => {
+                      setTempUnselectedBadges(pp?.unselectedBadgeIds || []);
+                      setShowBadgesModal(true);
+                    }}
+                    title="Select & Manage Displayed Badges"
+                  />
                 </div>
               </div>
 
-              {userUnlockedBadges.length > 0 ? (
+              {displayedBadges.length > 0 ? (
                 <div className="space-y-3">
-                  {userUnlockedBadges.map((badge) => (
+                  {displayedBadges.map((badge) => (
                     <PlatformBadge key={badge.id} badge={badge} size="sm" unlocked={true} />
                   ))}
                 </div>
               ) : (
                 <div className="py-6 px-4 rounded-xl border border-dashed border-corp-border text-center space-y-1">
-                  <p className="text-xs font-semibold text-corp-text-secondary">No platform badges earned yet</p>
-                  <p className="text-[10px] text-corp-text-tertiary">Complete verified courses &amp; credentials to unlock and display your badges.</p>
+                  <p className="text-xs font-semibold text-corp-text-secondary">
+                    {userUnlockedBadges.length > 0 ? "All earned badges currently hidden" : "No platform badges earned yet"}
+                  </p>
+                  <p className="text-[10px] text-corp-text-tertiary">
+                    {userUnlockedBadges.length > 0
+                      ? "Click the edit pen above to choose which badges to display on your passport."
+                      : "Complete verified courses & credentials to unlock and display your badges."}
+                  </p>
                 </div>
               )}
             </div>
@@ -1027,9 +1046,9 @@ export default function CareerPassportPage() {
                     <Award size={18} />
                   </div>
                   <div>
-                    <h3 className="text-base font-black uppercase text-slate-900">Platform Badges Directory</h3>
+                    <h3 className="text-base font-black uppercase text-slate-900">Manage Displayed Badges</h3>
                     <p className="text-[11px] text-slate-600 font-sans">
-                      {userUnlockedBadges.length} of {PLATFORM_BADGES.length} Badges Earned &amp; Displayed on Passport
+                      Select which earned badges appear publicly on your Career Passport ({userUnlockedBadges.length - tempUnselectedBadges.filter(id => userUnlockedBadges.some(b => b.id === id)).length} of {userUnlockedBadges.length} Active)
                     </p>
                   </div>
                 </div>
@@ -1045,46 +1064,82 @@ export default function CareerPassportPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {PLATFORM_BADGES.map((badge) => {
                     const isUnlocked = userUnlockedBadges.some((b) => b.id === badge.id);
+                    const isVisible = isUnlocked && !tempUnselectedBadges.includes(badge.id);
+
+                    const handleToggle = () => {
+                      if (!isUnlocked) return;
+                      setTempUnselectedBadges((prev) =>
+                        prev.includes(badge.id)
+                          ? prev.filter((id) => id !== badge.id)
+                          : [...prev, badge.id]
+                      );
+                    };
+
                     return (
                       <div
                         key={badge.id}
+                        onClick={handleToggle}
                         className={cn(
-                          "p-3.5 rounded-xl border-2 transition-all flex items-start gap-3",
-                          isUnlocked
-                            ? "bg-blue-50/60 border-blue-400 shadow-[2px_2px_0px_0px_#2563eb]"
-                            : "bg-slate-50 border-slate-200 opacity-60"
+                          "p-3.5 rounded-xl border-2 transition-all flex flex-col justify-between gap-3 relative",
+                          !isUnlocked
+                            ? "bg-slate-50 border-slate-200 opacity-60 cursor-not-allowed"
+                            : isVisible
+                            ? "bg-blue-50/70 border-blue-500 shadow-[3px_3px_0px_0px_#2563eb] cursor-pointer"
+                            : "bg-slate-100 border-slate-300 opacity-80 cursor-pointer"
                         )}
                       >
-                        <div
-                          className={cn(
-                            "w-10 h-10 rounded-xl flex items-center justify-center text-base flex-shrink-0 border-2",
-                            isUnlocked
-                              ? "bg-white border-blue-500 text-blue-600 shadow-xs"
-                              : "bg-slate-200 border-slate-300 text-slate-400"
-                          )}
-                        >
-                          {isUnlocked ? "✓" : "🔒"}
+                        <div className="flex items-start gap-3">
+                          <div
+                            className={cn(
+                              "w-10 h-10 rounded-xl flex items-center justify-center text-base flex-shrink-0 border-2 font-mono font-black",
+                              !isUnlocked
+                                ? "bg-slate-200 border-slate-300 text-slate-400"
+                                : isVisible
+                                ? "bg-blue-600 text-white border-blue-700 shadow-xs"
+                                : "bg-white border-slate-400 text-slate-400"
+                            )}
+                          >
+                            {!isUnlocked ? "🔒" : isVisible ? "✓" : "—"}
+                          </div>
+
+                          <div className="min-w-0 flex-1 space-y-1">
+                            <div className="flex items-center justify-between gap-1">
+                              <h4 className="text-xs font-black truncate text-slate-900">{badge.name}</h4>
+                              <span
+                                className={cn(
+                                  "text-[9px] font-black uppercase px-1.5 py-0.5 rounded border",
+                                  !isUnlocked
+                                    ? "bg-slate-200 text-slate-600 border-slate-300"
+                                    : isVisible
+                                    ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+                                    : "bg-amber-100 text-amber-800 border-amber-300"
+                                )}
+                              >
+                                {!isUnlocked ? "Locked" : isVisible ? "Showing" : "Unselected"}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-600 font-sans leading-tight line-clamp-2">
+                              {badge.description}
+                            </p>
+                          </div>
                         </div>
-                        <div className="min-w-0 flex-1 space-y-1">
-                          <div className="flex items-center justify-between gap-1">
-                            <h4 className="text-xs font-black truncate text-slate-900">{badge.name}</h4>
+
+                        {/* Selection Toggle Prompt */}
+                        {isUnlocked && (
+                          <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-[10px]">
+                            <span className="text-slate-500 font-mono">Passport Display:</span>
                             <span
                               className={cn(
-                                "text-[9px] font-black uppercase px-1.5 py-0.5 rounded",
-                                isUnlocked ? "bg-emerald-100 text-emerald-800 border border-emerald-300" : "bg-slate-200 text-slate-600"
+                                "font-black uppercase px-2 py-0.5 rounded text-[9px] border",
+                                isVisible
+                                  ? "bg-blue-600 text-white border-blue-700"
+                                  : "bg-slate-200 text-slate-700 border-slate-300"
                               )}
                             >
-                              {isUnlocked ? "Earned" : "Locked"}
+                              {isVisible ? "Active On Passport" : "Unselected (Click to show)"}
                             </span>
                           </div>
-                          <p className="text-[11px] text-slate-600 font-sans leading-tight line-clamp-2">
-                            {badge.description}
-                          </p>
-                          <div className="flex items-center gap-1.5 pt-0.5 text-[10px] text-blue-600 font-bold">
-                            <span>Requirement:</span>
-                            <span className="text-slate-700 font-normal truncate">{badge.earnedCriteria || "Course completion"}</span>
-                          </div>
-                        </div>
+                        )}
                       </div>
                     );
                   })}
@@ -1093,14 +1148,31 @@ export default function CareerPassportPage() {
 
               <div className="p-3.5 border-t-2 border-slate-200 bg-slate-50 flex items-center justify-between">
                 <span className="text-[11px] text-slate-600 font-sans">
-                  Badges auto-sync directly from verified test attempts &amp; courses.
+                  Unselected badges will be hidden from your public Career Passport view.
                 </span>
-                <button
-                  onClick={() => setShowBadgesModal(false)}
-                  className="px-4 py-1.5 rounded-xl text-xs font-black bg-blue-600 text-white hover:bg-blue-700 shadow-[2px_2px_0px_0px_#1e3a8a] transition-all cursor-pointer"
-                >
-                  Done
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowBadgesModal(false)}
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      save({ unselectedBadgeIds: tempUnselectedBadges });
+                      setShowBadgesModal(false);
+                      setAlertDialog({
+                        isOpen: true,
+                        title: "Platform Badges Updated",
+                        message: "Your badge showcase preferences have been applied to your Career Passport.",
+                        type: "success",
+                      });
+                    }}
+                    className="px-4 py-1.5 rounded-xl text-xs font-black bg-blue-600 text-white hover:bg-blue-700 shadow-[2px_2px_0px_0px_#1e3a8a] transition-all cursor-pointer"
+                  >
+                    Save &amp; Apply
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
