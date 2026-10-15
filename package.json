@@ -6,6 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
+    "clean": "powershell -Command \"Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue\"",
     "sync:db": "node scripts/upload_db_to_cloud.js",
     "lint": "eslint"
   },
