@@ -32,6 +32,7 @@ export function FloatingChatAssistant() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -221,34 +222,58 @@ export function FloatingChatAssistant() {
         )}
       </AnimatePresence>
 
-      {/* ── BRUTALIST GOLDEN COIN LAUNCHER (PERMANENTLY ANCHORED — ZERO GLITCH ON CLOSE) ── */}
-      <div className="fixed bottom-6 right-5 z-40 select-none font-mono">
+      {/* ── DRAGGABLE ROUND AI ASSISTANT LAUNCHER WITH HOVER CLOSE BUTTON ── */}
+      <motion.div
+        drag
+        dragMomentum={false}
+        dragElastic={0.1}
+        onDragStart={() => {
+          isDraggingRef.current = true;
+        }}
+        onDragEnd={() => {
+          setTimeout(() => {
+            isDraggingRef.current = false;
+          }, 120);
+        }}
+        className="fixed bottom-6 right-5 z-40 select-none font-mono group touch-none"
+      >
+        {/* Hover-revealed Dismiss / Close Button */}
         <button
           type="button"
-          onClick={() => setIsOpen((prev) => !prev)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsDismissed(true);
+          }}
+          title="Dismiss Assistant"
+          aria-label="Dismiss AI Assistant"
+          className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity border border-slate-700 shadow-md hover:bg-rose-600 cursor-pointer z-50 text-[10px]"
+        >
+          <X size={12} strokeWidth={3} />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            if (isDraggingRef.current) return;
+            setIsOpen((prev) => !prev);
+          }}
           aria-label={isOpen ? "Close AI Assistant" : "Open AI Assistant"}
-          title={isOpen ? "Close Assistant" : "INSYT AI Assistant (Click to chat)"}
-          className="w-14 h-14 rounded-full border-[3px] border-[#451a03] bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-500 flex items-center justify-center text-[#451a03] relative overflow-hidden transition-all hover:scale-108 active:scale-95 active:translate-x-[2px] active:translate-y-[2px] cursor-pointer shadow-[4px_4px_0px_0px_#451a03] active:shadow-[2px_2px_0px_0px_#451a03]"
+          title={isOpen ? "Close Assistant" : "INSYT AI Assistant (Drag to move, click to chat)"}
+          className="w-14 h-14 rounded-full aspect-square border-[3px] border-[#451a03] bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-500 flex items-center justify-center text-[#451a03] relative overflow-hidden transition-transform hover:scale-105 active:scale-95 cursor-grab active:cursor-grabbing shadow-[4px_4px_0px_0px_#451a03]"
           style={{
             boxShadow: "4px 4px 0px 0px #451a03",
           }}
         >
-          {/* Inner Coin Rim detailing */}
-          <div className="absolute inset-1 rounded-full border border-[#451a03]/30 pointer-events-none" />
-
-          {/* Icon state */}
+          {/* Icon state - No glowing blue dot, No inner ring */}
           <div className="relative z-10 flex items-center justify-center">
             {isOpen ? (
               <X size={24} strokeWidth={3} className="text-[#451a03]" />
             ) : (
-              <>
-                <Bot size={25} strokeWidth={2.4} className="text-[#451a03]" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#2563eb] ring-2 ring-amber-300 animate-pulse" />
-              </>
+              <Bot size={26} strokeWidth={2.4} className="text-[#451a03]" />
             )}
           </div>
         </button>
-      </div>
+      </motion.div>
     </>
   );
 }

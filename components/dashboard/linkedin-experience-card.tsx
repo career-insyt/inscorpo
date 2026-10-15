@@ -62,7 +62,7 @@ export function LinkedInExperienceCard({ state }: LinkedInExperienceCardProps) {
             const moduleHighlights = pathInfo.whatYouWillLearn?.slice(0, 3) || [];
 
             return (
-              <div key={slug} className="pt-6 first:pt-0 space-y-3 font-mono">
+              <div key={slug} className="pt-6 pb-6 first:pt-0 last:pb-0 space-y-3 font-mono">
                 <div className="flex items-start gap-4">
                   {/* Track Icon Logo Box */}
                   <motion.div
@@ -119,10 +119,11 @@ export function LinkedInExperienceCard({ state }: LinkedInExperienceCardProps) {
                       </ul>
                     )}
 
-                    <div className="pt-3">
+                    {/* Start Course CTA Button with distinct top/bottom spacing away from dividing line */}
+                    <div className="pt-4 mt-3">
                       <Link
                         href={`/learn/${slug}`}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-mono font-extrabold text-white bg-[#2563eb] hover:bg-blue-600 transition-all border border-blue-300 uppercase tracking-wider shadow-[3px_3px_0px_0px_#1e3a8a] cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-mono font-extrabold text-white bg-[#2563eb] hover:bg-blue-600 transition-all border border-blue-300 uppercase tracking-wider shadow-[3px_3px_0px_0px_#1e3a8a] cursor-pointer"
                       >
                         <span>{progress > 0 ? "Continue Course" : "Start Course"}</span>
                         <ArrowRight size={12} />

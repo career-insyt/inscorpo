@@ -145,8 +145,8 @@ export default function SubscriptionPage() {
     <div className="max-w-5xl mx-auto space-y-8 pb-12 font-bangla">
       {/* Header - Soft Brutalist */}
       <div className="text-center space-y-4 pt-2">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-blue-50 text-blue-700 border-2 border-blue-200 shadow-[2px_2px_0px_0px_#2563eb]">
-          <Crown size={14} className="text-blue-600" /> <span>মেম্বারশিপ ও সাবস্ক্রিপশন সেন্টার</span>
+        <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-black uppercase tracking-wider bg-[#2563eb] text-white border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a]">
+          <Crown size={15} className="text-white fill-white/20" /> <span>মেম্বারশিপ ও সাবস্ক্রিপশন সেন্টার</span>
         </div>
         
         <h1 className="text-2xl md:text-4xl font-black font-bangla text-slate-900 tracking-tight">
