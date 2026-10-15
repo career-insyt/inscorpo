@@ -41,7 +41,7 @@ const COLUMNS: { id: JobApplicationDoc["status"]; label: string; color: string; 
 const TAB_HEADERS = {
   corporate: {
     badge: "05 · Opportunities — INSYT Corporate",
-    title: "Curated Career Opportunities & Skill Matching",
+    title: "Curated Career Matching",
     subtitle: "Verified corporate openings mapped directly to your verified skill portfolio, capstones, and calibrated Readiness Index.",
   },
   research: {
