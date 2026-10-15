@@ -3,487 +3,291 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
-  Zap, BookOpen, ClipboardList, Briefcase,
-  CheckCircle2, ChevronRight, Target, ShieldCheck,
-  Check, Sparkles, Award, Lock, ExternalLink
+  Target,
+  BookOpen,
+  CheckCircle2,
+  ChevronRight,
+  ArrowRight,
+  Check,
+  Sparkles,
+  ShieldCheck,
+  Compass,
 } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@/components/providers/user-context";
-import { ALL_PATHS, getCourseBySlug, CourseItem } from "@/lib/data/courses";
-import { MOCK_TESTS_DATABASE, MockTestDetail } from "@/lib/data/mock-tests-db";
-import { jobsData, JobListing } from "@/lib/data/jobs";
-
-const FIRE_EMOJI_URL = "https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.webp";
+import { ALL_PATHS, CourseItem } from "@/lib/data/courses";
 
 function getTodayKey() {
   return new Date().toISOString().split("T")[0];
 }
 
-/** 0-indexed: Mon=0 ... Sun=6 */
-function getTodayDayIndex() {
-  const jsDay = new Date().getDay();
-  return jsDay === 0 ? 6 : jsDay - 1;
-}
-
-interface DynamicQuest {
-  id: string;
-  categoryTag: string;
-  icon: React.ReactNode;
-  label: string;
-  description: string;
-  xp: number;
-  href: string;
-  actionText: string;
-  isCompleted: boolean;
-  validationSource: string;
-}
-
 export function DailyQuestEngine() {
   const { state, claimDailyCheckIn, addNotification } = useUser();
-  const [bonusClaimed, setBonusClaimed] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [localCompleted, setLocalCompleted] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+    const todayStr = getTodayKey();
+    if (typeof window !== "undefined") {
+      const isDoneLocally = localStorage.getItem(`insyt_daily_mission_done_${todayStr}`) === "true";
+      setLocalCompleted(isDoneLocally);
+    }
   }, []);
 
   const todayStr = getTodayKey();
-  const todayIdx = getTodayDayIndex();
-  const circumference = 2 * Math.PI * 22;
 
-  // ─── 1. RESOLVE USER PROFILE & SAAS CONTENT CONNECTIONS ───────────────────────
-  const { activePathSlug, activeCourse, activeLesson, targetTest, targetJob, hasVerifiedSkills } = useMemo(() => {
-    // 1. User Primary Career Path
-    const cleanPaths = (state.enrolledPathSlugs || []).filter(
-      (s) => s && s !== "corporate-mto" && s !== "excel-corporate"
+  // ─── Resolve the User's Real Enrolled Track & Next Lesson ───
+  const { enrolledPath, enrolledCourse, nextLesson, hasEnrolledTrack } = useMemo(() => {
+    // ONLY consider courses the user has actually enrolled in
+    const validSlugs = (state.enrolledPathSlugs || []).filter(
+      (s) => s && s !== "corporate-mto" && s !== "excel-corporate" && Boolean(ALL_PATHS[s])
     );
-    const pathSlug = cleanPaths[0] || "corporate-analyst";
-    const pathData = ALL_PATHS[pathSlug] || ALL_PATHS["corporate-analyst"];
 
-    // 2. Active Course in Path
-    const course: CourseItem =
-      pathData?.courses?.[0] ||
-      getCourseBySlug("corporate-financial-commercial-modeling-excel") || {
-        slug: "corporate-financial-commercial-modeling-excel",
-        pathSlug: "corporate-analyst",
-        title: "Corporate Financial & Commercial Modeling in Excel",
-        description: "Master 3-statement modeling and commercial analytics.",
-        lessons: 10,
-        hours: 12,
-        skills: ["Financial Modeling", "Excel", "Commercial Valuation"],
+    if (validSlugs.length === 0) {
+      return {
+        enrolledPath: null,
+        enrolledCourse: null,
+        nextLesson: null,
+        hasEnrolledTrack: false,
       };
+    }
 
-    // 3. Next Uncompleted or Target Lesson
+    const primarySlug = validSlugs[0];
+    const pathData = ALL_PATHS[primarySlug];
+    const course: CourseItem | undefined = pathData?.courses?.[0];
+
+    if (!course) {
+      return {
+        enrolledPath: pathData,
+        enrolledCourse: null,
+        nextLesson: null,
+        hasEnrolledTrack: true,
+      };
+    }
+
+    // Find progress record for this enrolled course
     const courseProgressRecord = state.courseProgress.find(
-      (c) => c.id === course.slug || c.courseId === course.slug
+      (c) => c.id === course.slug || c.courseId === course.slug || c.id === primarySlug
     );
-    const completedLessons = courseProgressRecord?.completedLessons || [];
+    const completedList = courseProgressRecord?.completedLessons || [];
 
-    let resolvedLesson = {
-      slug: "pvm-price-volume-mix-decomposition",
-      title: "PVM Decomposition & Commercial Review",
-      xp: 60,
-    };
+    // Find first uncompleted lesson
+    let resolvedLesson: { slug: string; title: string; duration?: string; moduleTitle?: string } | null = null;
 
     if (course.modules && course.modules.length > 0) {
-      let foundUnfinished = false;
       for (const mod of course.modules) {
         for (const les of mod.lessons) {
-          if (!completedLessons.includes(les.slug)) {
+          if (!completedList.includes(les.slug)) {
             resolvedLesson = {
               slug: les.slug,
               title: les.title,
-              xp: les.xp || 60,
+              duration: les.duration,
+              moduleTitle: mod.title,
             };
-            foundUnfinished = true;
             break;
           }
         }
-        if (foundUnfinished) break;
+        if (resolvedLesson) break;
       }
-      if (!foundUnfinished && course.modules[0]?.lessons?.[0]) {
+
+      // If all lessons completed, show first lesson or capstone review
+      if (!resolvedLesson && course.modules[0]?.lessons?.[0]) {
         const first = course.modules[0].lessons[0];
         resolvedLesson = {
           slug: first.slug,
-          title: first.title,
-          xp: first.xp || 60,
+          title: `${first.title} (Mastery Review)`,
+          duration: first.duration,
+          moduleTitle: course.modules[0].title,
         };
       }
     }
 
-    // 4. Track Standardized Mock Test
-    let testObj: MockTestDetail = MOCK_TESTS_DATABASE["excel-commercial-modeling"];
-    if (pathSlug === "business-intelligence-analyst") {
-      testObj = MOCK_TESTS_DATABASE["sql-bi-analytics"] || testObj;
-    } else if (pathSlug === "corporate-analyst") {
-      testObj = MOCK_TESTS_DATABASE["excel-commercial-modeling"] || testObj;
-    } else {
-      testObj = MOCK_TESTS_DATABASE["mto-cognitive-aptitude"] || testObj;
-    }
-
-    // 5. Passport Skills vs Opportunities
-    const verifiedDetails = state.passportProfile?.verifiedSkillDetails || {};
-    const verifiedCount = Object.values(verifiedDetails).filter((s) => s?.verified).length;
-    const hasSkillsVerified = verifiedCount > 0;
-
-    // Pick a real top job matching the track
-    const matchingJobs = jobsData.filter((j) => {
-      const lowerTitle = j.title.toLowerCase();
-      const lowerDept = j.department.toLowerCase();
-      if (pathSlug === "business-intelligence-analyst") {
-        return lowerTitle.includes("bi") || lowerTitle.includes("data") || lowerDept.includes("analytics");
-      }
-      return lowerTitle.includes("analyst") || lowerTitle.includes("finance") || lowerDept.includes("commercial");
-    });
-    const selectedJob: JobListing = matchingJobs[0] || jobsData[0];
-
     return {
-      activePathSlug: pathSlug,
-      activeCourse: course,
-      activeLesson: resolvedLesson,
-      targetTest: testObj,
-      targetJob: selectedJob,
-      hasVerifiedSkills: hasSkillsVerified,
+      enrolledPath: pathData,
+      enrolledCourse: course,
+      nextLesson: resolvedLesson,
+      hasEnrolledTrack: true,
     };
-  }, [state.enrolledPathSlugs, state.courseProgress, state.passportProfile]);
+  }, [state.enrolledPathSlugs, state.courseProgress]);
 
-  // ─── 2. AUTHORITATIVE SAAS VALIDATION ENGINE ─────────────────────────────────
-  const quests: DynamicQuest[] = useMemo(() => {
-    // ── Task 1: Lesson Progress in User's Track
-    let lessonDoneToday = false;
-    if (isClient) {
-      const localLessonKey = localStorage.getItem(`insyt_daily_lesson_done_${todayStr}`);
-      const rawCompletedLessons = localStorage.getItem("insyt_completed_lessons_list");
-      const completedList = rawCompletedLessons ? JSON.parse(rawCompletedLessons) : [];
-      lessonDoneToday =
-        localLessonKey === "true" ||
-        completedList.includes(activeLesson.slug) ||
-        state.courseProgress.some(
-          (c) =>
-            (c.id === activeCourse.slug || c.courseId === activeCourse.slug) &&
-            (c.lastAccessed === todayStr || (c.completedLessons || []).includes(activeLesson.slug))
-        ) ||
-        (state.weeklyActivity[todayIdx] || 0) > 0;
+  // Check if mission is done today
+  const isMissionDone = useMemo(() => {
+    if (localCompleted) return true;
+    if (state.lastCheckInDate === todayStr) return true;
+
+    if (nextLesson && isClient) {
+      const courseRecord = state.courseProgress.find(
+        (c) =>
+          enrolledCourse &&
+          (c.id === enrolledCourse.slug || c.courseId === enrolledCourse.slug)
+      );
+      if (courseRecord && (courseRecord.completedLessons || []).includes(nextLesson.slug)) {
+        return true;
+      }
     }
+    return false;
+  }, [localCompleted, state.lastCheckInDate, todayStr, nextLesson, isClient, state.courseProgress, enrolledCourse]);
 
-    // ── Task 2: Standardized Assessment or Rapid Drill
-    let drillOrTestDone = false;
-    if (isClient) {
-      const rapidDrillKey = `daily-skill-rapid-drill-${todayStr}`;
-      const localDrillDone = localStorage.getItem(`insyt_drill_done_${todayStr}`) === "true";
-      const hasCompletedTest = (state.completedMockTests || []).includes(targetTest.id);
-      
-      let hasTodayTestScore = false;
+  const handleMarkCompleted = () => {
+    claimDailyCheckIn();
+    setLocalCompleted(true);
+    if (typeof window !== "undefined") {
       try {
-        const rawResults = localStorage.getItem("insyt_mock_test_results");
-        if (rawResults) {
-          const results = JSON.parse(rawResults);
-          hasTodayTestScore = results.some(
-            (r: any) => (r.date === todayStr || r.testId === targetTest.id) && (r.score >= 60 || r.accuracy >= 60)
-          );
-        }
+        localStorage.setItem(`insyt_daily_mission_done_${todayStr}`, "true");
       } catch {}
-
-      drillOrTestDone =
-        state.completedChallengeIds.includes(rapidDrillKey) ||
-        localDrillDone ||
-        hasCompletedTest ||
-        hasTodayTestScore;
     }
 
-    // ── Task 3: Career Passport Benchmark OR Corporate Opportunity Application
-    let careerDone = false;
-    if (isClient) {
-      if (!hasVerifiedSkills) {
-        careerDone = Boolean(
-          state.passportProfile?.verifiedSkillDetails &&
-          Object.values(state.passportProfile.verifiedSkillDetails).some((s) => s?.verified)
-        );
-      } else {
-        const rawApps = localStorage.getItem("insyt_job_applications") || localStorage.getItem("job_applications");
-        const hasApps = rawApps ? JSON.parse(rawApps).length > 0 : false;
-        careerDone =
-          (state.completedChallengeIds && state.completedChallengeIds.length > 0) ||
-          hasApps ||
-          Boolean(localStorage.getItem(`challenge_eval_${targetJob.id}`));
-      }
-    }
+    addNotification({
+      type: "achievement",
+      title: "Daily Mission Accomplished",
+      message: `You completed today's study quest for ${enrolledCourse?.title || "your enrolled track"}.`,
+    });
+  };
 
-    // Construct the 3 dynamic, verified tasks
-    const questList: DynamicQuest[] = [
-      {
-        id: "curriculum_lesson",
-        categoryTag: `${activeCourse.title.split(" ")[0]} Track`,
-        icon: <BookOpen size={14} />,
-        label: `Master Lesson: ${activeLesson.title}`,
-        description: `Complete study module in ${activeCourse.title}`,
-        xp: activeLesson.xp || 50,
-        href: `/learn/${activeCourse.pathSlug}/${activeCourse.slug}/${activeLesson.slug}`,
-        actionText: "Start Lesson",
-        isCompleted: lessonDoneToday,
-        validationSource: "CourseProgress & Learning Studio Activity",
-      },
-      {
-        id: "benchmark_drill",
-        categoryTag: "Assessment Hub",
-        icon: <ClipboardList size={14} />,
-        label: `${targetTest.title.split(" ").slice(0, 4).join(" ")} or 5-Min Drill`,
-        description: `Score 60%+ on test or complete today's timed rapid drill`,
-        xp: 75,
-        href: `/mock-tests/${targetTest.id}`,
-        actionText: "Take Drill / Test",
-        isCompleted: drillOrTestDone,
-        validationSource: "MockTestsDB & 5-Min Skill Drill Verification",
-      },
-      {
-        id: "career_action",
-        categoryTag: hasVerifiedSkills ? "Corporate Hub" : "Career Passport",
-        icon: hasVerifiedSkills ? <Briefcase size={14} /> : <Award size={14} />,
-        label: hasVerifiedSkills
-          ? `Apply for ${targetJob.title} (${targetJob.company.split(" ")[0]})`
-          : `Benchmark Core Skill in Career Passport`,
-        description: hasVerifiedSkills
-          ? `Submit talent profile or case solution in Career Opportunities`
-          : `Audit & cryptographically verify your competency benchmark`,
-        xp: 50,
-        href: hasVerifiedSkills ? `/jobs` : `/career-passport`,
-        actionText: hasVerifiedSkills ? "View Role" : "Verify Skill",
-        isCompleted: careerDone,
-        validationSource: hasVerifiedSkills ? "JobApplication & Case Challenge Engine" : "Talent Passport Cryptographic Attestation",
-      },
-    ];
-
-    return questList;
-  }, [
-    isClient,
-    todayStr,
-    todayIdx,
-    activeCourse,
-    activeLesson,
-    targetTest,
-    targetJob,
-    hasVerifiedSkills,
-    state.courseProgress,
-    state.weeklyActivity,
-    state.completedChallengeIds,
-    state.completedMockTests,
-    state.passportProfile,
-  ]);
-
-  const completedCount = quests.filter((q) => q.isCompleted).length;
-  const totalCount = quests.length;
-  const allDone = completedCount >= totalCount && totalCount > 0;
-  const isStreakCountedToday = state.lastCheckInDate === todayStr;
-
-  // ─── 3. AUTO-COMPLETE & SECURE STREAK ON PLATFORM VALIDATION ──────────────────
-  useEffect(() => {
-    if (allDone && isClient) {
-      if (!isStreakCountedToday) {
-        claimDailyCheckIn();
-      }
-
-      const bonusKey = `insyt_quest_bonus_${todayStr}`;
-      if (!localStorage.getItem(bonusKey)) {
-        localStorage.setItem(bonusKey, "1");
-        setBonusClaimed(true);
-        setTimeout(() => {
-          addNotification({
-            type: "achievement",
-            title: "🔥 All Daily Tasks Verified! Streak Advanced",
-            message: `Platform validated all tasks completed based on your profile! Streak is now ${state.streak} days.`,
-          });
-        }, 500);
-      } else {
-        setBonusClaimed(true);
-      }
-    }
-  }, [allDone, isStreakCountedToday, todayStr, claimDailyCheckIn, addNotification, state.streak, isClient]);
+  const lessonUrl =
+    enrolledPath && enrolledCourse && nextLesson
+      ? `/learn/${enrolledPath.slug}/${enrolledCourse.slug}/${nextLesson.slug}`
+      : enrolledPath
+      ? `/learn/${enrolledPath.slug}`
+      : `/learn`;
 
   return (
-    <div className="space-y-3 font-sans">
-      {/* Main Quest Card with Gold/Amber Aesthetic */}
-      <div
-        className="rounded-2xl border-2 overflow-hidden text-slate-900 transition-all"
-        style={{
-          background: "linear-gradient(135deg, #FEF08A 0%, #FACC15 60%, #F59E0B 100%)",
-          borderColor: "#D97706",
-          boxShadow: "5px 5px 0px 0px #92400E",
-        }}
-      >
-        {/* Card Header */}
-        <div
-          className="flex items-center justify-between px-5 py-4 border-b-2"
-          style={{ borderColor: "#D97706" }}
-        >
-          <div className="flex items-center gap-3">
-            {/* Progress Circle in Rich Amber */}
-            <div className="relative w-12 h-12 flex-shrink-0">
-              <svg width="48" height="48" viewBox="0 0 48 48" className="-rotate-90">
-                <circle
-                  cx="24"
-                  cy="24"
-                  r="22"
-                  fill="none"
-                  strokeWidth="4"
-                  stroke="rgba(146, 64, 14, 0.25)"
-                />
-                <motion.circle
-                  cx="24"
-                  cy="24"
-                  r="22"
-                  fill="none"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  stroke="#92400E"
-                  strokeDasharray={circumference}
-                  initial={{ strokeDashoffset: circumference }}
-                  animate={{
-                    strokeDashoffset: circumference * (1 - completedCount / totalCount),
-                  }}
-                  transition={{ duration: 0.7, ease: "easeOut" }}
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                {allDone ? (
-                  <CheckCircle2 size={18} className="text-[#92400E]" />
-                ) : (
-                  <span className="text-[12px] font-black font-mono text-[#78350F]">
-                    {completedCount}/{totalCount}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[9px] font-mono font-extrabold uppercase px-2 py-0.5 rounded bg-amber-900/20 text-amber-950 border border-amber-800/30">
-                  Profile-Connected &amp; Verified
-                </span>
-              </div>
-              <h3 className="text-sm font-black uppercase font-mono mt-0.5 text-amber-950 tracking-tight flex items-center gap-1.5">
-                <Target size={15} className="text-[#92400E]" /> Daily Quests
-              </h3>
-            </div>
+    <div
+      className="rounded-xl border-2 border-blue-600 bg-white p-5 space-y-4 font-sans shadow-[4px_4px_0px_0px_#1e3a8a]"
+    >
+      {/* ── Top Header Bar ── */}
+      <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
+        <div className="flex items-center gap-2">
+          {/* Bright Yellow Box with Brown Icon */}
+          <div className="w-7 h-7 rounded-lg bg-amber-400 border border-amber-500 flex items-center justify-center text-amber-950 flex-shrink-0 shadow-sm">
+            <Target size={14} className="text-amber-950" strokeWidth={2.4} />
           </div>
-
-          {/* Streak Fire Badge */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="px-2.5 py-1 rounded-lg text-xs font-mono font-black bg-amber-950/15 text-amber-950 border border-amber-900/30 flex items-center gap-1 shadow-sm">
-              <img
-                src={FIRE_EMOJI_URL}
-                alt="fire"
-                width={18}
-                height={18}
-                className="object-contain"
-              />
-              <span>{state.streak}d Streak</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Informational Subtext: Real Verification Notice */}
-        <div className="px-5 pt-3 pb-2.5 text-[11px] font-mono font-bold text-amber-950 leading-relaxed border-b border-amber-600/30">
-          {allDone ? (
-            <div className="flex items-center gap-1.5 text-emerald-900 font-extrabold">
-              <ShieldCheck size={14} className="text-emerald-800 flex-shrink-0" />
-              <span>All daily tasks genuinely validated! Today&apos;s streak is secured.</span>
-            </div>
-          ) : (
-            <p className="flex items-center gap-1.5">
-              <ShieldCheck size={13} className="text-amber-900 flex-shrink-0" />
-              <span>
-                Automatic validation active. Tasks auto-complete once performed across curriculum, assessments &amp; passport.
-              </span>
+          <div>
+            <h2 className="text-xs font-black font-mono uppercase tracking-wider text-slate-900 leading-tight">
+              Daily Quest
+            </h2>
+            <p className="text-[10px] font-mono text-slate-500">
+              Today&apos;s Core Mission
             </p>
-          )}
+          </div>
         </div>
 
-        {/* Quests List */}
-        <div className="divide-y-2 divide-amber-600/30 p-2 space-y-1.5">
-          {quests.map((quest, i) => {
-            const done = quest.isCompleted;
-            return (
-              <motion.div
-                key={quest.id}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.06, duration: 0.3 }}
-                className={`flex items-center justify-between gap-3 px-3.5 py-3 rounded-xl transition-all border ${
-                  done
-                    ? "bg-amber-100/70 border-emerald-600/30 opacity-90"
-                    : "bg-white/80 hover:bg-white border-amber-600/40 shadow-sm"
-                }`}
-              >
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 border-2 ${
-                      done
-                        ? "bg-[#10B981] text-white border-[#059669]"
-                        : "bg-[#FEF3C7] text-amber-900 border-amber-500"
-                    }`}
-                  >
-                    {done ? <CheckCircle2 size={15} /> : quest.icon}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 mb-0.5">
-                      <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.2 rounded bg-amber-200/80 text-amber-900 border border-amber-400/40">
-                        {quest.categoryTag}
-                      </span>
-                    </div>
-                    <p
-                      className={`text-xs font-mono font-extrabold text-amber-950 truncate ${
-                        done ? "line-through opacity-75" : ""
-                      }`}
-                    >
-                      {quest.label}
-                    </p>
-                    <p className="text-[10px] mt-0.5 font-medium text-amber-900/80 truncate">
-                      {quest.description}
-                    </p>
-                  </div>
+        {/* Right Badge: 1 Mission */}
+        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200">
+          {isMissionDone ? "COMPLETED" : "1 MISSION"}
+        </span>
+      </div>
+
+      {/* ── Case 1: User has not enrolled in any course yet ── */}
+      {!hasEnrolledTrack && (
+        <div className="p-4 rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/40 text-center space-y-2.5">
+          <div className="w-8 h-8 rounded-full bg-amber-400 border border-amber-500 flex items-center justify-center text-amber-950 mx-auto">
+            <Compass size={16} className="text-amber-950" />
+          </div>
+          <h3 className="text-xs font-extrabold text-slate-900">
+            No Enrolled Track Selected
+          </h3>
+          <p className="text-[11px] text-slate-600">
+            Choose your flagship career track to unlock tailored daily curriculum missions.
+          </p>
+          <Link
+            href="/learn"
+            className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all border border-blue-700 shadow-sm"
+          >
+            <span>Browse Flagship Tracks</span>
+            <ArrowRight size={13} />
+          </Link>
+        </div>
+      )}
+
+      {/* ── Case 2: User has an active enrolled course (Exactly 1 Mission) ── */}
+      {hasEnrolledTrack && enrolledCourse && (
+        <div className="space-y-3">
+          {/* Mission Card */}
+          <div
+            className={`p-4 rounded-xl border-2 transition-all space-y-3 ${
+              isMissionDone
+                ? "border-blue-500 bg-blue-50/70 shadow-sm"
+                : "border-slate-200 bg-[#F8FAFC] hover:border-blue-400"
+            }`}
+          >
+            {/* Track Name & Module Label */}
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-2 py-0.5 rounded border border-blue-200">
+                {enrolledPath?.title || enrolledCourse.title}
+              </span>
+              {nextLesson?.duration && (
+                <span className="text-[10px] font-mono font-semibold text-slate-500">
+                  {nextLesson.duration}
+                </span>
+              )}
+            </div>
+
+            {/* Task Content */}
+            <div className="space-y-1">
+              <div className="flex items-start gap-2.5">
+                <div
+                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
+                    isMissionDone
+                      ? "bg-amber-400 border-amber-500 text-amber-950 shadow-sm"
+                      : "border-slate-300 bg-white text-transparent"
+                  }`}
+                >
+                  <Check size={11} strokeWidth={3} className={isMissionDone ? "text-amber-950" : "text-transparent"} />
                 </div>
 
-                <div className="flex items-center gap-2 flex-shrink-0 font-mono">
-                  <span className="text-[10px] font-black text-amber-950 flex items-center gap-0.5 bg-amber-400/50 px-2 py-0.5 rounded border border-amber-600/30">
-                    <Zap size={11} className="fill-amber-900 text-amber-900" />+{quest.xp}
-                  </span>
-
-                  {done ? (
-                    <div className="px-2.5 py-1 rounded-lg text-[10px] font-black bg-emerald-700 text-white border border-emerald-800 shadow-sm flex items-center gap-1">
-                      <Check size={11} /> Verified Done
-                    </div>
-                  ) : (
-                    <Link
-                      href={quest.href}
-                      className="px-3 py-1.5 rounded-lg text-xs font-mono font-extrabold text-white transition-all flex items-center gap-1 border-2"
-                      style={{
-                        background: "#92400E",
-                        borderColor: "#78350F",
-                        boxShadow: "2px 2px 0px 0px #451a03",
-                      }}
-                    >
-                      {quest.actionText}
-                      <ChevronRight size={11} />
-                    </Link>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+                    {nextLesson ? nextLesson.title : `Complete next module in ${enrolledCourse.title}`}
+                  </h3>
+                  {nextLesson?.moduleTitle && (
+                    <p className="text-[11px] text-slate-600 mt-0.5 line-clamp-1">
+                      {nextLesson.moduleTitle}
+                    </p>
                   )}
                 </div>
-              </motion.div>
-            );
-          })}
-        </div>
+              </div>
+            </div>
 
-        {/* Footer Summary / Streak Status Bar */}
-        <div className="p-3 bg-amber-600/15 border-t-2 border-amber-600/40 flex items-center justify-between text-xs font-mono font-black text-amber-950">
-          <span>
-            {allDone
-              ? "🎯 Daily Target Met: +200 XP Bonus Claimed"
-              : `${totalCount - completedCount} task${totalCount - completedCount !== 1 ? "s" : ""} remaining to secure streak`}
-          </span>
-          <span className="text-[11px] uppercase tracking-wider text-amber-900 font-bold">
-            {allDone ? "Target Achieved 🎯" : "In Progress ⏳"}
-          </span>
+            {/* Status Feedback when Completed */}
+            {isMissionDone ? (
+              <div className="pt-2 border-t border-blue-200 flex items-center justify-between text-[11px]">
+                <span className="font-mono font-bold text-blue-800 flex items-center gap-1">
+                  <ShieldCheck size={13} className="text-amber-600" /> Mission Complete for Today
+                </span>
+                <Link
+                  href={lessonUrl}
+                  className="font-mono font-bold text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-0.5"
+                >
+                  Review Lesson <ChevronRight size={12} />
+                </Link>
+              </div>
+            ) : (
+              /* Action CTA Buttons */
+              <div className="pt-2 border-t border-slate-200 flex items-center gap-2">
+                <Link
+                  href={lessonUrl}
+                  className="flex-1 py-2.5 px-3 rounded-xl text-xs font-black text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all border-2 border-blue-700 shadow-[3px_3px_0px_0px_#1e3a8a] flex items-center justify-center gap-1.5"
+                >
+                  <BookOpen size={13} />
+                  <span>Start Lesson</span>
+                  <ArrowRight size={13} />
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleMarkCompleted}
+                  title="Mark lesson as done for today"
+                  className="py-2.5 px-3 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-blue-50 hover:text-blue-700 hover:border-blue-400 border-2 border-slate-300 transition-all shadow-sm"
+                >
+                  Done
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

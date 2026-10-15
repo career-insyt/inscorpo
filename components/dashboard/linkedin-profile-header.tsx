@@ -1,13 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Play, ShieldCheck, Share2, MapPin, Building2, GraduationCap,
-  Award, Sparkles, CheckCircle2, ArrowRight, Flame, Target, Zap, Trophy
+  ShieldCheck, MapPin, Building2, GraduationCap, Target
 } from "lucide-react";
-import Link from "next/link";
 import { UserState } from "@/lib/state/types";
+import { PlatformBadgeCarousel } from "@/components/dashboard/platform-badge-carousel";
 
 interface LinkedInProfileHeaderProps {
   state: UserState;
@@ -49,7 +47,7 @@ export function LinkedInProfileHeader({
       />
 
       <div className="relative z-10">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
           {/* Left Side: Avatar + Merged Details */}
           <div className="flex items-start sm:items-center gap-4 min-w-0 flex-1">
             {/* Avatar */}
@@ -92,7 +90,7 @@ export function LinkedInProfileHeader({
               </div>
 
               {/* Benchmark Operational Readiness Statement */}
-              <p className="text-xs font-sans font-medium text-blue-100 leading-relaxed max-w-3xl">
+              <p className="text-xs font-sans font-medium text-blue-100 leading-relaxed max-w-2xl">
                 Real-time operational readiness mapped against FMCG, commercial banking, and multinational conglomerate entry benchmarks.
               </p>
 
@@ -111,6 +109,11 @@ export function LinkedInProfileHeader({
                 </span>
               </div>
             </div>
+          </div>
+
+          {/* Right Side: Platform Badges Carousel in the Hero Box */}
+          <div className="flex-shrink-0 self-center xl:self-auto pt-2 xl:pt-0">
+            <PlatformBadgeCarousel state={state} />
           </div>
         </div>
       </div>

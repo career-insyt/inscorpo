@@ -3,24 +3,24 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Crown, ChevronRight, Zap } from "lucide-react";
+import { X, ChevronRight, Zap } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@/components/providers/user-context";
 
-const ROUTE_MESSAGES: { route: string; text: string; cta: string }[] = [
-  { route: "/mock-tests", text: "Unlock unlimited practice tests & detailed analytics", cta: "Go Pro" },
-  { route: "/mock-interviews", text: "Get unlimited AI-powered mock interview sessions", cta: "Go Pro" },
-  { route: "/ai", text: "Access the full 12-tool AI Suite — the ultimate career arsenal", cta: "Go Pro" },
-  { route: "/certificates", text: "Generate verified, employer-trusted digital certificates", cta: "Go Pro" },
-  { route: "/career-passport", text: "Export ATS-optimized executive PDF resumes instantly", cta: "Go Pro" },
-  { route: "/learn", text: "Unlock all 5 flagship masterclasses & interactive practice gyms", cta: "Go Pro" },
+const ROUTE_MESSAGES: { route: string; text: string }[] = [
+  { route: "/mock-tests", text: "আনলিমিটেড প্র্যাকটিস টেস্ট ও রিয়েল-টাইম অ্যানালিটিক্স আনলক করুন" },
+  { route: "/mock-interviews", text: "আনলিমিটেড এআই-চালিত মক ইন্টারভিউ ও প্রিসাইজ ফিডব্যাক পান" },
+  { route: "/challenges", text: "রিয়েল-লাইফ কর্পোরেট কেস সমাধান ও এক্সক্লুসিভ চ্যাম্পিয়নশিপে অংশ নিন" },
+  { route: "/certificates", text: "শীর্ষ নিয়োগকারী ও এমএনসি-স্বীকৃত ডিজিটাল ভেরিফাইড সার্টিফিকেট অর্জন করুন" },
+  { route: "/career-passport", text: "এক ক্লিকেই এক্সিকিউটিভ এটিএস-অপ্টিমাইজড রেজ্যুমে এক্সপোর্ট করুন" },
+  { route: "/passport", text: "এক ক্লিকেই এক্সিকিউটিভ এটিএস-অপ্টিমাইজড রেজ্যুমে এক্সপোর্ট করুন" },
+  { route: "/learn", text: "সবগুলো ফ্ল্যাগশিপ মাস্টারক্লাস ও ইন্টারেক্টিভ প্র্যাকটিস জিম সম্পূর্ণ আনলক করুন" },
+  { route: "/events", text: "সকল কর্পোরেট ফ্ল্যাগশিপ ইভেন্ট ও কম্পিটিশনে অগ্রাধিকারভিত্তিক অ্যাক্সেস পান" },
+  { route: "/opportunities", text: "প্রিমিয়াম কর্পোরেট ও রিসার্চ রিক্রুটমেন্ট ট্র্যাকে সরাসরি অগ্রাধিকার পান" },
+  { route: "/jobs", text: "প্রিমিয়াম কর্পোরেট ও রিসার্চ রিক্রুটমেন্ট ট্র্যাকে সরাসরি অগ্রাধিকার পান" },
 ];
 
-const DEFAULT = {
-  text: "Upgrade to unlock all flagship masterclasses, practice gyms & verified credentials —",
-  brand: "INSYT Pro",
-  cta: "Upgrade Now",
-};
+const DEFAULT_MESSAGE = "সবগুলো ফ্ল্যাগশিপ মাস্টারক্লাস, প্র্যাকটিস জিম ও ভেরিফাইড ক্রেডেনশিয়াল আনলক করতে এখনই যোগ দিন";
 
 export function PremiumBanner() {
   const pathname = usePathname();
@@ -47,6 +47,7 @@ export function PremiumBanner() {
   };
 
   const match = ROUTE_MESSAGES.find((item) => pathname.startsWith(item.route));
+  const displayMessage = match ? match.text : DEFAULT_MESSAGE;
 
   return (
     <AnimatePresence>
@@ -55,69 +56,67 @@ export function PremiumBanner() {
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: "auto", opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
-          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
           className="overflow-hidden flex-shrink-0 relative z-30 hidden sm:block"
         >
           <div
-            className="relative flex flex-wrap items-center justify-center gap-2 px-4 py-1.5 text-[11px] sm:text-[12px] font-medium overflow-hidden font-sans"
+            className="relative flex items-center justify-between gap-4 px-4 sm:px-6 py-2.5 sm:py-3.5 overflow-hidden border-b-2 border-blue-400/40 shadow-sm"
             style={{
-              background: "linear-gradient(90deg, #006effff 0%, #0099ffff 35%, #006effff 70%, #0099ffff 100%)",
-              color: "#0f172a",
-              borderBottom: "1.5px solid #93c5fd",
+              background: "linear-gradient(90deg, #1d4ed8 0%, #2563eb 50%, #1e40af 100%)",
             }}
           >
-            {/* Animated shimmer */}
+            {/* Glittering yellow shine animation sweep on an interval */}
             <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.7) 50%, transparent 100%)",
-                backgroundSize: "200% 100%",
-                animation: "shimmer 4s linear infinite",
-              }}
-            />
-
-            {/* Crown icon */}
-            <Crown size={14} className="flex-shrink-0 relative z-10 text-amber-500 fill-amber-400 drop-shadow-sm" />
-
-            {/* Message */}
-            <span className="relative z-10 text-center max-w-[400px] sm:max-w-none leading-tight font-bold text-slate-800">
-              {match ? (
-                <>
-                  <span className="text-slate-700">{match.text} — </span>
-                  <span className="font-black text-[#1e40af]">INSYT Pro</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-white">{DEFAULT.text} </span>
-                  <span className="font-black text-[#0004ff]">{DEFAULT.brand}</span>
-                </>
-              )}
-            </span>
-
-            {/* CTA Button: Red background with white text, labeled 'Update Now' */}
-            <Link
-              href="/subscription"
-              className="relative z-10 flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-black uppercase tracking-wide transition-all hover:brightness-110 hover:scale-105 active:scale-95 flex-shrink-0 ml-1 shadow-md cursor-pointer"
-              style={{
-                background: "#dc2626",
-                color: "#ffffff",
-                border: "1px solid #b91c1c",
-                boxShadow: "0 2px 8px rgba(220,38,38,0.4)",
-              }}
+              className="absolute inset-0 pointer-events-none overflow-hidden"
+              aria-hidden="true"
             >
-              <Zap size={11} className="fill-white text-white" />
-              <span>Update Now</span>
-              <ChevronRight size={11} className="text-white" />
-            </Link>
+              <div
+                className="w-56 h-full absolute top-0 -left-56 pointer-events-none opacity-90"
+                style={{
+                  background:
+                    "linear-gradient(105deg, transparent 0%, rgba(250, 204, 21, 0.18) 28%, rgba(254, 240, 138, 0.95) 50%, rgba(250, 204, 21, 0.18) 72%, transparent 100%)",
+                  filter: "drop-shadow(0 0 16px rgba(250, 204, 21, 0.75))",
+                  animation: "yellowGlint 4.2s cubic-bezier(0.4, 0, 0.2, 1) infinite",
+                }}
+              />
+            </div>
 
-            {/* Dismiss */}
-            <button
-              onClick={handleDismiss}
-              className="relative z-10 w-7 h-7 rounded-md flex items-center justify-center hover:bg-black/5 transition-colors flex-shrink-0 ml-0.5 active:scale-95 text-slate-500 hover:text-slate-900"
-              aria-label="Dismiss banner"
-            >
-              <X size={13} />
-            </button>
+            {/* Left Content: Careerinsyt white PNG Logo + Bold Volte Bangla Message */}
+            <div className="relative z-10 flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+              <Link href="/dashboard" className="flex items-center shrink-0 hover:opacity-90 transition-opacity" title="CAREERINSYT">
+                <img
+                  src="/logo/logoTextWhite.png"
+                  alt="Career INSYT"
+                  className="h-5 sm:h-6 w-auto object-contain select-none filter drop-shadow-sm"
+                />
+              </Link>
+
+              <span className="hidden md:inline-block w-1.5 h-1.5 rounded-full bg-amber-300 shrink-0" />
+
+              <p className="font-bangla font-bold text-white text-xs sm:text-[14px] leading-tight truncate drop-shadow-sm">
+                {displayMessage}
+              </p>
+            </div>
+
+            {/* Right Actions: Brutalist Yellow Button + Dismiss */}
+            <div className="relative z-10 flex items-center gap-2.5 shrink-0">
+              <Link
+                href="/subscription"
+                className="px-3.5 sm:px-4 py-1.5 rounded-lg text-xs sm:text-[13px] font-black font-bangla text-slate-950 bg-[#facc15] hover:bg-[#eab308] border-2 border-slate-950 shadow-[2px_2px_0px_0px_#0f172a] hover:shadow-[1px_1px_0px_0px_#0f172a] hover:translate-x-[1px] hover:translate-y-[1px] active:translate-x-[2px] active:translate-y-[2px] transition-all flex items-center gap-1.5 cursor-pointer select-none"
+              >
+                <Zap size={13} className="fill-slate-950 text-slate-950 shrink-0" />
+                <span>আপগ্রেড করুন</span>
+                <ChevronRight size={13} className="text-slate-950 shrink-0" />
+              </Link>
+
+              <button
+                onClick={handleDismiss}
+                className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-white/15 text-white/75 hover:text-white transition-colors shrink-0 active:scale-95 cursor-pointer"
+                aria-label="Dismiss banner"
+              >
+                <X size={14} />
+              </button>
+            </div>
           </div>
         </motion.div>
       )}

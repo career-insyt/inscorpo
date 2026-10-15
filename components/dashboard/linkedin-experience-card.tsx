@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import {
   Briefcase, BookOpen, ArrowRight, CheckCircle2, ShieldCheck, Clock,
-  Video, Presentation, Bot, GraduationCap, AlertCircle
+  Video, Presentation, Bot, GraduationCap, AlertCircle, TrendingUp, BarChart3, Workflow, Code
 } from "lucide-react";
 import Link from "next/link";
 import { UserState } from "@/lib/state/types";
@@ -14,10 +14,16 @@ interface LinkedInExperienceCardProps {
 }
 
 const iconComponentMap: Record<string, React.ReactNode> = {
-  "video-ai-production": <Video size={22} className="text-[#8b5cf6]" />,
-  "presentation-engineering": <Presentation size={22} className="text-[#f59e0b]" />,
-  "ai-for-work": <Bot size={22} className="text-[#06b6d4]" />,
-  "gre-preparation": <GraduationCap size={22} className="text-[#e11d48]" />,
+  "corporate-analyst": <TrendingUp size={22} className="text-[#2563eb]" />,
+  "business-intelligence-analyst": <BarChart3 size={22} className="text-[#2563eb]" />,
+  "applied-ai-automation": <Workflow size={22} className="text-[#2563eb]" />,
+  "corporate-python-automation": <Code size={22} className="text-[#2563eb]" />,
+  "ai-workplace-professional": <Bot size={22} className="text-[#2563eb]" />,
+  "digital-media-production": <Video size={22} className="text-[#2563eb]" />,
+  "video-ai-production": <Video size={22} className="text-[#2563eb]" />,
+  "presentation-engineering": <Presentation size={22} className="text-[#2563eb]" />,
+  "ai-for-work": <Bot size={22} className="text-[#2563eb]" />,
+  "gre-preparation": <GraduationCap size={22} className="text-[#2563eb]" />,
 };
 
 export function LinkedInExperienceCard({ state }: LinkedInExperienceCardProps) {

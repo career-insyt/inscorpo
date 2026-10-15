@@ -21,6 +21,7 @@ type UserContextType = {
   updateCourseProgress: (courseId: string, progress: number) => void;
   updateProfileName: (name: string) => Promise<void>;
   updatePassportProfile: (data: Partial<PassportProfile>) => Promise<void>;
+  updateCareerPreferences: (goals: string[], level: string) => Promise<void>;
   enrollInPath: (slug: string, title: string) => void;
   claimDailyCheckIn: () => boolean;
   toggleTask: (taskTitle: string) => void;
@@ -171,24 +172,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             });
           }
 
-          // Ensure Excel course is completed for this account as mandated
-          const defaultExcelCourse = INITIAL_USER_STATE.courseProgress[0];
-          const rawCourseProgress = prefs.courseProgress ?? [];
-          const hasExcelCourse = rawCourseProgress.some(
-            (c: any) => c.courseId === "excel-modeling" || c.title?.toLowerCase().includes("excel")
-          );
-          const resolvedCourseProgress = hasExcelCourse
-            ? rawCourseProgress.map((c: any) =>
-                c.courseId === "excel-modeling" || c.title?.toLowerCase().includes("excel")
-                  ? { ...c, progress: 100 }
-                  : c
-              )
-            : [defaultExcelCourse, ...rawCourseProgress];
-
-          const defaultBadge = INITIAL_USER_STATE.recentBadges[0];
-          const rawBadges = (prefs.recentBadges ?? []).filter((b: any) => b.icon !== "🎓");
-          const hasBadge = rawBadges.some((b: any) => b.name === defaultBadge.name);
-          const resolvedBadges = hasBadge ? rawBadges : [defaultBadge, ...rawBadges];
+          const resolvedCourseProgress = prefs.courseProgress ?? [];
+          const resolvedBadges = (prefs.recentBadges ?? []).filter((b: any) => b.icon !== "🎓");
 
           setState({
             ...INITIAL_USER_STATE,
@@ -527,6 +512,24 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         });
       } catch (err) {
         console.warn("Could not immediately sync passport profile to Appwrite:", err);
+      }
+    }
+  };
+
+  const updateCareerPreferences = async (goals: string[], level: string) => {
+    setState((prev) => ({
+      ...prev,
+      careerGoals: goals,
+      experienceLevel: level,
+    }));
+    if (user?.$id) {
+      try {
+        await account.updatePrefs({
+          careerGoals: goals,
+          experienceLevel: level,
+        });
+      } catch (err) {
+        console.warn("Could not immediately sync career preferences to Appwrite:", err);
       }
     }
   };
@@ -951,6 +954,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         updateCourseProgress,
         updateProfileName,
         updatePassportProfile,
+        updateCareerPreferences,
         enrollInPath,
         claimDailyCheckIn,
         toggleTask,

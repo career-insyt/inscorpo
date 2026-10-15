@@ -17,6 +17,7 @@ import { Notification } from "@/lib/state/types";
 import { cn } from "@/lib/utils";
 
 const breadcrumbMap: Record<string, string> = {
+  "/profile": "User Profile",
   "/dashboard": "Dashboard",
   "/learn": "Learn",
   "/learn/courses": "Individual Courses",
@@ -231,7 +232,7 @@ export function DashboardTopbar() {
         {/* Streak Pill — Strictly "{streak}d", Yellow colored with dark brown borders and animated fire on hover */}
         <div
           onClick={() => setStreakModalOpen(true)}
-          className="group flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black cursor-pointer bg-amber-300 dark:bg-yellow-400 border-2 border-[#451a03] text-[#451a03] shadow-[2px_2px_0px_0px_#451a03] hover:scale-105 active:scale-95 transition-all flex-shrink-0"
+          className="group flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black cursor-pointer bg-amber-300 border-2 border-[#451a03] text-[#451a03] shadow-[2px_2px_0px_0px_#451a03] hover:scale-105 active:scale-95 transition-all flex-shrink-0"
           title="Daily Check-in Streak (Click to inspect)"
         >
           <Flame
@@ -277,7 +278,7 @@ export function DashboardTopbar() {
           >
             <Bell size={15} className="text-[#2563eb]" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex items-center justify-center text-[9px] font-mono font-black text-white bg-rose-600 border border-white dark:border-slate-900 px-1 min-w-[16px] h-[16px] rounded-full shadow-md leading-none z-10">
+              <span className="absolute -top-1 -right-1 flex items-center justify-center text-[9px] font-mono font-black text-white bg-rose-600 border border-white px-1 min-w-[16px] h-[16px] rounded-full shadow-md leading-none z-10">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
@@ -483,7 +484,7 @@ export function DashboardTopbar() {
                                   Candidate
                                 </span>
                               </div>
-                              <p className="text-[10px] text-corp-text-tertiary truncate">{user?.email || state.email || "user@insyt.com"}</p>
+                              <p className="text-[10px] text-corp-text-tertiary truncate">{user?.email || state.email || "insyt.bd@gmail.com"}</p>
                             </div>
                           </div>
                           <div className="flex items-center justify-between text-[10px] pt-1 border-t border-corp-border/60">
@@ -497,6 +498,19 @@ export function DashboardTopbar() {
                         </div>
 
                   <div className="p-2 space-y-1 font-mono text-xs">
+                    <Link
+                      href="/profile"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center justify-between px-3 py-2 rounded-md text-corp-text hover:bg-corp-bg-secondary transition-colors cursor-pointer group"
+                    >
+                      <span className="flex items-center gap-2 font-black text-[#2563eb]">
+                        <User size={14} className="text-[#2563eb]" /> User Profile
+                      </span>
+                      <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-300 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                        Edit
+                      </span>
+                    </Link>
+
                     <Link
                       href="/subscription"
                       onClick={() => setUserMenuOpen(false)}

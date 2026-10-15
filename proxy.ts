@@ -14,6 +14,7 @@ const ALLOWED_ADMIN_EMAILS = ["insyt.bd@gmail.com", "corporate@insyt.co", "admin
 
 // ── Protected routes requiring an active session ──
 const PROTECTED_PREFIXES = [
+  "/profile",
   "/cockpit",
   "/prepare",
   "/evaluate",

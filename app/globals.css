@@ -115,7 +115,14 @@
   --animate-pop: pop 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
   --animate-score-pop: score-pop 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
   --animate-wobble: wobble 0.6s ease-in-out;
+  --animate-glint: yellowGlint 4s ease-in-out infinite;
 
+  @keyframes yellowGlint {
+    0% { transform: translateX(-180%) skewX(-22deg); opacity: 0; }
+    15% { opacity: 0.95; }
+    35% { transform: translateX(280%) skewX(-22deg); opacity: 0; }
+    100% { transform: translateX(280%) skewX(-22deg); opacity: 0; }
+  }
   @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-10px); }
@@ -324,6 +331,10 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+.font-bangla {
+  font-family: "Volte Bangla", var(--font-volte-bangla), sans-serif !important;
+}
+
 
 /* ─── Scrollbar ───────────────────────────────────────────────── */
 
@@ -340,12 +351,6 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(59, 91, 219, 0.32);
-}
-.dark ::-webkit-scrollbar-thumb {
-  background: rgba(91, 124, 246, 0.20);
-}
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(91, 124, 246, 0.35);
 }
 
 
@@ -376,18 +381,6 @@ body {
   }
 }
 
-.dark .glass-strong {
-  background: rgba(26, 34, 53, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-@supports (backdrop-filter: blur(1px)) {
-  .dark .glass-strong {
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    background: rgba(26, 34, 53, 0.92);
-  }
-}
 
 
 /* ─── Gamified Card Classes ───────────────────────────────────── */
@@ -443,10 +436,6 @@ body {
   color: var(--game-blue);
 }
 
-.dark .xp-pill {
-  background: rgba(91, 124, 246, 0.18);
-  color: #7090FF;
-}
 
 /* Rank badge */
 .rank-badge {
@@ -558,45 +547,9 @@ body {
   );
 }
 
-.dark .bg-gradient-hero {
-  background: linear-gradient(
-    135deg,
-    #0E1117 0%,
-    #131A2A 40%,
-    #101520 70%,
-    #0E1117 100%
-  );
-}
-
-.bg-gradient-mesh {
-  background: transparent;
-}
-
-.dark .bg-gradient-mesh {
-  background: transparent;
-}
-
-.bg-grid-pattern {
-  background-image:
-    linear-gradient(rgba(59, 91, 219, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59, 91, 219, 0.04) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
-.dark .bg-grid-pattern {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
 .bg-dot-pattern {
   background-image: radial-gradient(circle, rgba(59, 91, 219, 0.07) 1px, transparent 1px);
   background-size: 20px 20px;
-}
-
-.dark .bg-dot-pattern {
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
 }
 
 
@@ -612,16 +565,6 @@ body {
   background-size: 200% 100%;
   animation: shimmer 2s linear infinite;
   border-radius: 12px;
-}
-
-.dark .skeleton {
-  background: linear-gradient(
-    90deg,
-    #161B27 25%,
-    rgba(91, 124, 246, 0.08) 50%,
-    #161B27 75%
-  );
-  background-size: 200% 100%;
 }
 
 
@@ -650,10 +593,6 @@ body {
 ::selection {
   background: rgba(59, 91, 219, 0.15);
   color: inherit;
-}
-
-.dark ::selection {
-  background: rgba(91, 124, 246, 0.22);
 }
 
 
@@ -777,10 +716,6 @@ button[type="submit"]:active {
 .bottom-nav-pill {
   border-radius: 4px !important;
   box-shadow: 0 8px 32px rgba(26, 29, 46, 0.14), 0 2px 8px rgba(26, 29, 46, 0.08);
-}
-
-.dark .bottom-nav-pill {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 

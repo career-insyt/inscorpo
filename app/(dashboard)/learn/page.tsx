@@ -140,6 +140,37 @@ const flagshipCourses = [
     evidenceBasis: "Kimball Group Dimensional Modeling; Microsoft PL-300 Domain Competencies; ANSI SQL Standards; Corporate FP&A Governance",
   },
   {
+    id: "workflow-automation",
+    slug: "applied-ai-automation/applied-workplace-ai-enterprise-workflow-automation",
+    title: "Applied Workplace AI: Enterprise Workflow Automation with n8n & Power Automate",
+    subtitle: "Architect Fault-Tolerant Multi-System Integrations, Bounded AI Pipelines, and Enterprise Desktop RPA.",
+    positioning: "Master production-grade enterprise automation across n8n orchestrations, Power Automate Cloud, Desktop RPA, Microsoft Dataverse, and secure webhook integrations. Implement dead-letter queues, exponential backoff, DLP policies, and ROI modeling.",
+    stageCount: 4,
+    totalHours: 120,
+    totalModules: 10,
+    pricePerStage: "৳12,500",
+    fullCoursePass: "৳22,000",
+    uniqueFeature: "Nexus Global Logistics Multi-System Automation Transformation",
+    uniqueFeatureDesc: "Engineer automated pipelines across ERP, CRM, and logistics with live 1-on-1 capstone defense",
+    icon: Workflow,
+    colorHex: "#7c3aed",
+    darkHex: "#4c1d95",
+    shadowHex: "#5b21b6",
+    borderClass: "border-purple-500",
+    gradientFrom: "#4c1d95",
+    gradientTo: "#7c3aed",
+    tools: ["n8n", "Power Automate", "Microsoft Dataverse", "REST APIs", "Desktop RPA", "Document AI"],
+    toolIcons: [Workflow, Bot, Database],
+    careerOutcomes: ["Enterprise Automation Specialist", "Operations Automation Lead", "Process Optimization Architect", "Corporate Workflow Consultant"],
+    stages: [
+      { num: 1, title: "Process Architecture, REST APIs & Webhook Security", desc: "SIPOC diagrams, BPMN 2.0 notation, OAuth 2.0 authorization flows, and signed webhook ingestions", hours: 30, deliverable: "ভ্যালিডেটেড এন্টারপ্রাইজ ওয়েবহুক হ্যান্ডলার ও এপিআই অডিট ড্যাশবোর্ড", tools: "Postman + Webhooks" },
+      { num: 2, title: "n8n Self-Hosted Orchestrations & Code Nodes", desc: "Data transformations, JavaScript/Python Code nodes, pagination handlers, and relational database persistence", hours: 30, deliverable: "মাল্টি-সোর্স ইনভয়েস ও লেজার রিকনসিলিয়েশন ওয়ার্কফ্লো পাইপলাইন", tools: "n8n + PostgreSQL" },
+      { num: 3, title: "Power Platform, Dataverse & Desktop RPA Resilience", desc: "Cloud flows, adaptive cards, Dataverse business logic, desktop UI selectors, and self-healing error recovery", hours: 30, deliverable: "এন্ড-টু-এন্ড এমপ্লয়ি অনবোর্ডিং লাইফসাইকেল অটোমেশন ও আরপিএ বট", tools: "Power Automate + Dataverse" },
+      { num: 4, title: "Failure Engineering, Enterprise Governance & Nexus Capstone", desc: "Dead-letter queues, exponential backoff jitter, DLP policy enforcement, and executive ROI board presentation", hours: 30, deliverable: "নেক্সাস গ্লোবাল লজিস্টিকস মাল্টি-সিস্টেম এন্টারপ্রাইজ ট্রান্সফর্মেশন ক্যাপস্টোন", tools: "n8n + Power Automate + Runbooks" },
+    ],
+    evidenceBasis: "W3C Enterprise Workflow Architecture; Microsoft Power Platform Enterprise Governance; ISO/IEC 25010 Quality Standards",
+  },
+  {
     id: "video-ai",
     slug: "digital-media-production/video-ai-production",
     title: "Digital Media & Video Production Systems (CapCut And After Effects)",
@@ -249,98 +280,7 @@ export default function LearnHubPage() {
         </div>
       </div>
 
-      {/* ═══════════ 4 STRATEGIC EMPLOYABILITY LEARNING PATHS ═══════════ */}
-      <div className="space-y-4">
-        <div className="border-b-2 border-corp-border pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h2 className="text-xl font-black uppercase tracking-tight text-corp-text font-mono flex items-center gap-2">
-              <Sparkles size={18} className="text-blue-600" />
-              4 Strategic Learning Paths
-            </h2>
-            <p className="text-xs font-sans text-corp-text-secondary font-medium mt-0.5">
-              Curated corporate employability tracks designed for final-year students, fresh graduates, and career accelerators.
-            </p>
-          </div>
-          <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded bg-blue-50 text-blue-700 border border-blue-200 self-start sm:self-auto">
-            10 Core Courses · 4 Strategic Pathways
-          </span>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            {
-              slug: "ai-workplace-professional",
-              title: "AI Workplace Professional",
-              coursesTag: "Courses 01 + 08",
-              subtitle: "ChatGPT, Gemini, Deep Research, Executive Memos & Presentations",
-              accent: "#06b6d4",
-              border: "border-cyan-400",
-              shadow: "#0891b2",
-              jobs: "MTO, Executive, Business Associate",
-              link: "/learn/ai-workplace-professional"
-            },
-            {
-              slug: "enterprise-data-analyst",
-              title: "Enterprise Data Analyst",
-              coursesTag: "Courses 02 + 03 + 04 + 05",
-              subtitle: "Advanced Excel, Power BI, SQL & Python for Business Analytics",
-              accent: "#2563eb",
-              border: "border-blue-400",
-              shadow: "#1d4ed8",
-              jobs: "Data Analyst, MIS Lead, FP&A",
-              link: "/learn/enterprise-data-analyst"
-            },
-            {
-              slug: "business-automation-specialist",
-              title: "Business Automation Specialist",
-              coursesTag: "Courses 01 + 04 + 06",
-              subtitle: "Workplace AI, Relational SQL & n8n Enterprise Workflow Automation",
-              accent: "#4f46e5",
-              border: "border-indigo-400",
-              shadow: "#3730a3",
-              jobs: "Automation Lead, Operations Analyst",
-              link: "/learn/business-automation-specialist"
-            },
-            {
-              slug: "corporate-career-accelerator",
-              title: "Corporate Career Accelerator",
-              coursesTag: "Courses 07 + 08 + 09 + 10",
-              subtitle: "Project Management, Communication, Strategy & MTO Assessment Centers",
-              accent: "#059669",
-              border: "border-emerald-400",
-              shadow: "#047857",
-              jobs: "Management Trainee, Graduate Trainee",
-              link: "/learn/corporate-career-accelerator"
-            }
-          ].map((pathItem) => (
-            <Link
-              key={pathItem.slug}
-              href={pathItem.link}
-              className={`block p-4 rounded-xl border-2 ${pathItem.border} bg-corp-surface hover:-translate-y-0.5 transition-all text-left group`}
-              style={{ boxShadow: `4px 4px 0px 0px ${pathItem.shadow}` }}
-            >
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="text-[10px] font-black uppercase font-mono px-2 py-0.5 rounded text-white" style={{ background: pathItem.accent }}>
-                  {pathItem.coursesTag}
-                </span>
-                <span className="text-[11px] font-mono text-corp-text-tertiary group-hover:text-blue-600 flex items-center font-bold">
-                  View Path <ChevronRight size={13} className="ml-0.5" />
-                </span>
-              </div>
-              <h3 className="text-sm font-extrabold font-mono uppercase text-corp-text mb-1 group-hover:text-blue-600 transition-colors">
-                {pathItem.title}
-              </h3>
-              <p className="text-[11px] text-corp-text-secondary line-clamp-2 mb-3 leading-relaxed">
-                {pathItem.subtitle}
-              </p>
-              <div className="pt-2 border-t border-corp-border/60 flex items-center justify-between text-[10px] text-corp-text-tertiary font-mono">
-                <span className="font-bold text-corp-text">Target:</span>
-                <span className="truncate max-w-[150px]">{pathItem.jobs}</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
 
       {/* ═══════════ FLAGSHIP COURSE CARDS ═══════════ */}
       <div className="space-y-5">

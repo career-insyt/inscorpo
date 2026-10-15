@@ -69,28 +69,9 @@ export function StreakExplainerModal({ isOpen, onClose, state }: StreakExplainer
             <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-slate-950 flex items-center gap-2">
               <span>{state.streak}-DAY ACTIVE STREAK</span>
             </h2>
-            <p className="text-xs font-sans font-bold text-slate-700 leading-relaxed">
-              Complete your Daily Quests &amp; tasks to advance and protect your streak. Streaks exclusively count when daily tasks are completed! Unlocks bonus XP multipliers and exclusive rank badges.
-            </p>
           </div>
 
-          {/* Multiplier Perks Banner */}
-          <div className="p-6 rounded-2xl border-4 border-slate-950 bg-rose-500 text-white space-y-2 shadow-[6px_6px_0px_0px_#991b1b]">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="px-3 py-1 rounded-xl text-xs font-black uppercase bg-amber-400 text-amber-950 border-2 border-slate-950 shadow-[2px_2px_0px_0px_#000]">
-                  ACTIVE MULTIPLIER
-                </span>
-                <h3 className="text-xl font-black uppercase tracking-tight text-white mt-2">
-                  {multiplier}
-                </h3>
-              </div>
 
-              <div className="w-14 h-14 rounded-2xl bg-white text-rose-600 border-2 border-slate-950 flex items-center justify-center text-2xl font-black shadow-[3px_3px_0px_0px_#000]">
-                <Flame size={28} className="fill-rose-600" />
-              </div>
-            </div>
-          </div>
 
           {/* 30-Day Monthly Calendar Grid */}
           <div className="space-y-3">

@@ -124,6 +124,7 @@ export type UserState = {
   streakFreezes?: number;
   redeemedVouchers: string[];
   completedChallengeIds: string[];
+  completedDeliverableIds?: string[];
   completedMockTests?: string[];
   purchasedItemIds: string[];
   completedChecklistTaskIds?: string[];

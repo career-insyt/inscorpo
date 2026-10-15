@@ -309,25 +309,27 @@ export default function JobsPage() {
 
           {/* Tab Switcher */}
           <div
-            className="flex p-1.5 rounded-lg font-mono border-2 border-blue-400 shadow-sm bg-corp-surface"
+            className="flex items-center p-1.5 rounded-lg font-mono border-2 border-blue-400 shadow-sm bg-corp-surface shrink-0"
           >
             <button
               onClick={() => setActiveTab("corporate")}
-              className={`px-4 py-2 rounded-md text-xs font-black uppercase transition-all flex items-center gap-1.5 ${activeTab === "corporate"
+              className={`px-4 py-2 rounded-md text-xs font-black uppercase transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${activeTab === "corporate"
                 ? "bg-[#2563eb] text-white shadow-[2px_2px_0px_0px_#1e3a8a]"
                 : "text-corp-text-secondary hover:text-corp-text"
                 }`}
             >
-              <Building2 className="w-4 h-4" /> Corporate ({jobs.length})
+              <Building2 className="w-4 h-4 shrink-0" />
+              <span className="whitespace-nowrap">Corporate ({jobs.length})</span>
             </button>
             <button
               onClick={() => setActiveTab("research")}
-              className={`px-4 py-2 rounded-md text-xs font-black uppercase transition-all flex items-center gap-1.5 ${activeTab === "research"
+              className={`px-4 py-2 rounded-md text-xs font-black uppercase transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${activeTab === "research"
                 ? "bg-[#2563eb] text-white shadow-[2px_2px_0px_0px_#1e3a8a]"
                 : "text-corp-text-secondary hover:text-corp-text"
                 }`}
             >
-              <Microscope className="w-4 h-4" /> Research ({govStats.totalJobs})
+              <Microscope className="w-4 h-4 shrink-0" />
+              <span className="whitespace-nowrap">Research ({govStats.totalJobs})</span>
             </button>
           </div>
         </div>

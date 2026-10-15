@@ -1,176 +1,173 @@
-# 🏛️ INSYT CORPORATE — SUPERMASSIVE IMPLEMENTATION PLAN & ARCHITECTURE MANIFESTO
+# 🏛️ CAREERINSYT — SYSTEM ARCHITECTURE CONTEXT & OPERATING MANIFESTO
+*(Formerly INSYT Corporate | Employability Operating System)*
 
-> **Strategic Identity**: **INSYT Corporate = Employability Operating System**  
-> **Core Loop**: `Goal → Diagnose → Prepare → Practice → Evaluate → Prove → Discover Opportunities`  
-> INSYT Corporate explicitly discards the architecture of a generic course marketplace, academic Learning Management System (LMS), and standard job board. Corporate separates cleanly from Academy: Academy is foundational learning; Corporate is applied day-one operational talent readiness.
-
----
-
-## 0. NON-NEGOTIABLE IMPLEMENTATION RULES
-
-1. **Do not rebuild the application from scratch.**
-2. **Do not throw away working features merely because the strategy changed.**
-3. **Do not permanently delete legacy functionality before migration/redirect/feature-flag protection exists.**
-4. **Do not create fake data, fake partners, fake recruiters, fake job outcomes, fake readiness scores, or fake learner statistics.**
-5. **Do not turn the new design into a generic LMS.**
-6. **Do not make every feature a top-level navigation item.**
-7. **Do not make gamification the center of the experience.**
-8. **Do not make AI the center of the experience.**
-9. **Do not treat course completion as verified competence.**
-10. **Do not introduce a complex recruiter ecosystem before candidate-side foundations work properly.**
-11. **Every new feature must answer:**
-    - What user problem does it solve?
-    - What career outcome does it improve?
-    - What evidence proves it works?
-    - Why does it belong in Corporate rather than Academy?
+> **Strategic Identity**: **CAREERINSYT = Employability Operating System (Career OS)**  
+> **Core Operating Loop**: `Goal → Diagnose → Prepare → Practice → Evaluate → Prove → Discover Opportunities`  
+> **Core Value Proposition**: Day-one operational capability verification for emerging corporate talent, Management Trainee Officers (MTOs), and corporate analysts across high-growth corporate sectors.
 
 ---
 
-## 1. TARGET PRODUCT ARCHITECTURE: THE 5 CANONICAL AREAS
+## 0. NON-NEGOTIABLE ARCHITECTURAL AXIOMS
 
-| Canonical Pillar | Core Purpose | Canonical Route | Legacy Alias |
+1. **Employability Operating System, Not an Academic LMS**: CAREERINSYT explicitly rejects the low-impact architecture of generic video course libraries, commoditized tutorials, and passive completion certificates. Every learning artifact is an applied, verifiable work sample.
+2. **Zero-Fabrication Policy (No Fake Signals)**: Do not create fake partner logos, fake recruiter endorsements, fake job circulars, fabricated readiness scores, or synthetic user completion badges. If fewer than 2 diagnostic dimensions are completed, state: *"Readiness assessment incomplete — complete diagnostics & capstones to calibrate"*.
+3. **Evidence Over Completion**: Course completion (watching videos or reading text) does NOT equal verified competence. Credentials, designations, and badges must strictly depend on server-evaluated technical sandboxes, algorithmic grading, or cryptographically sealed work samples.
+4. **Light Mode Corporate Purity**: The platform interface is strictly light-mode executive grade (`#F7F8FC` background, `#FFFFFF` surfaces, `#1A1D2E` primary text, `#3B5BDB` primary accent). No dark-mode toggle artifacts, no lingering `.dark` selectors, and no unreadable low-contrast text.
+5. **Defense-in-Depth Security**: All administrative routes (`/admin/*`) and destructive actions (database seeding, schema migration, remote git execution) must be protected by authoritative, server-side cryptographic tokens or HttpOnly session validation—never by unauthenticated client-side cookies or headers.
+6. **Mobile Touch & Accessibility**: All interactive elements maintain touch targets $\ge 44\text{px}$ in height and width. Analytical data tables support horizontal scroll with minimum width bounds (`min-w-[640px]`).
+
+---
+
+## 1. TARGET PRODUCT ARCHITECTURE: THE 5 CANONICAL PILLARS
+
+| Canonical Pillar | Core Purpose | Canonical Route | Legacy / Compatibility Alias |
 |---|---|---|---|
-| **01 — Cockpit** | Career command center: target goal, weighted readiness index, next action, skill gaps | `/cockpit` | `/dashboard` |
-| **02 — Prepare** | Applied learning paths, micro-lessons, hands-on drills, project work samples, templates | `/prepare` | `/learn` |
-| **03 — Evaluate** | Aptitude, practical technical sandboxes (Excel/SQL/BI), case solving, proctored AI interviews | `/evaluate` | `/mock-tests` |
-| **04 — Career Passport** | Cryptographic proof-of-work, verified skills, assessment percentiles, capstone artifacts | `/passport` | `/career-passport` |
-| **05 — Opportunities** | Curated employer circulars, skill-match scores, manual application tracking | `/opportunities` | `/jobs` |
+| **01 — Cockpit** | Career command center: target goal, weighted 5-dimension readiness index, priority skill gaps, and next action recommendations | `/cockpit` | `/dashboard` |
+| **02 — Prepare** | Applied learning paths, 6-stage micro-lessons, hands-on drills, interactive technical studios, and template libraries | `/prepare` | `/learn` |
+| **03 — Evaluate** | Diagnostic aptitude, practical technical sandboxes (Excel/SQL/Power BI/Python/n8n), case solving, and AI proctored interviews | `/evaluate` | `/mock-tests` |
+| **04 — Career Passport** | Cryptographic proof-of-work identity, W3C VC 2.0 verifiable credentials, assessment percentiles, and high-DPI CV export | `/passport` | `/career-passport` |
+| **05 — Opportunities** | Curated employer circulars, multi-factor skill-matching scores, and applicant pipeline tracking | `/opportunities` | `/jobs` |
 
-Secondary & Contextual Features:
-- **Profile / Settings**: `/settings`
-- **AI Interview Practice**: `/evaluate/interviews` (aliased from `/mock-interviews`)
-- **Case Challenges**: Subordinate to Prepare/Evaluate (`/challenges`)
-- **Verified Credentials**: Subordinate to Passport (`/certificates`)
-- **Help & Methodology**: Subordinate to Account (`/help`)
-
----
-
-## 2. NAVIGATION SHELL (DESKTOP & MOBILE)
-
-### Desktop Sidebar
-```text
-INSYT Corporate OS
-├── 01 Cockpit          (/cockpit)
-├── 02 Prepare          (/prepare)
-├── 03 Evaluate         (/evaluate)
-├── 04 Career Passport  (/passport) [PRO]
-└── 05 Opportunities    (/opportunities)
-
-Contextual Practice
-├── AI Mock Interviews  (/evaluate/interviews)
-├── Career Strategy Hub (/career-hub)
-├── Case Challenges     (/challenges)
-└── Credentials Archive (/certificates)
-
-Account & Support
-├── Profile & Settings  (/settings)
-└── Help & Methodology  (/help)
-```
-
-### Mobile Bottom Bar
-```text
-[Cockpit]   [Prepare]   [Evaluate]   [Passport]   [Jobs]   [More ▾]
-```
-Touch targets: `>= 44px` height and width for zero mis-taps.
+### Secondary Contextual Modules & Tools
+- **Public Verification Ledger**: `/verify/[id]` & `/passport/[id]` (Unauthenticated cryptographic verification)
+- **AI Mock Interviews**: `/evaluate/interviews` (Aliased from `/mock-interviews`)
+- **Interactive Case Challenges**: `/challenges` (Subordinate to Prepare/Evaluate)
+- **Verified Credentials Archive**: `/certificates` (Subordinate to Passport)
+- **Settings & Account Management**: `/settings`
+- **Help Center & Methodology**: `/help`
+- **System Administration & Database Explorer**: `/admin` & `/admin/db-explorer`
 
 ---
 
-## 3. READINESS INDEX ENGINE (`lib/assessment/readiness-index.ts`)
+## 2. TECHNOLOGY STACK & CODEBASE RUNTIME
+
+- **Framework**: Next.js 16.2.10 (App Router, Turbopack, React Server Components)
+- **Routing & Proxy Gateway**: `proxy.ts` (Next.js 16 convention replacing legacy `middleware.ts`)
+- **Runtime**: React 19.2.4 & React DOM 19.2.4
+- **Styling**: Tailwind CSS v4 with `@tailwindcss/postcss`, vanilla CSS custom design tokens in `app/globals.css`
+- **Typography**: `Nevera` font for primary brand logo & titles (`letter-spacing: 0.045em`), `Inter` for UI typography, `JetBrains Mono` for tabular metrics and code blocks, `Hind Siliguri` for Bengali localization
+- **Backend as a Service (BaaS)**: Appwrite Cloud v1.6+ (`appwrite` ^26.2.0 client-side SDK, `node-appwrite` ^27.0.0 server-side SDK)
+- **Schema Validation**: Zod (`zod` ^4.0.0)
+- **Animation & Motion**: Framer Motion (`framer-motion` ^12.42.2)
+- **Export & Rendering**: `html2canvas` (^1.4.1) & `jspdf` (^4.2.1)
+- **Iconography**: Lucide React (`lucide-react` ^1.24.0)
+
+---
+
+## 3. DATABASE & STATE INTERCONNECTIVITY
+
+### 14 Synchronized Appwrite Collections (`lib/db.ts`)
+The platform synchronizes state between local client context (`UserContext`), offline `localStorage` caches, and remote Appwrite databases under Database ID `6a56075800013fce1aa1`:
+
+1. `users`: Core profile document, streak counts, last check-in date, and subscription tier.
+2. `tasks`: Daily operational checklist items and XP rewards.
+3. `events`: Corporate workshops, networking webinars, and competition schedules.
+4. `community_posts`: Peer discussion threads, comments, and sanitized updates.
+5. `community_replies`: Threaded responses mapped to parent post IDs.
+6. `mock_tests`: Diagnostic assessments, question counts, durations, and category taxonomies.
+7. `workshops`: Masterclasses, instructor metadata, seat availability, and levels.
+8. `certificates`: Earned credential records and issued designations.
+9. `workshop_registrations`: Confirmed user seat reservations and ticketing payloads.
+10. `test_attempts`: User diagnostic attempts, scores, and timestamps.
+11. `paths`: Learning path metadata, syllabus outlines, and enrollment counts.
+12. `courses`: Course definitions, modules, lesson counts, pricing tiers, and designations.
+13. `profiles`: Extended candidate CV data, education history, and work experience.
+14. `job_applications`: Candidate opportunity tracking (`applied`, `reviewing`, `interviewing`, `offered`, `rejected`).
+
+### Synchronization & Debounce Mechanics
+- **UserContext (`components/providers/user-context.tsx`)**: Central state container providing optimistic client-side updates.
+- **Debounced Remote Persistence**: Whenever user profile, course progress, daily check-in, or badges mutate, updates are debounced by 1,000ms (`setTimeout(savePrefs, 1000)`) to prevent save storms against the Appwrite Preferences API and Document Collections.
+- **Offline Fallback**: State changes are cached to `localStorage` under `insyt_enrolled_paths`, `insyt_subscription_tier`, and `insyt_passport_profile` to ensure seamless offline resilience under high latency.
+
+---
+
+## 4. FLAGSHIP CURRICULUM ARCHITECTURE (THE 6 FLAGSHIPS)
+
+CAREERINSYT maintains 10 courses across learning paths, featuring 249 fully authored dynamic lessons (`lib/data/lessons.ts`):
+
+### 1. Corporate Financial & Commercial Modeling in Excel (`CCFCM`)
+- **Path**: `corporate-analyst` | **Slug**: `corporate-financial-commercial-modeling-excel`
+- **Lessons**: 53 Lessons across 10 Modules | **Designation**: Certified Corporate Financial & Commercial Modeler (`CCFCM`)
+- **Pedagogy**: FAST Standard modeling compliance, Price-Volume-Mix (PVM) variance algebra, indirect 3-statement cash flow reconciliation, working capital DSO/DIO cycles, and circularity breaker switches.
+- **Studio & Artifacts**: `corporate-modeling-studio.tsx`, downloadable production workbook `insyt-financial-commercial-master-model.xlsx`.
+
+### 2. Enterprise Python for Corporate Analytics & Process Automation (`CCDAS`)
+- **Path**: `corporate-analyst` | **Slug**: `enterprise-python-corporate-analytics-process-automation`
+- **Lessons**: 40 Lessons across 10 Modules | **Designation**: Certified Corporate Data Automation Specialist (`CCDAS`)
+- **Pedagogy**: Python 3.12, pandas tabular hygiene (Cartesian product audits), openpyxl and XlsxWriter formatting, SQLAlchemy/DuckDB relational push-down queries, defensive logging, and 3-hour timed recruiter job simulation.
+- **Studio**: `python-analytics-studio.tsx` with vendor payment normalization presets.
+
+### 3. Enterprise Business Intelligence: Power BI & SQL for Corporate Analysts (`CEBI`)
+- **Path**: `corporate-analyst` | **Slug**: `enterprise-business-intelligence-power-bi-sql-corporate-analysts`
+- **Lessons**: 48 Lessons across 12 Modules (120 learning hours) | **Designation**: Certified Enterprise Business Intelligence Analyst (`CEBI`)
+- **Pedagogy**: ANSI SQL window functions/CTEs, Kimball 8-table star schemas, surrogate keys, CALCULATE filter context transitions, semi-additive measures, RLS, and executive decision memo writing.
+- **Studio & Artifacts**: `bi-powerbi-sql-studio.tsx`, `insyt-bi-capstone-brief.md`, `insyt-bi-capstone-starter.sql`.
+
+### 4. Applied Workplace AI: Enterprise Workflow Automation with n8n & Power Automate (`CEAS`)
+- **Path**: `applied-ai-automation` | **Slug**: `applied-workplace-ai-enterprise-workflow-automation`
+- **Lessons**: 40 Lessons across 10 Modules (120 learning hours) | **Designation**: Certified Enterprise Automation Specialist (`CEAS`)
+- **Pedagogy**: SIPOC & BPMN 2.0 mapping, OAuth 2.0 & webhooks, self-hosted n8n orchestrations, Power Automate Cloud & Desktop RPA selector drift, Microsoft Dataverse, Dead-Letter Queue (DLQ) retry patterns, and Nexus Global Logistics simulation.
+- **Studio**: `workflow-automation-studio.tsx` with interactive node canvas and API request playground.
+
+### 5. AI-Powered Workplace Professional
+- **Path**: `ai-workplace-professional` | **Slug**: `ai-powered-workplace-professional`
+- **Lessons**: 8 Lessons across 4 Modules
+- **Pedagogy**: Few-shot Chain-of-Thought prompt engineering, Gemini Deep Research synthesis over 150-page annual reports, Google NotebookLM grounded citations, Bottom-Line-Up-Front (BLUF) boardroom memos, assertion-evidence slides, and enterprise PII redaction governance.
+
+### 6. Digital Media & Video Production Systems (CapCut & Generative AI)
+- **Path**: `digital-media-production` | **Slug**: `video-ai-production`
+- **Lessons**: 36 Modules across 8 Stages
+- **Pedagogy**: CapCut desktop multi-track precision editing, keyframing, motion tracking, sound design, ElevenLabs voice cloning, generative AI b-roll, and brand commercial launch package.
+
+---
+
+## 5. TRUST PLANE & CRYPTOGRAPHIC ENGINE (`lib/trust-plane/`)
+
+The Trust Plane ensures verifiable, tamper-evident proof of candidate competence:
+
+1. **RFC 8785 Canonicalization (`crypto.ts`)**: Normalized JSON serialization ensuring identical SHA-256 digests across diverse execution runtimes.
+2. **Ed25519 Cryptographic Signatures & W3C VC 2.0**: Digital credentials signed using asynchronous Ed25519 keypairs, embedding W3C Data Integrity Proof 2022 standards.
+3. **W3C Bitstring Status List v1.0**: High-efficiency credential revocation status lists encoded as Gzip-compressed Base64URL bitstreams.
+4. **Append-Only Hash-Chained Audit Ledger (`audit-log.ts`)**: Every assessment event and state mutation is chained with `previousHash: SHA-256`, guaranteeing unalterable audit trails.
+5. **Item Response Theory (IRT) & CAT Engine (`lib/psychometrics/irt.ts`)**: 1-Parameter Logistic (Rasch) Model calculating latent ability parameter $\theta$ with adaptive maximum Fisher Information item selection.
+6. **Psychometric Reliability (`lib/psychometrics/statistics.ts`)**: Automated calculation of point-biserial discrimination ($r_{pbis} \ge 0.30$) and internal consistency reliability ($\text{Cronbach's } \alpha \ge 0.70$).
+7. **Anti-Prompt-Injection & Delimiter Sanitizer (`lib/assessment/anti-injection.ts`)**: Dual-stage defense scanning for instruction overrides, score coercion, tag spoofing, and automatically redacting PII (emails, phone numbers, credit cards).
+8. **Taxonomy Alignment (`lib/taxonomy/skills.ts`)**: Explicit cross-mapping of assessed skills to O*NET SOC 2019 occupational element codes.
+
+---
+
+## 6. READINESS INDEX ENGINE (`lib/assessment/readiness-index.ts`)
 
 A weighted, evidence-based competency calculation:
 
 $$\text{Readiness Index} = 0.25(\text{Cognitive}) + 0.25(\text{Technical}) + 0.20(\text{Case}) + 0.15(\text{Communication}) + 0.15(\text{Interview})$$
 
-### State Requirements:
-- `readiness_version`: string (e.g., `2026.1-PROD`)
-- `component_scores`: `{ cognitive, technical, caseSolving, communication, interview }`
-- `assessment_count`: number
-- `project_count`: number
-- `confidence`: `none` | `low` | `medium` | `high`
-- **Rule**: If fewer than 2 dimensions are evaluated, status must strictly show:  
-  **"Readiness assessment incomplete — complete diagnostics & capstones to calibrate"** rather than fabricating an arbitrary score.
+- **Readiness Version**: `2026.1-PROD`
+- **Strict Incomplete Rule**: If fewer than 2 dimensions are evaluated, status displays:  
+  *"Readiness assessment incomplete — complete diagnostics & capstones to calibrate"* rather than fabricating an arbitrary score.
 
 ---
 
-## 4. CURRICULUM ARCHITECTURE & 10 LAUNCH COURSES
+## 7. DESIGN SYSTEM TOKENS & BRAND INTEGRITY
 
-### Wave 1 Flagships (Active Implementation)
-1. **C-01: Corporate Financial & Commercial Modeling in Excel**  
-   *Foundations → Data Cleaning → Advanced Formulas → Dynamic Models → Power Query → Business Analysis → Financial Modeling → Scenario Analysis → Variance Analysis → Commercial Planning → Executive Reporting → Capstone (FMCG Distributor Commercial & Financial Model)*
-2. **C-02: MTO Recruitment Mastery: Aptitude, Case Cracking & Assessment Centers**  
-   *Quantitative Aptitude → Verbal Reasoning → Logical Reasoning → Data Interpretation → General Business Awareness → Situational Judgment → Issue Trees → Profitability Cases → Market Entry → Operations Cases → Assessment Center → Behavioral Interview → Mock MTO Simulation Engine*
-3. **C-03: Enterprise Business Intelligence: Power BI & SQL for Corporate Analysts**  
-   *SQL Fundamentals → Joins → Aggregation → Subqueries → CTEs → Data Modeling → Power BI → Power Query → DAX → Star Schema → KPI Design → Executive Dashboards → Business Interpretation → Capstone (Enterprise Sales & Margin Intelligence Dashboard)*
-
-### Wave 2 Flagships
-4. **C-04: Executive Communication & Data Presentation for Corporate Leaders**
-5. **C-05: Applied Workplace AI: Enterprise Workflow Automation with n8n & Power Automate**
-6. **C-06: Corporate Problem Solving: Advanced Case Frameworks & Strategy Execution**
-
-### Wave 3 Flagships
-7. **C-07: Commercial Banking & Corporate Credit Risk Analysis**
-8. **C-08: Supply Chain Operations & Logistics Management in Practice**
-9. **C-09: Enterprise Python for Corporate Analytics & Process Automation**
-10. **C-10: Professional Business Writing & Workplace English Communication**
-
----
-
-## 5. LESSON DESIGN SYSTEM & WORKSPACE PLAYER
-
-Every serious lesson adheres to the 6-stage model:
-```text
-1. Explain      (One concept)
-2. Demonstrate  (Realistic corporate environment)
-3. Practice     (Active student command)
-4. Apply        (Real-world business case)
-5. Check        (Micro-assessment)
-6. Reflect      (Professional relevance)
-```
-
-Player layout:
-- **Theory**: Full-width executive reader.
-- **Applied Skills**: Split-screen (Lesson instruction + Live Sandbox Workspace).
-
----
-
-## 6. PRACTICAL TECHNICAL ASSESSMENTS & PORTFOLIO PROJECTS
-
-Work samples are treated as **production-ready artifacts**, not academic homework:
-- **Excel**: Messy data injection → data cleaning → formula modeling → automated validation.
-- **SQL**: Database schema → query prompt → live execution against expected result set.
-- **Power BI**: Data model + relationships + DAX + visual KPI selection audit.
-- **Projects**:
-  - Project 1: FMCG Financial/Commercial Model
-  - Project 2: Banking Credit-Risk Memo
-  - Project 3: Power BI Sales Intelligence Dashboard
-  - Project 4: Corporate Strategy / Turnaround Presentation
-
----
-
-## 7. CREDIBILITY HIERARCHY & CAREER PASSPORT
-
-Evidence ladder:
-```text
-Learning Completion
-        ↓
-Course Certificate
-        ↓
-Practical Assessment (Percentile-ranked)
-        ↓
-Verified Skill
-        ↓
-Capstone Project Work Sample
-        ↓
-Career Passport Cryptographic Evidence (W3C DID & Ed25519)
-```
-
-Public verification URL: `/verify/[passportId]` or `/verify/[id]`.
+- **Background**: `#F7F8FC` (`--color-corp-bg`)
+- **Surfaces**: `#FFFFFF` (`--color-corp-surface`)
+- **Primary Text**: `#1A1D2E` (`--color-corp-text`)
+- **Secondary Text**: `#4A4D63` (`--color-corp-text-secondary`)
+- **Primary Accent**: `#3B5BDB` (`--color-corp-accent`)
+- **Brand Typography**: `Nevera` with `letter-spacing: 0.045em` / `tracking-wider`
+- **Border Radii**: Formal boxy styling (`--radius-sm: 4px`, `--radius-md: 4px`, `--radius-lg: 4px`)
+- **Platform Badges (`components/ui/platform-badge.tsx`)**:
+  - Container: Pure white (`#ffffff`) background with tier-specific border color.
+  - Hover Micro-Animation: `scale-115 rotate-6` on icon container.
+  - Tier Categories: Diamond (Emerald), Obsidian (Violet), Platinum (Royal Blue), Gold (Amber), Emerald (Cyan), Ruby (Rose).
+  - Standard: Zero emoji characters; pure vector SVG iconography with W3C VC 2.0 verification stamps.
 
 ---
 
 ## 8. FEATURE FLAGS (`lib/config/feature-flags.ts`)
 
-| Flag | Active State | Purpose |
+| Flag | State | Purpose |
 |---|---|---|
 | `corporateV2` | `true` | Master switch for Employability OS |
 | `readinessIndex` | `true` | 5-dimension weighted readiness engine |
@@ -183,12 +180,3 @@ Public verification URL: `/verify/[passportId]` or `/verify/[id]`.
 | `xpGamification` | `false` | Superficial XP/levels purged |
 | `unverifiedSalaryAndReviews`| `false`| Premature crowdsourcing hidden |
 | `recruiterBeta` | `false` | Candidate foundations built first |
-
----
-
-## 9. DESIGN TOKENS & UX CONSTRAINTS
-
-- **Theme Palette**: Deep slate navy (`#0f172a`, `#0d1b2a`), Corporate Blue (`#2563eb`), Amber Accent (`#f59e0b`), Emerald Verification (`#10b981`).
-- **Touch Targets**: Minimum `44px` on interactive elements.
-- **Typography**: Inter / Outfit for headings and body; JetBrains Mono for metrics and tables.
-- **Visual Split**: 65% primary career activity, 35% supporting context. No cluttered widget noise.

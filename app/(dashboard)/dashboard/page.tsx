@@ -93,15 +93,12 @@ export default function LinkedInDashboardPage() {
             dailyAverageMins={dailyAverageMins}
             days={days}
           />
-
-          {/* Verified Skills & Competencies */}
-          <LinkedInSkillsCard state={state} />
         </div>
 
         {/* ── RIGHT SIDEBAR (4 Columns) ── */}
         <div className="lg:col-span-4 space-y-6">
           
-          {/* Daily Quests Engine Widget */}
+          {/* Daily Quests Engine Widget (1 Enrolled Task) */}
           <DailyQuestEngine />
 
           {/* Upcoming Masterclasses Widget */}
@@ -132,6 +129,9 @@ export default function LinkedInDashboardPage() {
               </p>
             </div>
           </motion.div>
+
+          {/* Verified Skills & Masteries (Placed under Corporate Events) */}
+          <LinkedInSkillsCard state={state} />
 
         </div>
       </div>

@@ -100,15 +100,7 @@ const SEARCH_DATABASE: SearchItem[] = [
   },
 
   // Practice Tests / Diagnostics
-  {
-    id: "test-mto-aptitude",
-    title: "MTO Standardized Cognitive Aptitude Assessment",
-    description: "Diagnostic benchmark measuring Quantitative Reasoning, Verbal Logic, and Data Interpretation.",
-    category: "Practice Tests",
-    url: "/mock-tests/mto-cognitive-aptitude",
-    tags: ["Cognitive", "Quant", "Logic", "Verbal", "Aptitude"],
-    badge: "Diagnostic",
-  },
+
   {
     id: "test-excel-modeling",
     title: "Excel Commercial Modeling Benchmark",
@@ -406,20 +398,21 @@ export function SearchCommandPalette({ isOpen, onClose }: SearchCommandPalettePr
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, filteredItems, selectedIndex]);
 
-  const getCategoryIcon = (cat: SearchItem["category"]) => {
+  const getCategoryIcon = (cat: SearchItem["category"], isSelected: boolean = false) => {
+    const whiteClass = isSelected ? "!text-white" : "group-hover/item:!text-white transition-colors";
     switch (cat) {
       case "Courses":
-        return <BookOpen size={16} className="text-blue-500" />;
+        return <BookOpen size={16} className={isSelected ? "!text-white" : `${whiteClass} text-blue-600`} />;
       case "Practice Tests":
-        return <Brain size={16} className="text-emerald-500" />;
+        return <Brain size={16} className={isSelected ? "!text-white" : `${whiteClass} text-emerald-600`} />;
       case "AI Tools":
-        return <Sparkles size={16} className="text-amber-500" />;
+        return <Sparkles size={16} className={isSelected ? "!text-white" : `${whiteClass} text-amber-600`} />;
       case "Jobs":
-        return <Briefcase size={16} className="text-purple-500" />;
+        return <Briefcase size={16} className={isSelected ? "!text-white" : `${whiteClass} text-purple-600`} />;
       case "Navigation":
-        return <Compass size={16} className="text-cyan-500" />;
+        return <Compass size={16} className={isSelected ? "!text-white" : `${whiteClass} text-cyan-600`} />;
       default:
-        return <Zap size={16} className="text-blue-500" />;
+        return <Zap size={16} className={isSelected ? "!text-white" : `${whiteClass} text-blue-600`} />;
     }
   };
 
@@ -454,7 +447,7 @@ export function SearchCommandPalette({ isOpen, onClose }: SearchCommandPalettePr
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search courses, mock tests, AI tools, jobs, or features..."
-                className="w-full bg-transparent border-none outline-none text-slate-900 text-sm sm:text-base font-semibold placeholder:text-slate-400 placeholder:font-normal"
+                className="w-full bg-transparent border-none outline-none text-slate-900 text-sm sm:text-base font-semibold placeholder:text-slate-400 placeholder:font-normal px-3 py-1.5"
               />
               {query && (
                 <button
@@ -535,7 +528,7 @@ export function SearchCommandPalette({ isOpen, onClose }: SearchCommandPalettePr
                       key={item.id}
                       onClick={() => handleSelect(item)}
                       onMouseEnter={() => setSelectedIndex(idx)}
-                      className={`p-3 rounded-xl transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                      className={`group/item p-3 rounded-xl transition-all cursor-pointer flex items-center justify-between gap-3 ${
                         isSelected
                           ? "bg-blue-50/90 border-2 border-blue-500 shadow-sm"
                           : "hover:bg-slate-50 border-2 border-transparent"
@@ -543,13 +536,13 @@ export function SearchCommandPalette({ isOpen, onClose }: SearchCommandPalettePr
                     >
                       <div className="flex items-start gap-3 min-w-0 flex-1">
                         <div
-                          className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 border mt-0.5 ${
+                          className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 border mt-0.5 transition-colors ${
                             isSelected
-                              ? "bg-blue-600 text-white border-blue-500"
-                              : "bg-slate-100 text-slate-700 border-slate-200"
+                              ? "bg-blue-600 text-white border-blue-500 [&_svg]:text-white"
+                              : "bg-slate-100 text-slate-700 border-slate-200 group-hover/item:bg-blue-600 group-hover/item:text-white group-hover/item:border-blue-500 [&_svg]:group-hover/item:text-white"
                           }`}
                         >
-                          {getCategoryIcon(item.category)}
+                          {getCategoryIcon(item.category, isSelected)}
                         </div>
 
                         <div className="min-w-0 space-y-1 flex-1">

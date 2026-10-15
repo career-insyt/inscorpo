@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { scanForPromptInjection, sanitizeCandidateInput } from "@/lib/assessment/anti-injection";
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -22,6 +23,17 @@ export async function POST(request: NextRequest) {
 
     const { resumeText } = parsed.data;
 
+    // Scan for prompt injection & adversarial overrides
+    const scanResult = scanForPromptInjection(resumeText);
+    if (!scanResult.isSafe && scanResult.severity === "MALICIOUS") {
+      return NextResponse.json(
+        { error: "Security alert: Submitted resume text contains adversarial prompt patterns or instruction overrides." },
+        { status: 400 }
+      );
+    }
+
+    const sanitizedResumeText = sanitizeCandidateInput(scanResult.sanitizedText || resumeText, 12000);
+
     const prompt = `You are an elite corporate recruiter parsing a candidate resume for Bangladesh top MNCs and Banks.
 Extract and return ONLY a valid JSON object with no additional markdown, explanation, or wrap text:
 {
@@ -36,9 +48,9 @@ Extract and return ONLY a valid JSON object with no additional markdown, explana
 }
 
 Candidate Resume Text:
-"""
-${resumeText}
-"""
+<<<RESUME_CONTENT_START>>>
+${sanitizedResumeText}
+<<<RESUME_CONTENT_END>>>
 `;
 
     // ─── Try OpenRouter LLM first ──────────────────────────────
@@ -74,26 +86,7 @@ ${resumeText}
       }
     }
 
-    // ─── Direct Gemini REST API Fallback ────────────────────────
-    const geminiKey = process.env.GEMINI_API_KEY;
-    if (geminiKey) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`;
-      const apiRes = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-        }),
-      });
 
-      if (apiRes.ok) {
-        const resData = await apiRes.json();
-        const rawText = resData.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-        const cleanedText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
-        const parsedJson = JSON.parse(cleanedText);
-        return NextResponse.json(parsedJson);
-      }
-    }
 
     // ─── Structured Fallback Response ──────────────────────────
     return NextResponse.json({

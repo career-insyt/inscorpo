@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 
 const partners = [
   "Microsoft", "British Council", "IDP", "Sonali Bank", "Janata Bank",
@@ -13,14 +12,6 @@ export function TrustedPartners() {
   return (
     <section className="relative py-8 sm:py-10 overflow-hidden bg-white border-b-2 border-slate-900 font-mono">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="text-center text-[11px] sm:text-xs font-black uppercase tracking-wider mb-5 text-slate-700"
-        >
-          // RECRUITER TALENT NETWORK · MNC, TIER-1 COMMERCIAL BANKS &amp; TOP CONGLOMERATES
-        </motion.p>
 
         {/* Marquee with smooth CSS alpha mask */}
         <div 

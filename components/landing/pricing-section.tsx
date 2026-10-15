@@ -205,7 +205,7 @@ export function PricingSection() {
                 </Link>
               ) : (
                 <Link
-                  href={plan.name === "Enterprise" ? "mailto:sales@insyt.co?subject=INSYT%20Enterprise%20Plan%20Inquiry" : "/signup"}
+                  href={plan.name === "Enterprise" ? "mailto:insyt.bd@gmail.com?subject=INSYT%20Enterprise%20Plan%20Inquiry" : "/signup"}
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[14px] font-semibold transition-all duration-300 hover:bg-corp-accent-light dark:hover:bg-white/5 active:scale-[0.97]"
                   style={{ border: "1px solid var(--corp-border)", color: "var(--corp-text)" }}
                 >

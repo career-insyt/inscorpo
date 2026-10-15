@@ -36,7 +36,7 @@ export default function MockInterviewsHub() {
             Get Corporate Interview-Ready
           </h1>
           <p className="text-xs font-sans font-medium max-w-2xl text-corp-text-secondary">
-            Master behavioral and technical questions tailored to your target FMCG, Banking, and Tech roles. Evaluated live by OpenRouter AI.
+            Master behavioral and technical questions tailored to your target FMCG, Banking, and Tech roles. Evaluated live by AI.
           </p>
         </div>
 
@@ -132,7 +132,7 @@ export default function MockInterviewsHub() {
                       <BarChart size={11} className="inline mr-1 text-[#2563eb]" /> {interview.difficulty}
                     </span>
                     <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold bg-blue-50 text-[#2563eb] border border-blue-300">
-                      <Sparkles size={11} className="inline mr-1" /> OpenRouter LLM
+                      <Sparkles size={11} className="inline mr-1" /> AI Evaluated
                     </span>
                   </div>
                 </div>

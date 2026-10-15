@@ -8,32 +8,11 @@ export const INITIAL_USER_STATE: UserState = {
   streak: 0,
   weeklyActivity: [0, 0, 0, 0, 0, 0, 0], // Mon–Sun minutes, loaded from prefs
   notifications: [],
-  courseProgress: [
-    {
-      id: "excel-modeling",
-      courseId: "excel-modeling",
-      title: "Corporate Financial & Commercial Modeling in Excel",
-      progress: 100,
-      category: "analytics",
-      completedLessons: [
-        "excel-orientation",
-        "excel-dynamic-arrays",
-        "excel-working-capital",
-        "excel-dashboard-capstone",
-      ],
-      totalLessons: 18,
-      lastAccessed: new Date().toISOString(),
-    },
-  ],
+  courseProgress: [],
   communityPosts: [],
   todayTasks: [],
   upcomingEvents: [],
-  recentBadges: [
-    {
-      name: "Excel Financial Architect",
-      icon: "FileSpreadsheet",
-    },
-  ],
+  recentBadges: [],
   careerGoals: [],
   experienceLevel: "",
   subscriptionTier: "starter",
@@ -42,6 +21,7 @@ export const INITIAL_USER_STATE: UserState = {
   streakFreezes: 1,
   redeemedVouchers: [],
   completedChallengeIds: [],
+  completedDeliverableIds: [],
   purchasedItemIds: [],
   completedChecklistTaskIds: [],
 };

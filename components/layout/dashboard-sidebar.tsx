@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Rocket, BookOpen, ClipboardList, FileText, Briefcase,
   Mic, Target, Zap, Award, Settings, HelpCircle,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight, Calendar
 } from "lucide-react";
 import { useUser } from "@/components/providers/user-context";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,7 @@ function buildNavSections() {
     contextualTools: {
       label: "Applied Practice & Tools",
       items: [
+        { icon: Calendar, label: "Corporate Events", href: "/events", color: "blue" },
         { icon: Mic,    label: "AI Mock Interviews", href: "/mock-interviews", color: "indigo" },
         { icon: Target, label: "Career Strategy Hub", href: "/career-hub", color: "indigo" },
         { icon: Zap,    label: "Case Challenges",    href: "/challenges", color: "amber" },

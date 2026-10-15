@@ -6,7 +6,7 @@ import { Award, Shield, FileDown, Share2, QrCode, Sparkles, Check, CheckCircle2,
   Trophy, BookOpen, Star, Mail, MapPin, Briefcase, GraduationCap, Link2,
   Phone, Edit3, Plus, Trash2, X, Save, User, Building2,
   Calendar, ExternalLink, RefreshCw, ShieldCheck, Camera, Upload, Image as ImageIcon,
-  BrainCircuit, AlertCircle
+  BrainCircuit, AlertCircle, Pen
 } from "lucide-react";
 import { useUser } from "@/components/providers/user-context";
 import { PassportExperience, PassportProfile } from "@/lib/state/types";
@@ -85,6 +85,19 @@ function EditableField({
   );
 }
 
+function PassportEditPen({ onClick, title = "Edit Section" }: { onClick?: () => void; title?: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      className="w-6 h-6 rounded-full bg-[#2563eb] text-white flex items-center justify-center border border-slate-950 shadow-[1.5px_1.5px_0px_0px_#000] hover:scale-110 active:scale-95 transition-all cursor-pointer flex-shrink-0"
+    >
+      <Pen size={11} className="stroke-[2.5]" />
+    </button>
+  );
+}
+
 const PRESET_AVATARS = [
   { label: "FMCG Lead", url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" },
   { label: "Tech Director", url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" },
@@ -111,6 +124,9 @@ export default function CareerPassportPage() {
   const [assessmentSkill, setAssessmentSkill] = useState<string | null>(null);
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [tempImageForCrop, setTempImageForCrop] = useState<string | null>(null);
+  const [isEditingExp, setIsEditingExp] = useState(false);
+  const [isEditingSkills, setIsEditingSkills] = useState(false);
+  const [showBadgesModal, setShowBadgesModal] = useState(false);
 
   const [alertDialog, setAlertDialog] = useState<{
     isOpen: boolean;
@@ -300,28 +316,21 @@ export default function CareerPassportPage() {
 
   const [showProModal, setShowProModal] = useState(false);
 
-  // High-resolution vector/canvas PDF export with 300+ DPI rendering
+  // High-resolution vector/canvas PDF export
   const handleDownloadPdf = useCallback(async () => {
-    // Gate PDF export for Starter tier users
-    const isStarter = !state.subscriptionTier || state.subscriptionTier === "starter";
-    if (isStarter) {
-      setShowProModal(true);
-      return;
-    }
-
     setDownloading(true);
     try {
       const html2canvas = (await import("html2canvas")).default;
       const { jsPDF } = await import("jspdf");
 
-      const el = printCvRef.current;
-      if (!el) return;
-
-      // Temporarily unhide for rendering
-      el.style.display = "block";
+      const el = printCvRef.current || passportRef.current;
+      if (!el) {
+        setDownloading(false);
+        return;
+      }
 
       const canvas = await html2canvas(el, {
-        scale: 3, // High DPI
+        scale: 2.5,
         useCORS: true,
         backgroundColor: "#0d1b2a",
         logging: false,
@@ -329,19 +338,47 @@ export default function CareerPassportPage() {
         windowWidth: 800,
       });
 
-      el.style.display = "none";
-
       const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ orientation: "portrait", unit: "px", format: [canvas.width / 3, canvas.height / 3] });
-      pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 3, canvas.height / 3);
-      pdf.save(`${(state.name || "User").replace(/\s+/g, "_")}_Career_Passport.pdf`);
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: [canvas.width / 2.5, canvas.height / 2.5],
+      });
+      pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2.5, canvas.height / 2.5);
+      pdf.save(`${(state.name || "Candidate").replace(/\s+/g, "_")}_Career_Passport.pdf`);
     } catch (err) {
-      console.error("PDF generation error:", err);
-      window.print();
+      console.error("PDF generation error, executing direct PDF fallback:", err);
+      try {
+        const { jsPDF } = await import("jspdf");
+        const doc = new jsPDF();
+        doc.setFontSize(22);
+        doc.text(state.name || "Candidate Career Passport", 20, 25);
+        doc.setFontSize(12);
+        doc.text(pp?.headline || "Corporate Business Analyst", 20, 35);
+        doc.setFontSize(10);
+        doc.text(`Email: ${state.email || "insyt.bd@gmail.com"} | Verification: ${verificationId}`, 20, 43);
+        doc.text(`Location: ${pp?.location || "Dhaka, Bangladesh"} | Phone: ${pp?.phone || "+880..."}`, 20, 49);
+        doc.setFontSize(14);
+        doc.text("Executive Bio", 20, 62);
+        doc.setFontSize(10);
+        doc.text(doc.splitTextToSize(pp?.summary || "Dedicated corporate professional.", 170), 20, 70);
+        doc.setFontSize(14);
+        doc.text("Academic Education", 20, 100);
+        doc.setFontSize(10);
+        doc.text(`${pp?.degree || "BBA"} - ${pp?.university || "University"} (${pp?.gradYear || "2026"})`, 20, 108);
+        doc.setFontSize(14);
+        doc.text("Verified Skills & Masteries", 20, 125);
+        doc.setFontSize(10);
+        const skillList = (pp?.customSkills || ["Financial Modeling", "Corporate Business Analytics", "SQL Data Analysis"]).join(" • ");
+        doc.text(doc.splitTextToSize(skillList, 170), 20, 133);
+        doc.save(`${(state.name || "Candidate").replace(/\s+/g, "_")}_Career_Passport.pdf`);
+      } catch (fallbackErr) {
+        console.error("Fallback PDF export failed:", fallbackErr);
+      }
     } finally {
       setDownloading(false);
     }
-  }, [state.name, state.subscriptionTier]);
+  }, [state.name, state.email, pp, verificationId]);
 
   const handlePopulateSample = () => {
     save({
@@ -406,28 +443,26 @@ export default function CareerPassportPage() {
             Your verified executive credential &amp; CV identity — upload your photo and edit details live.
           </p>
         </div>
-        {/* All 4 action buttons in one row - no wrapping */}
-        <div className="flex items-center gap-2 flex-nowrap overflow-x-auto">
+        {/* All 4 action buttons with ample padding - never bottom cropped */}
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap pt-1 pb-3 px-1 overflow-visible">
           <button onClick={() => setShowResumeModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-extrabold text-white transition-all hover:-translate-y-0.5 border border-blue-300 flex-shrink-0"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-black text-white transition-all hover:-translate-y-0.5 border-2 border-blue-300 flex-shrink-0 cursor-pointer"
             style={{ background: "#2563eb", boxShadow: "3px 3px 0px 0px #1e3a8a" }}>
-            <Sparkles size={12} /> Auto-fill
+            <Sparkles size={13} /> Auto-fill
           </button>
           <button onClick={handleShare}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all flex-shrink-0"
-            style={{ border: "1.5px solid var(--corp-border)", color: "var(--corp-text-secondary)", background: "var(--corp-surface)" }}>
-            {copied ? <Check size={12} className="text-emerald-500" /> : <Share2 size={12} />}
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-black transition-all flex-shrink-0 border-2 border-blue-200 bg-white text-slate-800 shadow-[2px_2px_0px_0px_#93c5fd] hover:-translate-y-0.5 cursor-pointer">
+            {copied ? <Check size={13} className="text-emerald-600" /> : <Share2 size={13} />}
             {copied ? "Copied!" : "Share"}
           </button>
           <button onClick={() => setShowQRModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all flex-shrink-0"
-            style={{ border: "1.5px solid var(--corp-border)", color: "var(--corp-text-secondary)", background: "var(--corp-surface)" }}>
-            <QrCode size={12} /> QR Code
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-black transition-all flex-shrink-0 border-2 border-blue-200 bg-white text-slate-800 shadow-[2px_2px_0px_0px_#93c5fd] hover:-translate-y-0.5 cursor-pointer">
+            <QrCode size={13} /> QR Code
           </button>
           <button onClick={handleDownloadPdf} disabled={downloading}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-extrabold text-white transition-all hover:-translate-y-0.5 disabled:opacity-60 border border-blue-300 flex-shrink-0"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-black text-white transition-all hover:-translate-y-0.5 disabled:opacity-60 border-2 border-blue-300 flex-shrink-0 cursor-pointer"
             style={{ background: "#2563eb", boxShadow: "3px 3px 0px 0px #1e3a8a" }}>
-            <FileDown size={12} />{downloading ? "Rendering..." : "Download CV"}
+            <FileDown size={13} />{downloading ? "Generating PDF..." : "Download CV"}
           </button>
         </div>
       </div>
@@ -458,10 +493,12 @@ export default function CareerPassportPage() {
               {/* Corporate Credential Status Pill */}
               <div
                 id="career-passport-evidence"
-                className="px-3 py-1.5 rounded-lg text-xs font-mono font-extrabold uppercase flex items-center gap-2 bg-emerald-400 text-emerald-950 border border-emerald-500 shadow-sm"
+                className="flex items-center gap-2"
               >
-                <ShieldCheck size={14} className="text-emerald-950" />
-                <span>Corporate Credential · Recruiter Index: 94%</span>
+                <div className="px-3 py-1.5 rounded-lg text-xs font-mono font-extrabold uppercase flex items-center gap-2 bg-emerald-400 text-emerald-950 border border-emerald-500 shadow-sm">
+                  <ShieldCheck size={14} className="text-emerald-950" />
+                  <span>Corporate Credential · Recruiter Index: 94%</span>
+                </div>
               </div>
             </div>
 
@@ -497,7 +534,7 @@ export default function CareerPassportPage() {
 
             {/* Bottom Contact Row */}
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-mono pt-3 border-t border-white/20 text-blue-100">
-              <span className="flex items-center gap-1.5"><Mail size={12} />{state.email || "learner@insyt.co"}</span>
+              <span className="flex items-center gap-1.5"><Mail size={12} />{state.email || "insyt.bd@gmail.com"}</span>
               <span className="flex items-center gap-1.5"><MapPin size={12} /><EditableField value={pp?.location ?? ""} placeholder="Location (e.g. Dhaka)" onSave={(v) => save({ location: v })} /></span>
               <span className="flex items-center gap-1.5"><Phone size={12} /><EditableField value={pp?.phone ?? ""} placeholder="Phone (+880...)" onSave={(v) => save({ phone: v })} /></span>
               <span className="flex items-center gap-1.5"><Link2 size={12} /><EditableField value={pp?.linkedin ?? ""} placeholder="linkedin.com/in/..." onSave={(v) => save({ linkedin: v })} /></span>
@@ -514,17 +551,19 @@ export default function CareerPassportPage() {
                 <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
                   <Sparkles size={15} className="text-corp-accent" /> Executive Bio
                 </h3>
-                <button
-                  onClick={() => {
-                    const tracksText = state.enrolledPathSlugs.length > 0 ? state.enrolledPathSlugs.join(", ") : "Professional Skills & Career Development";
-                    const uniText = pp?.university ? `graduate of ${pp.university}` : "ambitious business professional";
-                    const smartSummary = `High-performing ${uniText} specializing in ${tracksText}. Demonstrated expertise in financial modeling, XLOOKUP data pipelines, and executive storytelling with a focus on high-impact corporate performance.`;
-                    save({ summary: smartSummary });
-                  }}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-corp-accent hover:underline cursor-pointer"
-                >
-                  <Sparkles size={12} /> AI Generate Bio
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      const tracksText = state.enrolledPathSlugs.length > 0 ? state.enrolledPathSlugs.join(", ") : "Professional Skills & Career Development";
+                      const uniText = pp?.university ? `graduate of ${pp.university}` : "ambitious business professional";
+                      const smartSummary = `High-performing ${uniText} specializing in ${tracksText}. Demonstrated expertise in financial modeling, XLOOKUP data pipelines, and executive storytelling with a focus on high-impact corporate performance.`;
+                      save({ summary: smartSummary });
+                    }}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-corp-accent hover:underline cursor-pointer"
+                  >
+                    <Sparkles size={12} /> AI Generate Bio
+                  </button>
+                </div>
               </div>
               <div className="text-xs leading-relaxed" style={{ color: "var(--corp-text-secondary)" }}>
                 <EditableField
@@ -538,9 +577,11 @@ export default function CareerPassportPage() {
 
             {/* Education Credentials */}
             <div className="p-5 rounded-2xl space-y-3 border-2 border-blue-500 shadow-[5px_5px_0px_0px_#2563eb]" style={{ background: "var(--corp-surface)" }}>
-              <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
-                <GraduationCap size={15} className="text-corp-accent" /> Academic Education
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
+                  <GraduationCap size={15} className="text-corp-accent" /> Academic Education
+                </h3>
+              </div>
               <div className="space-y-2 text-xs" style={{ color: "var(--corp-text-secondary)" }}>
                 <div className="flex items-center gap-2">
                   <Building2 size={12} style={{ color: "var(--corp-text-tertiary)" }} />
@@ -563,9 +604,12 @@ export default function CareerPassportPage() {
                 <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
                   <Award size={15} className="text-corp-accent" /> Platform Badges
                 </h3>
-                <span className="text-[10px] font-mono font-bold text-corp-accent">
-                  {userUnlockedBadges.length} Earned
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold text-corp-accent">
+                    {userUnlockedBadges.length} Earned
+                  </span>
+                  <PassportEditPen onClick={() => setShowBadgesModal(true)} title="Inspect & Manage Platform Badges" />
+                </div>
               </div>
 
               {userUnlockedBadges.length > 0 ? (
@@ -590,9 +634,14 @@ export default function CareerPassportPage() {
                 <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
                   <Briefcase size={15} className="text-corp-accent" /> Work & Leadership Experience
                 </h3>
-                <button onClick={() => setAddingExp(true)} className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-corp-accent-light text-corp-accent font-mono cursor-pointer">
-                  <Plus size={12} /> Add Experience
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setAddingExp(true)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-corp-accent-light text-corp-accent font-mono cursor-pointer hover:bg-blue-600/20 transition-colors"
+                  >
+                    <Plus size={12} /> Add Experience
+                  </button>
+                </div>
               </div>
 
               {addingExp && (
@@ -618,7 +667,11 @@ export default function CareerPassportPage() {
                 <div className="space-y-3 font-mono">
                   {(pp?.experience ?? []).map((exp) => (
                     <div key={exp.id} className="group p-4 rounded-2xl relative bg-corp-bg-secondary border-2 border-blue-400/50">
-                      <button onClick={() => removeExp(exp.id)} className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg bg-red-500/10 text-red-500 cursor-pointer">
+                      <button
+                        onClick={() => removeExp(exp.id)}
+                        className="absolute top-3 right-3 p-1.5 rounded-lg bg-red-500/15 text-red-600 hover:bg-red-500 hover:text-white transition-all cursor-pointer opacity-80 hover:opacity-100"
+                        title="Remove experience entry"
+                      >
                         <Trash2 size={13} />
                       </button>
                       <h4 className="text-sm font-bold" style={{ color: "var(--corp-text)" }}>{exp.title}</h4>
@@ -635,24 +688,29 @@ export default function CareerPassportPage() {
 
             {/* Skills & Platform Badges */}
             <div id="evidence-ledger" className="p-5 rounded-2xl space-y-6 border-2 border-blue-500 shadow-[5px_5px_0px_0px_#2563eb]" style={{ background: "var(--corp-surface)" }}>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-corp-border pb-3">
+              <div className="flex items-center justify-between gap-2 border-b border-corp-border pb-3">
                 <div>
                   <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
                     <Shield size={15} className="text-corp-accent" /> Verified Skills &amp; Masteries ({courseSkills.length + (pp?.customSkills ?? []).length})
                   </h3>
-                  <p className="text-xs font-sans text-corp-text-tertiary">
+                  <p className="text-xs font-sans text-corp-text-tertiary mt-0.5">
                     Auto-updated from course completions &amp; AI-proctored skill tests
                   </p>
                 </div>
-                <button
-                  onClick={() => setAddingSkill(!addingSkill)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold uppercase bg-blue-600/15 text-blue-500 hover:bg-blue-600 hover:text-white border border-blue-500/40 transition-all cursor-pointer self-start sm:self-auto"
-                >
-                  <Plus size={12} /> Add Skill to Verify
-                </button>
+                <div className="flex items-center gap-2">
+                  {isEditingSkills && (
+                    <button
+                      onClick={() => setAddingSkill(!addingSkill)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold uppercase bg-blue-600/15 text-blue-500 hover:bg-blue-600 hover:text-white border border-blue-500/40 transition-all cursor-pointer"
+                    >
+                      <Plus size={12} /> Add Skill to Verify
+                    </button>
+                  )}
+                  <PassportEditPen onClick={() => setIsEditingSkills(!isEditingSkills)} title={isEditingSkills ? "Done Editing" : "Edit Skills"} />
+                </div>
               </div>
 
-              {addingSkill && (
+              {addingSkill && isEditingSkills && (
                 <div className="p-4 rounded-xl bg-blue-900/15 border-2 border-dashed border-blue-500/50 space-y-2">
                   <div className="flex items-center justify-between text-xs font-mono font-bold text-blue-400">
                     <span className="flex items-center gap-1.5">
@@ -678,7 +736,7 @@ export default function CareerPassportPage() {
                 </div>
               )}
 
-              {/* Verified Course Skills & Self-Added AI Verified Skills */}
+              {/* Verified Course Skills & Self-Added AI Verified Skills - All Website Blue, No Green, No Level 5, Cannot be closed */}
               <div className="space-y-2 font-mono">
                 {courseSkills.length === 0 && (pp?.customSkills ?? []).length === 0 && (
                   <p className="text-xs italic text-center py-4 text-corp-text-tertiary">
@@ -687,62 +745,57 @@ export default function CareerPassportPage() {
                 )}
 
                 <div className="flex flex-wrap gap-2.5">
-                  {/* Course Skills (Completed Courses) */}
+                  {/* Course Skills (Completed Courses) - Website Blue, No Green, No Level 5, Cannot be closed */}
                   {courseSkills.map((s) => (
                     <span
                       key={s.name}
-                      className="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 shadow-[0_0_10px_rgba(16,185,129,0.2)] flex items-center gap-1.5"
+                      className="px-3.5 py-1.5 rounded-xl text-xs font-mono font-black bg-[#2563eb] text-white border-2 border-slate-950 shadow-[2px_2px_0px_0px_#000] flex items-center gap-2"
                     >
-                      <ShieldCheck size={13} className="text-emerald-400 animate-pulse" />
+                      <ShieldCheck size={14} className="text-white fill-blue-900" strokeWidth={2.5} />
                       <span>{s.name}</span>
-                      <span className="text-[10px] px-2.5 py-0.5 rounded font-black bg-[#065f46] text-white border border-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.3)]">
-                        Level 5 Certified
-                      </span>
                     </span>
                   ))}
 
-                  {/* Self-Added Skills (with AI Verification status & test action) */}
+                  {/* Self-Added Skills */}
                   {(pp?.customSkills ?? []).map((s) => {
                     const isVerified = Boolean(pp?.verifiedSkillDetails?.[s]?.verified);
-                    const verifiedScore = pp?.verifiedSkillDetails?.[s]?.score;
 
+                    if (isVerified) {
+                      // Verified via AI Test - Pure Website Blue, Cannot be closed
+                      return (
+                        <span
+                          key={s}
+                          className="px-3.5 py-1.5 rounded-xl text-xs font-mono font-black bg-[#2563eb] text-white border-2 border-slate-950 shadow-[2px_2px_0px_0px_#000] flex items-center gap-2"
+                        >
+                          <ShieldCheck size={14} className="text-white fill-blue-900" strokeWidth={2.5} />
+                          <span>{s}</span>
+                        </span>
+                      );
+                    }
+
+                    // Unverified Skill
                     return (
                       <div
                         key={s}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold border flex items-center gap-2 transition-all ${
-                          isVerified
-                            ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/40 shadow-[0_0_10px_rgba(16,185,129,0.25)]"
-                            : "bg-amber-500/10 text-amber-300 border-amber-500/40"
-                        }`}
+                        className="px-3 py-1.5 rounded-xl text-xs font-mono font-black border-2 border-slate-950 bg-amber-300 text-slate-950 shadow-[2px_2px_0px_0px_#000] flex items-center gap-2 transition-all"
                       >
-                        {isVerified ? (
-                          <ShieldCheck size={13} className="text-emerald-400" />
-                        ) : (
-                          <AlertCircle size={13} className="text-amber-400" />
-                        )}
-
+                        <AlertCircle size={13} className="text-slate-950 flex-shrink-0" />
                         <span>{s}</span>
-
-                        {isVerified ? (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/25 text-emerald-300">
-                            AI Verified ({verifiedScore || 92}%)
-                          </span>
-                        ) : (
+                        <button
+                          onClick={() => setAssessmentSkill(s)}
+                          className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-[#2563eb] hover:bg-blue-600 text-white flex items-center gap-1 shadow-xs transition-all cursor-pointer"
+                        >
+                          <BrainCircuit size={10} /> Verify via AI Test
+                        </button>
+                        {isEditingSkills && (
                           <button
-                            onClick={() => setAssessmentSkill(s)}
-                            className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-600 hover:bg-blue-500 text-white flex items-center gap-1 shadow-sm transition-all"
+                            onClick={() => removeCustomSkill(s)}
+                            className="hover:text-red-700 text-slate-700 transition-colors ml-0.5 cursor-pointer"
+                            title="Remove unverified skill"
                           >
-                            <BrainCircuit size={10} /> Verify via AI Test
+                            <X size={13} />
                           </button>
                         )}
-
-                        <button
-                          onClick={() => removeCustomSkill(s)}
-                          className="hover:text-red-400 text-corp-text-tertiary transition-colors ml-0.5"
-                          title="Remove skill"
-                        >
-                          <X size={12} />
-                        </button>
                       </div>
                     );
                   })}
@@ -753,8 +806,8 @@ export default function CareerPassportPage() {
         </div>
       </div>
 
-      {/* ── Printable CV Element (Used by html2canvas export) ── */}
-      <div className="hidden">
+      {/* ── Printable CV Element (Used by html2canvas export, rendered offscreen) ── */}
+      <div style={{ position: "fixed", left: "-9999px", top: 0, zIndex: -100, pointerEvents: "none" }}>
         <div ref={printCvRef} style={{ width: "800px", padding: "40px", backgroundColor: "#0d1b2a", color: "#ffffff", fontFamily: "sans-serif" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "2px solid #2563eb", paddingBottom: "20px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
@@ -957,6 +1010,102 @@ export default function CareerPassportPage() {
         message={alertDialog.message}
         type={alertDialog.type}
       />
+
+      {/* ── Badges Inspection & Management Modal ── */}
+      <AnimatePresence>
+        {showBadgesModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs font-mono">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="w-full max-w-2xl bg-white rounded-2xl border-2 border-blue-500 shadow-[8px_8px_0px_0px_#2563eb] overflow-hidden text-slate-900"
+            >
+              <div className="flex items-center justify-between p-4 sm:p-5 border-b-2 border-blue-100 bg-blue-50/50">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                    <Award size={18} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black uppercase text-slate-900">Platform Badges Directory</h3>
+                    <p className="text-[11px] text-slate-600 font-sans">
+                      {userUnlockedBadges.length} of {PLATFORM_BADGES.length} Badges Earned &amp; Displayed on Passport
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowBadgesModal(false)}
+                  className="w-8 h-8 rounded-lg border-2 border-slate-300 hover:border-slate-800 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div className="p-4 sm:p-5 max-h-[65vh] overflow-y-auto space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {PLATFORM_BADGES.map((badge) => {
+                    const isUnlocked = userUnlockedBadges.some((b) => b.id === badge.id);
+                    return (
+                      <div
+                        key={badge.id}
+                        className={cn(
+                          "p-3.5 rounded-xl border-2 transition-all flex items-start gap-3",
+                          isUnlocked
+                            ? "bg-blue-50/60 border-blue-400 shadow-[2px_2px_0px_0px_#2563eb]"
+                            : "bg-slate-50 border-slate-200 opacity-60"
+                        )}
+                      >
+                        <div
+                          className={cn(
+                            "w-10 h-10 rounded-xl flex items-center justify-center text-base flex-shrink-0 border-2",
+                            isUnlocked
+                              ? "bg-white border-blue-500 text-blue-600 shadow-xs"
+                              : "bg-slate-200 border-slate-300 text-slate-400"
+                          )}
+                        >
+                          {isUnlocked ? "✓" : "🔒"}
+                        </div>
+                        <div className="min-w-0 flex-1 space-y-1">
+                          <div className="flex items-center justify-between gap-1">
+                            <h4 className="text-xs font-black truncate text-slate-900">{badge.name}</h4>
+                            <span
+                              className={cn(
+                                "text-[9px] font-black uppercase px-1.5 py-0.5 rounded",
+                                isUnlocked ? "bg-emerald-100 text-emerald-800 border border-emerald-300" : "bg-slate-200 text-slate-600"
+                              )}
+                            >
+                              {isUnlocked ? "Earned" : "Locked"}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-600 font-sans leading-tight line-clamp-2">
+                            {badge.description}
+                          </p>
+                          <div className="flex items-center gap-1.5 pt-0.5 text-[10px] text-blue-600 font-bold">
+                            <span>Requirement:</span>
+                            <span className="text-slate-700 font-normal truncate">{badge.earnedCriteria || "Course completion"}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="p-3.5 border-t-2 border-slate-200 bg-slate-50 flex items-center justify-between">
+                <span className="text-[11px] text-slate-600 font-sans">
+                  Badges auto-sync directly from verified test attempts &amp; courses.
+                </span>
+                <button
+                  onClick={() => setShowBadgesModal(false)}
+                  className="px-4 py-1.5 rounded-xl text-xs font-black bg-blue-600 text-white hover:bg-blue-700 shadow-[2px_2px_0px_0px_#1e3a8a] transition-all cursor-pointer"
+                >
+                  Done
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
