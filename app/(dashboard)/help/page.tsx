@@ -3,213 +3,372 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  HelpCircle, ChevronDown, ChevronUp, MessageSquare,
-  BookOpen, Zap, Shield, Send, CheckCircle2
+  HelpCircle,
+  ChevronDown,
+  ChevronUp,
+  MessageSquare,
+  BookOpen,
+  Zap,
+  Shield,
+  Send,
+  CheckCircle2,
+  Headphones,
+  LifeBuoy,
+  FileText,
+  Mail,
+  ExternalLink,
+  Clock,
+  Sparkles,
+  Award,
 } from "lucide-react";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
-const container = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.06 } },
-};
-const item = {
-  hidden: { opacity: 0, y: 12 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-};
-
-const faqs = [
+const FAQS = [
   {
-    q: "How does the XP system work?",
-    a: "Every action earns XP — completing lessons (40 XP), finishing quizzes (50 XP), taking mock tests (100–200 XP), daily check-ins (25 XP), and helping peers in the community. XP determines your Career Rank (Bronze → Silver → Gold → Platinum → Diamond → Elite → Legend)."
+    category: "General",
+    q: "How does the XP and Career Velocity system work?",
+    a: "Every action earns XP — completing modules (40 XP), taking mock tests (100–200 XP), daily check-in streaks (25 XP), and community participation. XP drives your Career Rank (Bronze → Silver → Gold → Platinum → Diamond → Elite) and powers your Recruiter Index.",
   },
   {
-    q: "What is the Career Passport?",
-    a: "Your Career Passport is a verifiable professional identity document hosted at insyt.co/passport/[username]. It displays your skill progress, completed certifications, project portfolios, recommendations, and XP achievements."
+    category: "Certificates",
+    q: "What makes the Career Passport verifiable by MNC recruiters?",
+    a: "Your Career Passport utilizes W3C VC 2.0 standards with Ed25519 cryptographic signatures. Every verified skill is tied to completed coursework or AI-proctored skill audits that recruiters can verify via QR code or direct URL verification.",
   },
   {
-    q: "How do mock tests work?",
-    a: "Mock tests simulate real exam conditions with time limits, negative marking (where applicable), and adaptive difficulty. After submission, you receive an accuracy score, estimated percentile ranking, XP reward, and a detailed per-question explanation review."
+    category: "Testing",
+    q: "How are the practice tests and mock interviews structured?",
+    a: "Mock tests replicate actual candidate assessment criteria with negative marking, timed problem-solving, and percentile benchmarking. AI Mock Interviews simulate real FMCG, bank, and consulting panel interviews with STAR analysis.",
   },
   {
-    q: "What is included in the Pro plan?",
-    a: "Pro plan gives you: unlimited access to all 7 learning paths with all 50+ modules, unlimited mock tests, full Career Passport with PDF export, the complete AI tools suite (12 tools), priority community support, certificate generation, Career Hub access, and workshop discounts."
+    category: "Subscription",
+    q: "What is included with INSYT Pro Membership?",
+    a: "Pro membership unlocks all flagship learning tracks (Excel, Power BI, AI Automation, Financial Modeling), unlimited practice exams, unlimited AI mock interviews, verified ATS CV export, and priority talent placement support.",
   },
   {
-    q: "Can I cancel the Pro subscription anytime?",
-    a: "Yes. You can cancel your Pro subscription at any time from Settings → Subscription. Your access remains active until the end of the current billing period."
+    category: "Subscription",
+    q: "How can I manage or cancel my active subscription?",
+    a: "You can upgrade, renew, or manage your membership anytime from the Membership Plan page or System Settings. Your active privileges remain accessible until the end of the current billing cycle.",
+  },
+  {
+    category: "General",
+    q: "How do I report technical issues or curriculum errors?",
+    a: "You can submit a ticket using the Contact Support form below or message our engineering desk directly at support@insyt.co. Corporate candidates receive response priority within 2 hours.",
   },
 ];
 
-const quickLinks = [
-  { icon: BookOpen, title: "Learning Paths Guide", desc: "How to navigate and complete learning paths" },
-  { icon: Zap, title: "XP & Ranks Explained", desc: "Understand the full gamification system" },
-  { icon: Shield, title: "Career Passport Setup", desc: "Share and verify your professional identity" },
-  { icon: MessageSquare, title: "Community Rules", desc: "Community standards and posting guidelines" },
+const QUICK_RESOURCES = [
+  {
+    icon: BookOpen,
+    title: "Curriculum & Paths",
+    desc: "Mastery progression, lesson players & capstones",
+    link: "/learn",
+    badge: "10 Tracks",
+    bg: "bg-blue-600",
+  },
+  {
+    icon: Shield,
+    title: "Career Passport",
+    desc: "Setup verified credentials & recruiter export",
+    link: "/career-passport",
+    badge: "ATS Ready",
+    bg: "bg-emerald-600",
+  },
+  {
+    icon: Zap,
+    title: "Practice Tests",
+    desc: "Diagnostic mocks, timer rules & percentile scoring",
+    link: "/mock-tests",
+    badge: "AI Proctored",
+    bg: "bg-amber-500",
+  },
+  {
+    icon: Award,
+    title: "Membership Tiers",
+    desc: "Compare starter, track pass, and Pro access",
+    link: "/subscription",
+    badge: "Pro Plan",
+    bg: "bg-purple-600",
+  },
 ];
 
 export default function HelpPage() {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [ticketSubject, setTicketSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [ticketType, setTicketType] = useState("Technical");
   const [submitted, setSubmitted] = useState(false);
+
+  const filteredFaqs =
+    selectedCategory === "All"
+      ? FAQS
+      : FAQS.filter((f) => f.category === selectedCategory);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
     setSubmitted(true);
     setMessage("");
+    setTicketSubject("");
   };
 
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="visible"
-      className="max-w-4xl mx-auto space-y-6 font-sans"
-    >
-      {/* Header */}
-      <motion.div variants={item} className="space-y-1">
-        <h1 className="text-2xl sm:text-3xl font-black" style={{ color: "var(--corp-text)" }}>
-          ❓ Help &amp; Support Center
-        </h1>
-        <p className="text-sm font-medium" style={{ color: "var(--corp-text-secondary)" }}>
-          Find answers to common questions, browse guides, or contact support directly.
-        </p>
-      </motion.div>
-
-      {/* Quick Links */}
-      <motion.div variants={item} className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {quickLinks.map((link, idx) => {
-          const colors = ["var(--game-blue)", "var(--game-rose)", "var(--game-amber)", "var(--game-blue-dark)"];
-          const accent = colors[idx % colors.length];
-          return (
-            <div
-              key={link.title}
-              className="p-5 rounded-3xl border transition-all hover:-translate-y-1 cursor-pointer"
-              style={{
-                background: "var(--corp-surface)",
-                borderColor: "var(--corp-border)",
-                boxShadow: "var(--shadow-soft-ui)",
-              }}
-            >
-              <div className="w-10 h-10 rounded-2xl flex items-center justify-center mb-3 text-white" style={{ background: accent }}>
-                <link.icon size={18} />
-              </div>
-              <h3 className="text-xs font-extrabold mb-1" style={{ color: "var(--corp-text)" }}>{link.title}</h3>
-              <p className="text-[11px] font-medium leading-snug" style={{ color: "var(--corp-text-tertiary)" }}>{link.desc}</p>
+    <div className="max-w-6xl mx-auto space-y-6 pb-20 font-sans">
+      {/* ── Corporate Hero Header Banner ── */}
+      <div className="rounded-2xl border-2 border-blue-500 shadow-[5px_5px_0px_0px_#2563eb] p-6 bg-white text-slate-900 relative overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 relative z-10">
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#2563eb] text-white flex items-center justify-center border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] flex-shrink-0">
+              <LifeBuoy size={28} />
             </div>
+            <div className="space-y-1 font-mono">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-black uppercase text-slate-900">
+                  Help &amp; Candidate Support Desk
+                </h1>
+                <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  SLA: Active &lt; 2h
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 font-sans font-medium">
+                Comprehensive platform documentation, curriculum specifications, and direct corporate ticketing.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 font-mono flex-shrink-0">
+            <a
+              href="mailto:support@insyt.co"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border-2 border-slate-300 hover:border-slate-800 bg-slate-50 text-slate-800 transition-all shadow-xs"
+            >
+              <Mail size={13} className="text-[#2563eb]" />
+              <span>support@insyt.co</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Quick Knowledge Navigation Cards ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono">
+        {QUICK_RESOURCES.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.title}
+              href={item.link}
+              className="p-4 sm:p-5 rounded-2xl border-2 border-slate-900 bg-white text-slate-900 shadow-[4px_4px_0px_0px_#0f172a] hover:shadow-[2px_2px_0px_0px_#0f172a] hover:translate-x-[1px] hover:translate-y-[1px] transition-all flex flex-col justify-between group"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div
+                    className={cn(
+                      "w-10 h-10 rounded-xl text-white flex items-center justify-center border-2 border-slate-900 shadow-xs",
+                      item.bg
+                    )}
+                  >
+                    <Icon size={18} />
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-300">
+                    {item.badge}
+                  </span>
+                </div>
+
+                <div>
+                  <h3 className="text-xs font-black uppercase text-slate-900 group-hover:text-blue-600 transition-colors">
+                    {item.title}
+                  </h3>
+                  <p className="text-[11px] text-slate-600 font-sans leading-relaxed mt-1">
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-3 mt-3 border-t border-slate-100 text-[10px] font-bold text-[#2563eb] flex items-center justify-between">
+                <span>Explore Guide</span>
+                <span>→</span>
+              </div>
+            </Link>
           );
         })}
-      </motion.div>
+      </div>
 
-      {/* FAQ Accordion */}
-      <motion.div
-        variants={item}
-        className="rounded-3xl border overflow-hidden"
-        style={{
-          background: "var(--corp-surface)",
-          borderColor: "var(--corp-border)",
-          boxShadow: "var(--shadow-soft-ui)",
-        }}
-      >
-        <div className="p-5 border-b" style={{ borderColor: "var(--corp-border)" }}>
-          <h2 className="text-xs font-extrabold uppercase tracking-tight flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
-            <HelpCircle size={16} style={{ color: "var(--game-blue)" }} />
-            Frequently Asked Questions
-          </h2>
-        </div>
+      {/* ── 2-Column: FAQ Accordion & Direct Ticket Submission ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left: FAQ Section (7 cols) */}
+        <div className="lg:col-span-7 space-y-4">
+          <div className="rounded-2xl border-2 border-blue-500 shadow-[5px_5px_0px_0px_#2563eb] bg-white p-5 sm:p-6 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-slate-100 pb-3 font-mono">
+              <div className="flex items-center gap-2">
+                <HelpCircle size={17} className="text-[#2563eb]" />
+                <h2 className="text-xs font-black uppercase tracking-wider text-slate-900">
+                  Frequently Answered Questions
+                </h2>
+              </div>
 
-        <div className="divide-y-2 divide-corp-border">
-          {faqs.map((faq, idx) => (
-            <div key={idx}>
-              <button
-                onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                className="w-full flex items-center justify-between p-5 text-left transition-colors hover:bg-corp-bg-secondary"
-              >
-                <span className="text-xs font-extrabold uppercase pr-4" style={{ color: "var(--corp-text)" }}>
-                  {faq.q}
-                </span>
-                {openFaq === idx
-                  ? <ChevronUp size={16} className="text-[#2563eb] flex-shrink-0" />
-                  : <ChevronDown size={16} className="text-corp-text-tertiary flex-shrink-0" />
-                }
-              </button>
-              <AnimatePresence>
-                {openFaq === idx && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <p
-                      className="px-5 pb-5 text-xs font-sans font-medium leading-relaxed"
-                      style={{ color: "var(--corp-text-secondary)" }}
+              {/* Category Pills */}
+              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar text-[10px]">
+                {(["All", "General", "Certificates", "Testing", "Subscription"] as const).map(
+                  (cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setSelectedCategory(cat)}
+                      className={cn(
+                        "px-2.5 py-1 rounded-lg font-black transition-all cursor-pointer",
+                        selectedCategory === cat
+                          ? "bg-[#2563eb] text-white shadow-xs"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      )}
                     >
-                      {faq.a}
-                    </p>
-                  </motion.div>
+                      {cat}
+                    </button>
+                  )
                 )}
-              </AnimatePresence>
+              </div>
             </div>
-          ))}
+
+            {/* Accordion List */}
+            <div className="divide-y divide-slate-100 font-sans">
+              {filteredFaqs.map((faq, idx) => {
+                const isOpen = openFaq === idx;
+                return (
+                  <div key={faq.q} className="py-2.5">
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaq(isOpen ? null : idx)}
+                      className="w-full flex items-center justify-between gap-3 text-left py-1.5 transition-colors group cursor-pointer"
+                    >
+                      <span className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                        {faq.q}
+                      </span>
+                      <div
+                        className={cn(
+                          "w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 border transition-all",
+                          isOpen
+                            ? "bg-blue-600 text-white border-blue-700"
+                            : "bg-slate-100 text-slate-600 border-slate-200"
+                        )}
+                      >
+                        {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                      </div>
+                    </button>
+
+                    <AnimatePresence>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <p className="text-xs text-slate-600 leading-relaxed pt-2 pb-1 font-medium">
+                            {faq.a}
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
-      </motion.div>
 
-      {/* Contact Support */}
-      <motion.div
-        variants={item}
-        className="p-5 rounded-xl border-2 border-corp-border shadow-[5px_5px_0px_0px_#2563eb] font-mono"
-        style={{ background: "var(--corp-surface)" }}
-      >
-        <h2 className="text-xs font-extrabold uppercase tracking-tight mb-4 flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
-          <MessageSquare size={16} className="text-[#2563eb]" />
-          Contact Support
-        </h2>
-
-        <AnimatePresence mode="wait">
-          {submitted ? (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex flex-col items-center gap-3 py-6 text-center"
-            >
-              <div className="w-12 h-12 rounded-lg bg-[#2563eb] text-white flex items-center justify-center border border-blue-300">
-                <CheckCircle2 size={24} />
+        {/* Right: Direct Corporate Ticket Submission (5 cols) */}
+        <div className="lg:col-span-5 space-y-4 font-mono">
+          <div className="rounded-2xl border-2 border-slate-900 shadow-[5px_5px_0px_0px_#0f172a] bg-white p-5 sm:p-6 space-y-4">
+            <div className="flex items-center gap-2 border-b-2 border-slate-100 pb-3">
+              <div className="w-7 h-7 rounded-lg bg-amber-400 border border-amber-500 text-amber-950 flex items-center justify-center shadow-xs">
+                <MessageSquare size={14} />
               </div>
-              <h3 className="text-sm font-extrabold uppercase" style={{ color: "var(--corp-text)" }}>Message Sent!</h3>
-              <p className="text-xs font-sans font-medium" style={{ color: "var(--corp-text-secondary)" }}>
-                Our support team typically responds within 24 hours on business days.
-              </p>
-              <button
-                onClick={() => setSubmitted(false)}
-                className="mt-2 px-5 py-2.5 rounded-lg text-xs font-extrabold bg-[#2563eb] text-white uppercase shadow-[3px_3px_0px_0px_#1e3a8a] border border-blue-300"
-              >
-                Send Another
-              </button>
-            </motion.div>
-          ) : (
-            <motion.form key="form" onSubmit={handleSubmit} className="space-y-3">
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Describe your issue or question in detail..."
-                className="w-full h-28 p-3.5 rounded-lg text-xs font-mono font-medium outline-none border-2 border-corp-border focus:border-[#2563eb] bg-corp-bg-secondary text-corp-text resize-none"
-              />
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-xs font-extrabold text-white bg-[#2563eb] hover:bg-blue-600 transition-all shadow-[3px_3px_0px_0px_#1e3a8a] border border-blue-300 uppercase"
+              <div>
+                <h3 className="text-xs font-black uppercase text-slate-900 leading-tight">
+                  Open Support Ticket
+                </h3>
+                <p className="text-[10px] text-slate-500 font-sans">
+                  Direct response from INSYT Engineering
+                </p>
+              </div>
+            </div>
+
+            <AnimatePresence mode="wait">
+              {submitted ? (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="py-8 text-center space-y-3"
                 >
-                  <Send size={14} />
-                  Send Message
-                </button>
-              </div>
-            </motion.form>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </motion.div>
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] mx-auto">
+                    <CheckCircle2 size={24} />
+                  </div>
+                  <h4 className="text-sm font-black uppercase text-slate-900">Ticket Dispatched!</h4>
+                  <p className="text-xs text-slate-600 font-sans leading-relaxed">
+                    Ticket #INSYT-{(Date.now() % 100000).toString()} has been routed to our technical desk. An email confirmation has been logged.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setSubmitted(false)}
+                    className="px-4 py-2 rounded-xl text-xs font-black uppercase bg-[#2563eb] text-white border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0f172a] cursor-pointer"
+                  >
+                    Send Another Ticket
+                  </button>
+                </motion.div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-slate-700">Ticket Category</label>
+                    <select
+                      value={ticketType}
+                      onChange={(e) => setTicketType(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border-2 border-slate-300 text-xs bg-slate-50 outline-none focus:border-blue-600 cursor-pointer font-bold"
+                    >
+                      <option value="Technical">Platform &amp; Code Bug</option>
+                      <option value="Curriculum">Lesson &amp; Exam Content</option>
+                      <option value="Billing">Pro Billing &amp; Payment</option>
+                      <option value="Passport">Career Passport ATS Export</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-slate-700">Subject</label>
+                    <input
+                      type="text"
+                      value={ticketSubject}
+                      onChange={(e) => setTicketSubject(e.target.value)}
+                      placeholder="Brief summary of your question"
+                      required
+                      className="w-full px-3 py-2 rounded-xl border-2 border-slate-300 text-xs bg-slate-50 outline-none focus:border-blue-600 font-sans"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-slate-700">Detailed Message</label>
+                    <textarea
+                      rows={4}
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="Explain what happened or what assistance you require..."
+                      required
+                      className="w-full px-3 py-2 rounded-xl border-2 border-slate-300 text-xs bg-slate-50 outline-none focus:border-blue-600 font-sans resize-none"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 px-4 rounded-xl text-xs font-black uppercase text-white bg-[#2563eb] hover:bg-blue-600 transition-all border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] active:translate-x-[1px] active:translate-y-[1px] flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Send size={13} />
+                    <span>Submit Candidate Ticket</span>
+                  </button>
+                </form>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
-

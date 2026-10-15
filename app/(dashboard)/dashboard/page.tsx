@@ -18,8 +18,9 @@ import { ActivityHeatmap } from "@/components/dashboard/activity-heatmap";
 import { DailyQuestEngine } from "@/components/dashboard/daily-quest-engine";
 import { DashboardRegisteredWorkshopsWidget } from "@/components/dashboard/dashboard-registered-workshops-widget";
 import { StreakExplainerModal } from "@/components/dashboard/streak-explainer-modal";
-
 import { CockpitCommandCenter } from "@/components/dashboard/cockpit-command-center";
+import { YouTubeShortsWidget } from "@/components/dashboard/youtube-shorts-widget";
+import { AllBadgesShowcase } from "@/components/dashboard/all-badges-showcase";
 
 const container = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } };
 const item = {
@@ -133,7 +134,15 @@ export default function LinkedInDashboardPage() {
           {/* Verified Skills & Masteries (Placed under Corporate Events) */}
           <LinkedInSkillsCard state={state} />
 
+          {/* YouTube Shorts / Reels Widget right below Verified Skills, height capped to not exceed left side */}
+          <YouTubeShortsWidget />
+
         </div>
+      </div>
+
+      {/* ── 4. Badges Directory & Showcase at the bottom ── */}
+      <div className="pt-2">
+        <AllBadgesShowcase state={state} />
       </div>
 
       {/* ── Streak Modal ── */}

@@ -12,6 +12,9 @@ import {
   Sparkles,
   ShieldCheck,
   Compass,
+  Lock,
+  Flame,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@/components/providers/user-context";
@@ -22,24 +25,17 @@ function getTodayKey() {
 }
 
 export function DailyQuestEngine() {
-  const { state, claimDailyCheckIn, addNotification } = useUser();
+  const { state } = useUser();
   const [isClient, setIsClient] = useState(false);
-  const [localCompleted, setLocalCompleted] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    const todayStr = getTodayKey();
-    if (typeof window !== "undefined") {
-      const isDoneLocally = localStorage.getItem(`insyt_daily_mission_done_${todayStr}`) === "true";
-      setLocalCompleted(isDoneLocally);
-    }
   }, []);
 
   const todayStr = getTodayKey();
 
   // ─── Resolve the User's Real Enrolled Track & Next Lesson ───
   const { enrolledPath, enrolledCourse, nextLesson, hasEnrolledTrack } = useMemo(() => {
-    // ONLY consider courses the user has actually enrolled in
     const validSlugs = (state.enrolledPathSlugs || []).filter(
       (s) => s && s !== "corporate-mto" && s !== "excel-corporate" && Boolean(ALL_PATHS[s])
     );
@@ -91,7 +87,7 @@ export function DailyQuestEngine() {
         if (resolvedLesson) break;
       }
 
-      // If all lessons completed, show first lesson or capstone review
+      // If all lessons completed, show first lesson for review
       if (!resolvedLesson && course.modules[0]?.lessons?.[0]) {
         const first = course.modules[0].lessons[0];
         resolvedLesson = {
@@ -111,11 +107,12 @@ export function DailyQuestEngine() {
     };
   }, [state.enrolledPathSlugs, state.courseProgress]);
 
-  // Check if mission is done today
+  // ─── Automated Platform Sensing (No manual cheat ticking allowed!) ───
   const isMissionDone = useMemo(() => {
-    if (localCompleted) return true;
+    // 1. Check if user already claimed check-in today
     if (state.lastCheckInDate === todayStr) return true;
 
+    // 2. Check if the active lesson has actually been completed in course progress
     if (nextLesson && isClient) {
       const courseRecord = state.courseProgress.find(
         (c) =>
@@ -126,24 +123,16 @@ export function DailyQuestEngine() {
         return true;
       }
     }
-    return false;
-  }, [localCompleted, state.lastCheckInDate, todayStr, nextLesson, isClient, state.courseProgress, enrolledCourse]);
 
-  const handleMarkCompleted = () => {
-    claimDailyCheckIn();
-    setLocalCompleted(true);
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(`insyt_daily_mission_done_${todayStr}`, "true");
-      } catch {}
+    // 3. Sensed if study minutes logged today in weeklyActivity
+    const jsDay = new Date().getDay();
+    const todayIdx = jsDay === 0 ? 6 : jsDay - 1;
+    if (state.weeklyActivity && state.weeklyActivity[todayIdx] && state.weeklyActivity[todayIdx] >= 15) {
+      return true;
     }
 
-    addNotification({
-      type: "achievement",
-      title: "Daily Mission Accomplished",
-      message: `You completed today's study quest for ${enrolledCourse?.title || "your enrolled track"}.`,
-    });
-  };
+    return false;
+  }, [state.lastCheckInDate, todayStr, nextLesson, isClient, state.courseProgress, enrolledCourse, state.weeklyActivity]);
 
   const lessonUrl =
     enrolledPath && enrolledCourse && nextLesson
@@ -153,88 +142,95 @@ export function DailyQuestEngine() {
       : `/learn`;
 
   return (
-    <div
-      className="rounded-xl border-2 border-blue-600 bg-white p-5 space-y-4 font-sans shadow-[4px_4px_0px_0px_#1e3a8a]"
-    >
-      {/* ── Top Header Bar ── */}
-      <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
-        <div className="flex items-center gap-2">
-          {/* Bright Yellow Box with Brown Icon */}
-          <div className="w-7 h-7 rounded-lg bg-amber-400 border border-amber-500 flex items-center justify-center text-amber-950 flex-shrink-0 shadow-sm">
-            <Target size={14} className="text-amber-950" strokeWidth={2.4} />
+    <div className="rounded-2xl border-2 border-[#b45309] bg-gradient-to-br from-amber-50 via-yellow-50/70 to-amber-100/50 p-5 space-y-4 font-sans shadow-[5px_5px_0px_0px_#78350f]">
+      {/* ── Top Header Bar (Golden Theme) ── */}
+      <div className="flex items-center justify-between border-b-2 border-amber-200/80 pb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-yellow-500 border-2 border-[#78350f] flex items-center justify-center text-[#78350f] flex-shrink-0 shadow-[2px_2px_0px_0px_#78350f]">
+            <Target size={16} strokeWidth={2.6} className="text-[#78350f]" />
           </div>
           <div>
-            <h2 className="text-xs font-black font-mono uppercase tracking-wider text-slate-900 leading-tight">
-              Daily Quest
-            </h2>
-            <p className="text-[10px] font-mono text-slate-500">
-              Today&apos;s Core Mission
+            <div className="flex items-center gap-1.5">
+              <h2 className="text-xs font-black font-mono uppercase tracking-wider text-[#78350f] leading-tight">
+                Daily Quest
+              </h2>
+              <Sparkles size={11} className="text-amber-600 fill-amber-500" />
+            </div>
+            <p className="text-[10px] font-mono font-bold text-amber-800">
+              Gold Tier Velocity Mission
             </p>
           </div>
         </div>
 
-        {/* Right Badge: 1 Mission */}
-        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200">
-          {isMissionDone ? "COMPLETED" : "1 MISSION"}
+        {/* Right Status Badge */}
+        <span
+          className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-black uppercase border-2 shadow-[2px_2px_0px_0px_#78350f] ${
+            isMissionDone
+              ? "bg-emerald-400 text-emerald-950 border-[#78350f]"
+              : "bg-amber-300 text-[#78350f] border-[#78350f]"
+          }`}
+        >
+          {isMissionDone ? "✓ SENSED DONE" : "1 MISSION ACTIVE"}
         </span>
       </div>
 
       {/* ── Case 1: User has not enrolled in any course yet ── */}
       {!hasEnrolledTrack && (
-        <div className="p-4 rounded-xl border-2 border-dashed border-blue-300 bg-blue-50/40 text-center space-y-2.5">
-          <div className="w-8 h-8 rounded-full bg-amber-400 border border-amber-500 flex items-center justify-center text-amber-950 mx-auto">
-            <Compass size={16} className="text-amber-950" />
+        <div className="p-4 rounded-xl border-2 border-dashed border-amber-400 bg-white/80 text-center space-y-2.5">
+          <div className="w-9 h-9 rounded-full bg-amber-400 border-2 border-[#78350f] flex items-center justify-center text-[#78350f] mx-auto shadow-xs">
+            <Compass size={17} strokeWidth={2.4} />
           </div>
-          <h3 className="text-xs font-extrabold text-slate-900">
-            No Enrolled Track Selected
+          <h3 className="text-xs font-extrabold text-[#78350f]">
+            No Career Track Enrolled
           </h3>
-          <p className="text-[11px] text-slate-600">
-            Choose your flagship career track to unlock tailored daily curriculum missions.
+          <p className="text-[11px] text-amber-900 font-medium">
+            Select a career track to activate automated daily curriculum missions.
           </p>
           <Link
             href="/learn"
-            className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all border border-blue-700 shadow-sm"
+            className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-xl text-xs font-black uppercase text-amber-950 bg-amber-400 hover:bg-amber-300 transition-all border-2 border-[#78350f] shadow-[2px_2px_0px_0px_#78350f]"
           >
-            <span>Browse Flagship Tracks</span>
+            <span>Browse Tracks</span>
             <ArrowRight size={13} />
           </Link>
         </div>
       )}
 
-      {/* ── Case 2: User has an active enrolled course (Exactly 1 Mission) ── */}
+      {/* ── Case 2: User has an active enrolled course ── */}
       {hasEnrolledTrack && enrolledCourse && (
         <div className="space-y-3">
-          {/* Mission Card */}
           <div
             className={`p-4 rounded-xl border-2 transition-all space-y-3 ${
               isMissionDone
-                ? "border-blue-500 bg-blue-50/70 shadow-sm"
-                : "border-slate-200 bg-[#F8FAFC] hover:border-blue-400"
+                ? "border-emerald-600 bg-emerald-50/70 shadow-[3px_3px_0px_0px_#064e3b]"
+                : "border-[#78350f] bg-white shadow-[3px_3px_0px_0px_#78350f]"
             }`}
           >
-            {/* Track Name & Module Label */}
+            {/* Track Name & Duration */}
             <div className="flex items-center justify-between gap-2 flex-wrap">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-700 bg-blue-100 px-2 py-0.5 rounded border border-blue-200">
+              <span className="text-[10px] font-mono font-black uppercase tracking-wider text-[#78350f] bg-amber-200/90 px-2 py-0.5 rounded border border-amber-400">
                 {enrolledPath?.title || enrolledCourse.title}
               </span>
               {nextLesson?.duration && (
-                <span className="text-[10px] font-mono font-semibold text-slate-500">
-                  {nextLesson.duration}
+                <span className="text-[10px] font-mono font-bold text-amber-900">
+                  ⏱ {nextLesson.duration}
                 </span>
               )}
             </div>
 
-            {/* Task Content */}
+            {/* Task Content with Locked Tick Indicator */}
             <div className="space-y-1">
               <div className="flex items-start gap-2.5">
+                {/* Non-clickable Tick indicator: Platform senses it automatically! */}
                 <div
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
+                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 pointer-events-none select-none transition-all shadow-xs ${
                     isMissionDone
-                      ? "bg-amber-400 border-amber-500 text-amber-950 shadow-sm"
-                      : "border-slate-300 bg-white text-transparent"
+                      ? "bg-emerald-400 border-emerald-800 text-emerald-950"
+                      : "border-amber-300 bg-amber-50 text-amber-300"
                   }`}
+                  title={isMissionDone ? "Sensed as completed by platform" : "Complete lesson to tick automatically"}
                 >
-                  <Check size={11} strokeWidth={3} className={isMissionDone ? "text-amber-950" : "text-transparent"} />
+                  <Check size={13} strokeWidth={3} className={isMissionDone ? "text-emerald-950" : "opacity-30"} />
                 </div>
 
                 <div className="min-w-0 flex-1">
@@ -250,39 +246,33 @@ export function DailyQuestEngine() {
               </div>
             </div>
 
-            {/* Status Feedback when Completed */}
+            {/* Automated Sensing State vs Action CTA */}
             {isMissionDone ? (
-              <div className="pt-2 border-t border-blue-200 flex items-center justify-between text-[11px]">
-                <span className="font-mono font-bold text-blue-800 flex items-center gap-1">
-                  <ShieldCheck size={13} className="text-amber-600" /> Mission Complete for Today
+              <div className="pt-2 border-t border-emerald-200 flex items-center justify-between text-[11px] font-mono">
+                <span className="font-bold text-emerald-900 flex items-center gap-1.5">
+                  <ShieldCheck size={14} className="text-emerald-700" /> Platform Verified · Done for Today
                 </span>
                 <Link
                   href={lessonUrl}
-                  className="font-mono font-bold text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-0.5"
+                  className="font-bold text-emerald-800 hover:text-emerald-950 hover:underline inline-flex items-center gap-0.5"
                 >
                   Review Lesson <ChevronRight size={12} />
                 </Link>
               </div>
             ) : (
-              /* Action CTA Buttons */
-              <div className="pt-2 border-t border-slate-200 flex items-center gap-2">
+              <div className="pt-2.5 border-t border-amber-200/80 space-y-2">
                 <Link
                   href={lessonUrl}
-                  className="flex-1 py-2.5 px-3 rounded-xl text-xs font-black text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all border-2 border-blue-700 shadow-[3px_3px_0px_0px_#1e3a8a] flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 px-4 rounded-xl text-xs font-black uppercase text-amber-950 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 hover:from-amber-300 hover:to-yellow-300 transition-all border-2 border-[#78350f] shadow-[3px_3px_0px_0px_#78350f] flex items-center justify-center gap-2 active:translate-x-[1px] active:translate-y-[1px]"
                 >
-                  <BookOpen size={13} />
-                  <span>Start Lesson</span>
-                  <ArrowRight size={13} />
+                  <BookOpen size={14} className="text-[#78350f]" />
+                  <span>Start Lesson to Auto-Complete</span>
+                  <ArrowRight size={14} className="text-[#78350f]" />
                 </Link>
 
-                <button
-                  type="button"
-                  onClick={handleMarkCompleted}
-                  title="Mark lesson as done for today"
-                  className="py-2.5 px-3 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-blue-50 hover:text-blue-700 hover:border-blue-400 border-2 border-slate-300 transition-all shadow-sm"
-                >
-                  Done
-                </button>
+                <p className="text-[10px] font-mono text-center text-amber-800 font-medium">
+                  🔒 Automated Sensing: Platform automatically marks this completed when you finish the lesson.
+                </p>
               </div>
             )}
           </div>
