@@ -7,7 +7,6 @@ const ROUTE_TITLES: Record<string, string> = {
   "/dashboard": "Career Command Center",
   "/events": "Corporate Events & Competitions",
   "/learn": "Learning Paths & Masterclasses",
-  "/learn/courses": "Individual Courses",
   "/learn/capcut-master-academy": "CapCut Master Academy",
   "/mock-tests": "Competency Diagnostic Tests",
   "/mock-interviews": "AI Mock Interviews & Voice Simulator",

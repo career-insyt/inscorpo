@@ -450,26 +450,40 @@ export default function CareerPassportPage() {
             Your verified executive credential &amp; CV identity — upload your photo and edit details live.
           </p>
         </div>
-        {/* All 4 action buttons with ample padding - never bottom cropped */}
-        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap pt-1 pb-3 px-1 overflow-visible">
-          <button onClick={() => setShowResumeModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-black text-white transition-all hover:-translate-y-0.5 border-2 border-blue-300 flex-shrink-0 cursor-pointer"
-            style={{ background: "#2563eb", boxShadow: "3px 3px 0px 0px #1e3a8a" }}>
-            <Sparkles size={13} /> Auto-fill
+        {/* All 4 action buttons in one single compact line on mobile */}
+        <div className="flex items-center gap-1 sm:gap-2.5 flex-nowrap w-full sm:w-auto pt-1 pb-2 overflow-x-auto sm:overflow-visible">
+          <button
+            onClick={() => setShowResumeModal(true)}
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3.5 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black text-white transition-all hover:-translate-y-0.5 border-2 border-blue-300 flex-shrink-0 cursor-pointer shadow-[2px_2px_0px_0px_#1e3a8a] bg-[#2563eb]"
+          >
+            <Sparkles size={11} className="flex-shrink-0" />
+            <span className="whitespace-nowrap">Auto-fill</span>
           </button>
-          <button onClick={handleShare}
-            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-black transition-all flex-shrink-0 border-2 border-blue-200 bg-white text-slate-800 shadow-[2px_2px_0px_0px_#93c5fd] hover:-translate-y-0.5 cursor-pointer">
-            {copied ? <Check size={13} className="text-emerald-600" /> : <Share2 size={13} />}
-            {copied ? "Copied!" : "Share"}
+          <button
+            onClick={handleShare}
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3.5 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black transition-all flex-shrink-0 border-2 border-blue-200 bg-white text-slate-800 shadow-[2px_2px_0px_0px_#93c5fd] hover:-translate-y-0.5 cursor-pointer"
+          >
+            {copied ? (
+              <Check size={11} className="text-emerald-600 flex-shrink-0" />
+            ) : (
+              <Share2 size={11} className="flex-shrink-0" />
+            )}
+            <span className="whitespace-nowrap">{copied ? "Copied!" : "Share"}</span>
           </button>
-          <button onClick={() => setShowQRModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-black transition-all flex-shrink-0 border-2 border-blue-200 bg-white text-slate-800 shadow-[2px_2px_0px_0px_#93c5fd] hover:-translate-y-0.5 cursor-pointer">
-            <QrCode size={13} /> QR Code
+          <button
+            onClick={() => setShowQRModal(true)}
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3.5 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black transition-all flex-shrink-0 border-2 border-blue-200 bg-white text-slate-800 shadow-[2px_2px_0px_0px_#93c5fd] hover:-translate-y-0.5 cursor-pointer"
+          >
+            <QrCode size={11} className="flex-shrink-0" />
+            <span className="whitespace-nowrap">QR Code</span>
           </button>
-          <button onClick={handleDownloadPdf} disabled={downloading}
-            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-black text-white transition-all hover:-translate-y-0.5 disabled:opacity-60 border-2 border-blue-300 flex-shrink-0 cursor-pointer"
-            style={{ background: "#2563eb", boxShadow: "3px 3px 0px 0px #1e3a8a" }}>
-            <FileDown size={13} />{downloading ? "Generating PDF..." : "Download CV"}
+          <button
+            onClick={handleDownloadPdf}
+            disabled={downloading}
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3.5 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black text-white transition-all hover:-translate-y-0.5 disabled:opacity-60 border-2 border-blue-300 flex-shrink-0 cursor-pointer shadow-[2px_2px_0px_0px_#1e3a8a] bg-[#2563eb]"
+          >
+            <FileDown size={11} className="flex-shrink-0" />
+            <span className="whitespace-nowrap">{downloading ? "PDF..." : "PDF CV"}</span>
           </button>
         </div>
       </div>

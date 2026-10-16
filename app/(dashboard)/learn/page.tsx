@@ -243,23 +243,11 @@ export default function LearnHubPage() {
           }}
         />
 
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-3 py-1 rounded-md text-[10px] font-extrabold uppercase bg-amber-400 text-amber-950 border border-amber-500">
-                <Sparkles size={11} className="inline mr-1" /> INSYT Corporate · Prepare
-              </span>
-              <span className="px-3 py-1 rounded-md text-[10px] font-extrabold uppercase bg-white/15 text-white border border-white/25">
-                Wave 1 Flagship Curricula · {totalStages} Stages
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white uppercase leading-tight">
-              Master Applied Workplace Capability.<br className="hidden sm:block" /> Not Theoretical Video Consumption.
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase font-mono">
+              Corporate Learning Academies
             </h1>
-            <p className="text-xs sm:text-sm max-w-2xl leading-relaxed font-medium text-blue-100 font-sans">
-              Engineered for day-one operational capability: staged progression, messy enterprise datasets,
-              auditable financial models, SQL data modeling, and production-grade work samples verified in your Career Passport.
-            </p>
           </div>
 
           {/* Stats strip */}
@@ -325,9 +313,6 @@ export default function LearnHubPage() {
                         >
                           {course.stageCount} Stages · {course.totalHours}h
                         </span>
-                        <span className="px-2.5 py-0.5 rounded text-[10px] font-black uppercase font-mono bg-amber-400/20 text-amber-700 border border-amber-400/40">
-                          {course.uniqueFeature}
-                        </span>
                       </div>
                       <h3 className="text-lg sm:text-xl font-extrabold text-corp-text font-mono uppercase tracking-tight">
                         {course.title}
@@ -358,8 +343,8 @@ export default function LearnHubPage() {
                   </p>
                 </div>
 
-                {/* Stages Grid */}
-                <div className="p-5 sm:p-6 space-y-3">
+                {/* Stages Grid (Hidden in mobile view) */}
+                <div className="p-5 sm:p-6 space-y-3 hidden sm:block">
                   <p className="text-[11px] font-extrabold uppercase font-mono tracking-wider" style={{ color: course.colorHex }}>
                     Stage-by-Stage Progression:
                   </p>
@@ -466,54 +451,6 @@ export default function LearnHubPage() {
             );
           })}
         </div>
-      </div>
-
-      {/* ═══════════ WHAT MAKES INSYT DIFFERENT ═══════════ */}
-      <div className="rounded-xl p-5 sm:p-6 border-2 border-blue-400 space-y-4 bg-blue-500/5">
-        <h3 className="text-sm font-black uppercase text-corp-text font-mono">
-          Why INSYT Courses Are Different
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {[
-            { icon: Zap, title: "Tool Handoff Logic", desc: "Learn when to switch tools — not just how to use them", color: "#8B5CF6" },
-            { icon: FileSpreadsheet, title: "Messy Real Data", desc: "Broken datasets, not clean exercise files", color: "#10B981" },
-            { icon: Shield, title: "W3C Credentials", desc: "Cryptographically signed, recruiter-verifiable proof", color: "#2563EB" },
-            { icon: Bot, title: "Socratic AI Tutor", desc: "Guides your thinking — never gives away answers", color: "#06B6D4" },
-          ].map((d) => (
-            <div key={d.title} className="p-3 rounded-lg border border-corp-border bg-corp-surface space-y-1.5">
-              <div className="w-8 h-8 rounded-md flex items-center justify-center" style={{ background: `${d.color}20` }}>
-                <d.icon size={16} style={{ color: d.color }} />
-              </div>
-              <p className="text-[11px] font-extrabold uppercase font-mono text-corp-text">{d.title}</p>
-              <p className="text-[10px] font-medium text-corp-text-tertiary">{d.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ═══════════ BROWSE INDIVIDUAL COURSES CTA ═══════════ */}
-      <div
-        className="rounded-xl p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden border-2 border-blue-400 font-mono text-white"
-        style={{
-          background: "#2563eb",
-          boxShadow: "5px 5px 0px 0px #1e3a8a",
-        }}
-      >
-        <div className="relative z-10">
-          <h3 className="text-base font-extrabold uppercase text-white">
-            Browse Individual Lessons & Modules
-          </h3>
-          <p className="text-xs mt-1 font-medium font-sans text-blue-100">
-            Need a specific topic? Search across all {flagshipCourses.reduce((s, c) => s + c.totalModules, 0)}+ modules and jump directly into any lesson.
-          </p>
-        </div>
-        <Link
-          href="/learn/courses"
-          className="px-5 py-2.5 rounded-lg text-xs font-extrabold uppercase font-mono tracking-wider flex items-center gap-2 flex-shrink-0 transition-all bg-amber-400 text-amber-950 border-2 border-amber-500 shadow-[3px_3px_0px_0px_#78350f]"
-        >
-          Browse All Modules
-          <ArrowRight size={14} />
-        </Link>
       </div>
     </div>
   );

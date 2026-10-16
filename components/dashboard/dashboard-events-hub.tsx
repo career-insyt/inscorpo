@@ -101,44 +101,15 @@ export function DashboardEventsHub() {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-sm sm:text-base font-black uppercase text-slate-900 leading-tight">
-                  Corporate Events &amp; Competitions
+                  Upcoming Events
                 </h3>
-                {registeredCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-400">
-                    {registeredCount} Confirmed Pass{registeredCount > 1 ? "es" : ""}
-                  </span>
-                )}
               </div>
-              <p className="text-xs text-slate-700 font-sans font-medium">
-                National Case Championships, Summits, &amp; Executive Competitions
-              </p>
             </div>
           </div>
         </div>
 
-        {/* Action Controls & Navigation Arrows */}
+        {/* Action Controls */}
         <div className="flex items-center gap-2 self-end sm:self-center">
-          <div className="flex items-center gap-1 mr-2">
-            <button
-              type="button"
-              onClick={() => scroll("left")}
-              className="w-8 h-8 rounded-lg border-2 border-slate-300 hover:border-blue-600 bg-slate-50 hover:bg-blue-50 text-slate-800 flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
-              title="Scroll Left"
-              aria-label="Scroll Left"
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <button
-              type="button"
-              onClick={() => scroll("right")}
-              className="w-8 h-8 rounded-lg border-2 border-slate-300 hover:border-blue-600 bg-slate-50 hover:bg-blue-50 text-slate-800 flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
-              title="Scroll Right"
-              aria-label="Scroll Right"
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
-
           <Link
             href="/events"
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black uppercase bg-[#2563eb] text-white hover:bg-blue-700 transition-colors shadow-[2px_2px_0px_0px_#1e3a8a]"
@@ -192,11 +163,6 @@ export function DashboardEventsHub() {
                 <h4 className="text-sm sm:text-base font-black text-slate-900 leading-snug line-clamp-2">
                   {evt.title}
                 </h4>
-
-                {/* Description */}
-                <p className="text-xs text-slate-700 font-sans line-clamp-2 font-medium">
-                  {evt.description}
-                </p>
 
                 {/* Meta details */}
                 <div className="pt-1.5 space-y-1 font-sans text-xs text-slate-800 font-bold">

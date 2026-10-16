@@ -90,14 +90,6 @@ const SEARCH_DATABASE: SearchItem[] = [
     url: "/learn/presentation-mastery",
     tags: ["PowerPoint", "Pyramid Principle", "Storytelling", "Slides"],
   },
-  {
-    id: "course-individual-catalog",
-    title: "Individual Skills & Modular Courses Catalog",
-    description: "Browse 35+ targeted individual modules in financial formulas, SQL queries, DAX patterns, and STAR interview drills.",
-    category: "Courses",
-    url: "/learn/courses",
-    tags: ["Courses", "Modules", "Lessons", "Skills"],
-  },
 
   // Practice Tests / Diagnostics
 

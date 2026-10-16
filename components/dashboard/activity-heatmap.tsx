@@ -205,11 +205,7 @@ export function ActivityHeatmap({ heatmapGrid, totalLogsCount }: ActivityHeatmap
           </div>
 
           {/* Heatmap Legend */}
-          <div className="flex items-center justify-between mt-4 pt-3 font-mono text-xs border-t-2 border-slate-200 text-slate-800">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
-              <span>💡 Tip: Complete daily lessons or mock tests to maintain your activity streak.</span>
-            </div>
-
+          <div className="flex items-center justify-end mt-4 pt-3 font-mono text-xs border-t-2 border-slate-200 text-slate-800">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-black uppercase text-slate-700">Less</span>
               <div className="flex gap-1 items-center">

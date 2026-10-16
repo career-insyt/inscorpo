@@ -105,62 +105,7 @@ export default function MockTestsPage() {
           <h1 className="text-2xl sm:text-3xl font-black font-mono uppercase flex items-center gap-2" style={{ color: "var(--corp-text)" }}>
             <Brain className="w-8 h-8 text-[#2563eb]" /> Competency Evaluation Center
           </h1>
-          <p className="text-xs sm:text-sm font-medium text-corp-text-secondary max-w-2xl">
-            Timed corporate assessments, real negative marking penalties, and psychometrically calibrated readiness benchmarks. Course completion does not grant verified status — rigorous evaluation does.
-          </p>
         </div>
-
-        <div className="flex items-center gap-2 self-start sm:self-auto font-mono text-xs">
-          <div className="px-3.5 py-2 rounded-xl bg-corp-surface border-2 border-corp-border flex items-center gap-2">
-            <ShieldCheck size={16} className="text-[#2563eb]" />
-            <span className="font-bold text-corp-text">Zero-Trust Scoring</span>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* 4 Pillars Quick Overview Grid */}
-      <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl border-2 border-blue-400 bg-corp-surface space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-black uppercase text-[#2563eb]">Pillar 01</span>
-            <Brain size={16} className="text-[#2563eb]" />
-          </div>
-          <h3 className="text-sm font-black text-corp-text font-mono uppercase">Cognitive Aptitude</h3>
-          <p className="text-[11px] text-corp-text-secondary">Standardized quantitative, verbal, and logical reasoning benchmarks.</p>
-        </div>
-
-        <div className="p-4 rounded-xl border-2 border-emerald-400 bg-corp-surface space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-black uppercase text-emerald-600">Pillar 02</span>
-            <FileSpreadsheet size={16} className="text-emerald-600" />
-          </div>
-          <h3 className="text-sm font-black text-corp-text font-mono uppercase">Technical Practical</h3>
-          <p className="text-[11px] text-corp-text-secondary">Messy data modeling in Excel, SQL queries, and Power BI DAX evaluations.</p>
-        </div>
-
-        <div className="p-4 rounded-xl border-2 border-amber-400 bg-corp-surface space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-black uppercase text-amber-600">Pillar 03</span>
-            <Layers size={16} className="text-amber-600" />
-          </div>
-          <h3 className="text-sm font-black text-corp-text font-mono uppercase">Case Simulations</h3>
-          <p className="text-[11px] text-corp-text-secondary">MECE issue trees, profitability breakdowns, and corporate turnaround cases.</p>
-        </div>
-
-        <Link
-          href="/evaluate/interviews"
-          className="p-4 rounded-xl border-2 border-violet-400 bg-corp-surface space-y-2 hover:border-violet-600 transition-all group"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-black uppercase text-violet-600">Pillar 04</span>
-            <MessageSquare size={16} className="text-violet-600 group-hover:scale-110 transition-transform" />
-          </div>
-          <h3 className="text-sm font-black text-corp-text font-mono uppercase flex items-center justify-between">
-            <span>Interview Center</span>
-            <ChevronRight size={14} className="text-violet-600" />
-          </h3>
-          <p className="text-[11px] text-corp-text-secondary">AI-evaluated STAR behavioral, MTO, and technical interview simulations.</p>
-        </Link>
       </motion.div>
 
       {/* Daily Practice Drill Banner */}

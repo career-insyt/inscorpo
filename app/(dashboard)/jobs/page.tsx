@@ -269,41 +269,41 @@ export default function JobsPage() {
     : instituteCards;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-16 px-4 sm:px-6 font-sans">
+    <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 pb-20 md:pb-16 px-3 sm:px-6 font-sans">
 
       {/* ═══════════════════════════════════════════════════════════════════════
            PAGE HEADER — Dynamic per tab
          ═══════════════════════════════════════════════════════════════════════ */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-        <div className="space-y-2">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-6">
+        <div className="space-y-1 sm:space-y-2">
           {/* Vacancy / Badge tag strictly yellow */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md text-xs font-mono font-extrabold uppercase bg-amber-400 text-amber-950 border border-amber-500 shadow-sm">
-            {activeTab === "corporate" ? <Building2 size={14} /> : <Microscope size={14} />}
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-md text-[10px] sm:text-xs font-mono font-extrabold uppercase bg-amber-400 text-amber-950 border border-amber-500 shadow-xs">
+            {activeTab === "corporate" ? <Building2 size={13} /> : <Microscope size={13} />}
             {headerConfig.badge}
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black font-mono uppercase text-corp-text">
+          <h1 className="text-xl sm:text-3xl font-black font-mono uppercase text-corp-text tracking-tight">
             {headerConfig.title}
           </h1>
-          <p className="text-xs sm:text-sm max-w-xl font-medium leading-relaxed font-sans text-corp-text-secondary">
+          <p className="text-[11px] sm:text-sm max-w-xl font-medium leading-snug sm:leading-relaxed font-sans text-corp-text-secondary line-clamp-2 sm:line-clamp-none">
             {headerConfig.subtitle}
           </p>
         </div>
 
         {/* Header Control Group: Application Tracker Top Icon + Tab Switcher */}
-        <div className="flex items-center gap-3 self-start sm:self-auto font-mono">
+        <div className="flex items-center gap-2 w-full sm:w-auto font-mono">
           {/* Application Tracker Icon-Only Button with Floating Hover Tooltip */}
-          <div className="relative group">
+          <div className="relative group shrink-0">
             <button
               onClick={() => setShowTracker((prev) => !prev)}
               aria-label="Application Tracker"
-              className={`p-2.5 rounded-lg border-2 transition-all relative flex items-center justify-center cursor-pointer ${showTracker
-                ? "bg-amber-400 text-amber-950 border-amber-500 shadow-[3px_3px_0px_0px_#000]"
-                : "bg-corp-surface text-[#2563eb] border-blue-400 shadow-[3px_3px_0px_0px_#2563eb] hover:bg-blue-500/10"
+              className={`p-2 sm:p-2.5 rounded-lg border-2 transition-all relative flex items-center justify-center cursor-pointer ${showTracker
+                ? "bg-amber-400 text-amber-950 border-amber-500 shadow-[2px_2px_0px_0px_#000]"
+                : "bg-corp-surface text-[#2563eb] border-blue-400 shadow-[2px_2px_0px_0px_#2563eb] hover:bg-blue-500/10"
                 }`}
             >
-              <ClipboardList className="w-5 h-5" />
+              <ClipboardList className="w-4 h-4 sm:w-5 sm:h-5" />
               {dbApplications.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-amber-400 text-amber-950 font-black text-[10px] font-mono flex items-center justify-center border border-amber-500 shadow-sm">
+                <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-amber-400 text-amber-950 font-black text-[9px] sm:text-[10px] font-mono flex items-center justify-center border border-amber-500 shadow-xs">
                   {dbApplications.length}
                 </span>
               )}
@@ -320,27 +320,27 @@ export default function JobsPage() {
 
           {/* Tab Switcher */}
           <div
-            className="flex items-center p-1.5 rounded-lg font-mono border-2 border-blue-400 shadow-sm bg-corp-surface shrink-0"
+            className="flex items-center p-1 sm:p-1.5 rounded-lg font-mono border-2 border-blue-400 shadow-sm bg-corp-surface flex-1 sm:flex-initial"
           >
             <button
               onClick={() => setActiveTab("corporate")}
-              className={`px-4 py-2 rounded-md text-xs font-black uppercase transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${activeTab === "corporate"
+              className={`flex-1 sm:flex-none px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-md text-[10px] sm:text-xs font-black uppercase transition-all flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap ${activeTab === "corporate"
                 ? "bg-[#2563eb] text-white shadow-[2px_2px_0px_0px_#1e3a8a]"
                 : "text-corp-text-secondary hover:text-corp-text"
                 }`}
             >
-              <Building2 className="w-4 h-4 shrink-0" />
-              <span className="whitespace-nowrap">Corporate ({jobs.length})</span>
+              <Building2 className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Corporate ({jobs.length})</span>
             </button>
             <button
               onClick={() => setActiveTab("research")}
-              className={`px-4 py-2 rounded-md text-xs font-black uppercase transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${activeTab === "research"
+              className={`flex-1 sm:flex-none px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-md text-[10px] sm:text-xs font-black uppercase transition-all flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap ${activeTab === "research"
                 ? "bg-[#2563eb] text-white shadow-[2px_2px_0px_0px_#1e3a8a]"
                 : "text-corp-text-secondary hover:text-corp-text"
                 }`}
             >
-              <Microscope className="w-4 h-4 shrink-0" />
-              <span className="whitespace-nowrap">Research ({govStats.totalJobs})</span>
+              <Microscope className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Research ({govStats.totalJobs})</span>
             </button>
           </div>
         </div>
@@ -483,98 +483,98 @@ export default function JobsPage() {
           />
 
           {/* VIEW MODE SWITCHER BAR */}
+          {/* VIEW MODE SWITCHER BAR */}
           {/* Perspective & Sorting Mode Controls — Clean Formal Toolbar (Non-Card Style) */}
-          <div className="pb-4 mb-2 border-b-2 border-blue-400/20 font-mono space-y-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="pb-3 mb-2 border-b-2 border-blue-400/20 font-mono space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <span className="text-xs font-black uppercase tracking-wider flex items-center gap-2 text-corp-text">
+                <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5 text-corp-text">
                   <Layers className="w-4 h-4 text-[#2563eb]" />
                   Intelligence Perspective &amp; Sorting Mode
                 </span>
-                <p className="text-[11px] font-sans font-medium mt-0.5 text-corp-text-tertiary">
+                <p className="text-[10px] sm:text-[11px] font-sans font-medium mt-0.5 text-corp-text-tertiary">
                   Switch perspectives to view jobs grouped by Research Institute, Pay Grade Class, or Similar Role Family.
                 </p>
               </div>
 
               {/* View Mode Switcher Pills — Sleek & Formal */}
-              <div className="flex p-1 rounded-sm border border-blue-400/40 bg-corp-bg-secondary shrink-0">
+              <div className="grid grid-cols-3 sm:flex p-1 rounded-md border border-blue-400/40 bg-corp-bg-secondary w-full sm:w-auto gap-0.5">
                 <button
                   type="button"
                   onClick={() => setGovViewMode("institute")}
-                  className={`px-3 py-1.5 rounded-sm text-[11px] font-black uppercase transition-all flex items-center gap-1.5 cursor-pointer ${govViewMode === "institute"
-                    ? "bg-[#2563eb] text-white shadow-sm"
+                  className={`px-2 sm:px-3 py-1.5 rounded-sm text-[10px] sm:text-[11px] font-black uppercase transition-all flex items-center justify-center gap-1 cursor-pointer ${govViewMode === "institute"
+                    ? "bg-[#2563eb] text-white shadow-xs"
                     : "text-corp-text-secondary hover:text-corp-text"
                     }`}
                 >
-                  <Landmark className="w-3.5 h-3.5" /> By Institute
+                  <Landmark className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                  <span className="truncate">Institute</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setGovViewMode("grade")}
-                  className={`px-3 py-1.5 rounded-sm text-[11px] font-black uppercase transition-all flex items-center gap-1.5 cursor-pointer ${govViewMode === "grade"
-                    ? "bg-[#2563eb] text-white shadow-sm"
+                  className={`px-2 sm:px-3 py-1.5 rounded-sm text-[10px] sm:text-[11px] font-black uppercase transition-all flex items-center justify-center gap-1 cursor-pointer ${govViewMode === "grade"
+                    ? "bg-[#2563eb] text-white shadow-xs"
                     : "text-corp-text-secondary hover:text-corp-text"
                     }`}
                 >
-                  <Award className="w-3.5 h-3.5" /> By Grade Level
+                  <Award className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                  <span className="truncate">Grade</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setGovViewMode("post_family")}
-                  className={`px-3 py-1.5 rounded-sm text-[11px] font-black uppercase transition-all flex items-center gap-1.5 cursor-pointer ${govViewMode === "post_family"
-                    ? "bg-[#2563eb] text-white shadow-sm"
+                  className={`px-2 sm:px-3 py-1.5 rounded-sm text-[10px] sm:text-[11px] font-black uppercase transition-all flex items-center justify-center gap-1 cursor-pointer ${govViewMode === "post_family"
+                    ? "bg-[#2563eb] text-white shadow-xs"
                     : "text-corp-text-secondary hover:text-corp-text"
                     }`}
                 >
-                  <Briefcase className="w-3.5 h-3.5" /> By Post Family
+                  <Briefcase className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                  <span className="truncate">Family</span>
                 </button>
               </div>
             </div>
 
             {/* FILTER & SORT CONTROLS TOOLBAR IS CONDITIONAL ONLY TO "BY GRADE LEVEL" VIEW MODE */}
             {govViewMode === "grade" && (
-              <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t-2 border-blue-400/30">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2 border-t-2 border-blue-400/30">
                 {/* Search Bar */}
                 <div className="flex-1 relative">
-                  <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#2563eb]" />
+                  <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2563eb]" />
                   <input
                     type="text"
                     placeholder="Search circulars by post title, grade number, or skill..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-md text-xs font-mono font-extrabold outline-none border-2 border-blue-400 focus:border-[#2563eb] transition-all bg-corp-bg-secondary text-corp-text"
+                    className="w-full pl-9 pr-3 py-2 sm:py-2.5 rounded-md text-[11px] sm:text-xs font-mono font-extrabold outline-none border-2 border-blue-400 focus:border-[#2563eb] transition-all bg-corp-bg-secondary text-corp-text"
                   />
                 </div>
 
-                {/* Grade Filter Select */}
-                <div className="flex items-center gap-2">
-                  <SlidersHorizontal size={14} className="text-[#2563eb] shrink-0" />
+                <div className="grid grid-cols-2 sm:flex items-center gap-2">
+                  {/* Grade Filter Select */}
                   <select
                     value={selectedGradeFilter}
                     onChange={(e) => setSelectedGradeFilter(e.target.value)}
-                    className="px-3 py-2.5 rounded-md text-xs font-mono font-extrabold outline-none border-2 border-blue-400 text-corp-text cursor-pointer bg-corp-surface"
+                    className="w-full sm:w-auto px-2.5 py-2 sm:py-2.5 rounded-md text-[10px] sm:text-xs font-mono font-extrabold outline-none border-2 border-blue-400 text-corp-text cursor-pointer bg-corp-surface truncate"
                   >
-                    <option value="all">All Pay Grades (9–16)</option>
-                    <option value="9">Grade 9 (Executive / Class-I)</option>
-                    <option value="10">Grade 10 (Officer / Class-I)</option>
-                    <option value="11-13">Grade 11–13 (Technical / Mid)</option>
-                    <option value="14-16">Grade 14–16 (Support / Staff)</option>
+                    <option value="all">All Grades (9–16)</option>
+                    <option value="9">Grade 9 (Exec)</option>
+                    <option value="10">Grade 10 (Officer)</option>
+                    <option value="11-13">Grade 11–13 (Tech)</option>
+                    <option value="14-16">Grade 14–16 (Staff)</option>
                   </select>
-                </div>
 
-                {/* Sort By Select */}
-                <div className="flex items-center gap-2">
-                  <ArrowUpDown size={14} className="text-[#2563eb] shrink-0" />
+                  {/* Sort By Select */}
                   <select
                     value={govSortBy}
                     onChange={(e) => setGovSortBy(e.target.value as GovJobSortOption)}
-                    className="px-3 py-2.5 rounded-md text-xs font-mono font-extrabold outline-none border-2 border-blue-400 text-corp-text cursor-pointer bg-corp-surface"
+                    className="w-full sm:w-auto px-2.5 py-2 sm:py-2.5 rounded-md text-[10px] sm:text-xs font-mono font-extrabold outline-none border-2 border-blue-400 text-corp-text cursor-pointer bg-corp-surface truncate"
                   >
-                    <option value="grade_asc">Grade: High → Low Rank (9→16)</option>
-                    <option value="grade_desc">Grade: Low → High Rank (16→9)</option>
-                    <option value="vacancies_desc">Vacancies: Most First</option>
-                    <option value="salary_desc">Salary: Highest Scale First</option>
-                    <option value="title_asc">Title: Alphabetical A–Z</option>
+                    <option value="grade_asc">Grade: 9→16</option>
+                    <option value="grade_desc">Grade: 16→9</option>
+                    <option value="vacancies_desc">Most Vacancies</option>
+                    <option value="salary_desc">Highest Salary</option>
+                    <option value="title_asc">Title: A–Z</option>
                   </select>
                 </div>
               </div>
@@ -583,22 +583,22 @@ export default function JobsPage() {
 
           {/* Degree Eligibility Engine Banner — SKY BLUE TAG PALETTE */}
           <div
-            className="p-4 rounded-sm border-2 border-sky-400 shadow-[4px_4px_0px_0px_#0284c7] space-y-3 font-mono bg-corp-surface"
+            className="p-3 sm:p-4 rounded-md border-2 border-sky-400 shadow-[2px_2px_0px_0px_#0284c7] sm:shadow-[4px_4px_0px_0px_#0284c7] space-y-2 sm:space-y-3 font-mono bg-corp-surface"
           >
-            <div className="flex items-center gap-2 mb-1">
-              <GraduationCap size={16} className="text-sky-500" />
-              <span className="text-xs font-black uppercase tracking-wider text-corp-text">
+            <div className="flex items-center gap-1.5 mb-1">
+              <GraduationCap size={15} className="text-sky-500" />
+              <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-corp-text">
                 Degree Eligibility Engine
               </span>
             </div>
             <div className="relative">
-              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sky-500" />
+              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-sky-500" />
               <input
                 type="text"
-                placeholder="Type your degree to find matching institutes & roles (e.g. Agriculture, Library, CSE, Statistics, Civil)..."
+                placeholder="Type your degree to find matching roles (e.g. Agriculture, CSE, Statistics)..."
                 value={degreeFilter}
                 onChange={(e) => setDegreeFilter(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-sm text-xs font-mono font-extrabold outline-none border-2 border-sky-400 focus:border-sky-500 transition-all bg-corp-bg-secondary text-corp-text"
+                className="w-full pl-9 pr-3 py-2 sm:py-2.5 rounded-md text-[11px] sm:text-xs font-mono font-extrabold outline-none border-2 border-sky-400 focus:border-sky-500 transition-all bg-corp-bg-secondary text-corp-text"
               />
             </div>
 
@@ -782,7 +782,7 @@ export default function JobsPage() {
            CORPORATE JOBS TAB (STRICTLY COMPANY-WISE GROUPING)
          ═══════════════════════════════════════════════════════════════════════ */}
       {activeTab === "corporate" && (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Stats Overview — Matches Government Research Overview Feature */}
           <StatsOverviewBar
             totalOrgs={corporateStats.totalOrganizations}
@@ -792,24 +792,24 @@ export default function JobsPage() {
 
           {/* Search & Filters */}
           <div
-            className="p-4 rounded-sm border-2 border-blue-400 shadow-[4px_4px_0px_0px_#2563eb] space-y-3 font-mono bg-corp-surface"
+            className="p-3 sm:p-4 rounded-md border-2 border-blue-400 shadow-[2px_2px_0px_0px_#2563eb] sm:shadow-[4px_4px_0px_0px_#2563eb] space-y-2 sm:space-y-3 font-mono bg-corp-surface"
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-              <div className="relative">
-                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#2563eb]" />
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3">
+              <div className="col-span-2 sm:col-span-2 lg:col-span-1 relative">
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2563eb]" />
                 <input
                   type="text"
                   placeholder="Search corporate jobs..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-sm text-xs font-mono font-extrabold outline-none border-2 border-blue-400 focus:border-[#2563eb] transition-all bg-corp-surface text-corp-text shadow-sm"
+                  className="w-full pl-9 pr-3 py-2 sm:py-2.5 rounded-md text-[11px] sm:text-xs font-mono font-extrabold outline-none border-2 border-blue-400 focus:border-[#2563eb] transition-all bg-corp-surface text-corp-text shadow-xs"
                 />
               </div>
 
               <select
                 value={selectedCompany || ""}
                 onChange={(e) => setSelectedCompany(e.target.value || null)}
-                className="w-full px-3 py-2.5 rounded-sm text-xs font-mono font-extrabold outline-none bg-corp-surface border-2 border-blue-400 text-corp-text cursor-pointer"
+                className="w-full px-2.5 py-2 sm:py-2.5 rounded-md text-[10px] sm:text-xs font-mono font-extrabold outline-none bg-corp-surface border-2 border-blue-400 text-corp-text cursor-pointer truncate"
               >
                 <option value="">All Companies ({allCompanies.length})</option>
                 {allCompanies.map((comp) => (
@@ -820,7 +820,7 @@ export default function JobsPage() {
               <select
                 value={selectedDept || ""}
                 onChange={(e) => setSelectedDept(e.target.value || null)}
-                className="w-full px-3 py-2.5 rounded-sm text-xs font-mono font-extrabold outline-none bg-corp-surface border-2 border-blue-400 text-corp-text cursor-pointer"
+                className="w-full px-2.5 py-2 sm:py-2.5 rounded-md text-[10px] sm:text-xs font-mono font-extrabold outline-none bg-corp-surface border-2 border-blue-400 text-corp-text cursor-pointer truncate"
               >
                 <option value="">All Departments</option>
                 {departments.map((dept) => (
@@ -831,7 +831,7 @@ export default function JobsPage() {
               <select
                 value={selectedLocation || ""}
                 onChange={(e) => setSelectedLocation(e.target.value || null)}
-                className="w-full px-3 py-2.5 rounded-sm text-xs font-mono font-extrabold outline-none bg-corp-surface border-2 border-blue-400 text-corp-text cursor-pointer"
+                className="w-full px-2.5 py-2 sm:py-2.5 rounded-md text-[10px] sm:text-xs font-mono font-extrabold outline-none bg-corp-surface border-2 border-blue-400 text-corp-text cursor-pointer truncate"
               >
                 <option value="">All Locations</option>
                 {locations.map((loc) => (
@@ -842,9 +842,9 @@ export default function JobsPage() {
               <select
                 value={selectedExp || ""}
                 onChange={(e) => setSelectedExp(e.target.value || null)}
-                className="w-full px-3 py-2.5 rounded-sm text-xs font-mono font-extrabold outline-none bg-corp-surface border-2 border-blue-400 text-corp-text cursor-pointer"
+                className="w-full px-2.5 py-2 sm:py-2.5 rounded-md text-[10px] sm:text-xs font-mono font-extrabold outline-none bg-corp-surface border-2 border-blue-400 text-corp-text cursor-pointer truncate"
               >
-                <option value="">All Experience Levels</option>
+                <option value="">All Experience</option>
                 {expLevels.map((exp) => (
                   <option key={exp} value={exp}>{exp}</option>
                 ))}
@@ -853,10 +853,10 @@ export default function JobsPage() {
           </div>
 
           {/* Company-Wise Grouping Layout (Collapsible like Research Institute Cards) */}
-          <div className="space-y-6 font-mono">
+          <div className="space-y-4 sm:space-y-6 font-mono">
             {corporateJobsByCompany.length === 0 ? (
-              <div className="p-8 text-center text-xs font-bold text-corp-text-tertiary rounded-sm border-2 border-blue-400 bg-corp-surface space-y-2">
-                <AlertCircle size={24} className="mx-auto text-[#2563eb]" />
+              <div className="p-6 sm:p-8 text-center text-xs font-bold text-corp-text-tertiary rounded-md border-2 border-blue-400 bg-corp-surface space-y-2">
+                <AlertCircle size={22} className="mx-auto text-[#2563eb]" />
                 <p>No corporate job circulars match your current search filters.</p>
                 <button
                   onClick={() => {
@@ -866,7 +866,7 @@ export default function JobsPage() {
                     setSelectedLocation(null);
                     setSelectedExp(null);
                   }}
-                  className="px-3 py-1.5 rounded-sm text-xs font-black uppercase bg-[#2563eb] text-white cursor-pointer hover:bg-blue-600"
+                  className="px-3 py-1.5 rounded-md text-xs font-black uppercase bg-[#2563eb] text-white cursor-pointer hover:bg-blue-600"
                 >
                   Clear All Filters
                 </button>
@@ -878,7 +878,7 @@ export default function JobsPage() {
                 return (
                   <div
                     key={companyName}
-                    className="rounded-sm border-2 border-blue-400 shadow-[4px_4px_0px_0px_#2563eb] bg-corp-surface overflow-hidden transition-all"
+                    className="rounded-md border-2 border-blue-400 shadow-[2px_2px_0px_0px_#2563eb] sm:shadow-[4px_4px_0px_0px_#2563eb] bg-corp-surface overflow-hidden transition-all"
                   >
                     {/* Collapsible Company Header */}
                     <div
@@ -888,26 +888,26 @@ export default function JobsPage() {
                           [companyName]: !isExpanded,
                         }))
                       }
-                      className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer hover:bg-blue-50/20 transition-colors select-none"
+                      className="p-3.5 sm:p-5 flex items-center justify-between gap-2.5 sm:gap-3 cursor-pointer hover:bg-blue-50/20 transition-colors select-none"
                     >
-                      <div className="flex items-center gap-3.5">
-                        <CompanyLogo company={companyName} size={48} />
-                        <div>
-                          <h2 className="text-base font-black uppercase text-corp-text flex items-center gap-2">
+                      <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+                        <CompanyLogo company={companyName} size={36} />
+                        <div className="min-w-0">
+                          <h2 className="text-sm sm:text-base font-black uppercase text-corp-text flex items-center gap-2 truncate">
                             {companyName}
                           </h2>
-                          <p className="text-[11px] font-sans font-medium text-corp-text-tertiary mt-0.5">
-                            Official Corporate Intelligence Circulars ({companyJobs.length} {companyJobs.length === 1 ? "Role" : "Roles"}) • Tap to {isExpanded ? "collapse" : "view openings"}
+                          <p className="text-[10px] sm:text-[11px] font-sans font-medium text-corp-text-tertiary truncate">
+                            {companyJobs.length} {companyJobs.length === 1 ? "Role" : "Roles"} • Tap to {isExpanded ? "collapse" : "view"}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2.5 self-start sm:self-auto">
-                        <span className="px-3 py-1 rounded-sm text-xs font-black uppercase bg-[#2563eb] text-white border border-blue-300">
-                          {companyJobs.length} Open {companyJobs.length === 1 ? "Role" : "Roles"}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="px-2 sm:px-3 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-black uppercase bg-[#2563eb] text-white border border-blue-300">
+                          {companyJobs.length} Open
                         </span>
-                        <div className="w-8 h-8 rounded-sm bg-blue-500/10 border border-blue-400/40 flex items-center justify-center text-[#2563eb] transition-transform duration-200">
-                          {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded bg-blue-500/10 border border-blue-400/40 flex items-center justify-center text-[#2563eb] transition-transform duration-200">
+                          {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                         </div>
                       </div>
                     </div>
@@ -920,41 +920,41 @@ export default function JobsPage() {
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.22, ease: "easeOut" }}
-                          className="border-t-2 border-blue-400/30 p-5 space-y-3 bg-corp-bg-secondary/40"
+                          className="border-t-2 border-blue-400/30 p-3 sm:p-5 space-y-2.5 sm:space-y-3 bg-corp-bg-secondary/40"
                         >
                           {companyJobs.map((job: JobListing) => (
                             <div
                               key={job.id}
-                              className="group rounded-sm p-4 border border-blue-400/40 bg-corp-surface hover:border-[#2563eb] transition-all flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xs"
+                              className="group rounded-md p-3 sm:p-4 border border-blue-400/40 bg-corp-surface hover:border-[#2563eb] transition-all flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 shadow-xs"
                             >
-                              <div className="space-y-1.5 flex-1 min-w-0">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-sm text-white bg-[#2563eb] border border-blue-300">
+                              <div className="space-y-1 sm:space-y-1.5 flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                                  <span className="text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded text-white bg-[#2563eb] border border-blue-300">
                                     {job.department}
                                   </span>
                                   <JobMatchBadge jobId={job.id} />
-                                  <span className="text-[10px] font-mono text-corp-text-tertiary">
-                                    Posted {job.postedDate}
+                                  <span className="text-[9px] sm:text-[10px] font-mono text-corp-text-tertiary">
+                                    {job.postedDate}
                                   </span>
                                 </div>
 
-                                <h3 className="text-sm font-extrabold uppercase group-hover:text-[#2563eb] transition-colors truncate text-corp-text">
+                                <h3 className="text-xs sm:text-sm font-extrabold uppercase group-hover:text-[#2563eb] transition-colors truncate text-corp-text">
                                   <Link href={`/jobs/${job.id}`}>{job.title}</Link>
                                 </h3>
 
-                                <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-corp-text-tertiary">
-                                  <span className="flex items-center gap-1.5"><MapPin size={13} className="text-[#2563eb]" /> {job.location}</span>
-                                  <span className="flex items-center gap-1.5 font-mono font-extrabold text-[#2563eb]"><DollarSign size={13} /> <span className="font-bangla">{job.salary}</span></span>
-                                  <span className="flex items-center gap-1.5"><Clock size={13} /> {job.type}</span>
+                                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[11px] sm:text-xs font-bold text-corp-text-tertiary">
+                                  <span className="flex items-center gap-1"><MapPin size={12} className="text-[#2563eb]" /> {job.location}</span>
+                                  <span className="flex items-center gap-1 font-mono font-extrabold text-[#2563eb]"><DollarSign size={12} /> <span className="font-bangla">{job.salary}</span></span>
+                                  <span className="flex items-center gap-1"><Clock size={12} /> {job.type}</span>
                                 </div>
                               </div>
 
                               <Link
                                 href={`/jobs/${job.id}`}
-                                className="px-4 py-2 rounded-sm text-xs font-black uppercase text-white bg-[#2563eb] hover:bg-blue-600 border border-blue-300 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer self-end md:self-center shrink-0"
+                                className="w-full sm:w-auto px-3 sm:px-4 py-1.5 sm:py-2 rounded text-[10px] sm:text-xs font-black uppercase text-white bg-[#2563eb] hover:bg-blue-600 border border-blue-300 shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0"
                               >
                                 <span>View Details</span>
-                                <ChevronRight size={14} />
+                                <ChevronRight size={13} />
                               </Link>
                             </div>
                           ))}

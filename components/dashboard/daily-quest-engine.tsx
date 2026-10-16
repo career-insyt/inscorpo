@@ -269,10 +269,6 @@ export function DailyQuestEngine() {
                   <span>Start Lesson to Auto-Complete</span>
                   <ArrowRight size={14} className="text-[#78350f]" />
                 </Link>
-
-                <p className="text-[10px] font-mono text-center text-amber-800 font-medium">
-                  🔒 Automated Sensing: Platform automatically marks this completed when you finish the lesson.
-                </p>
               </div>
             )}
           </div>

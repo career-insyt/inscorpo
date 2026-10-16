@@ -61,36 +61,36 @@ export function LinkedInProfileHeader({
             </div>
 
             {/* Main Text Content */}
-            <div className="space-y-1.5 min-w-0 flex-1 font-mono">
+            <div className="space-y-1 min-w-0 w-full flex-1 font-mono">
               {/* Badges row: Greeting + Status pills */}
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black font-bangla text-white tracking-tight">
+              <div className="flex flex-wrap items-center gap-1.5 pb-0.5">
+                <h1 className="text-xl sm:text-2xl font-black font-bangla text-white tracking-tight mr-1">
                   স্বাগতম, {firstName}
                 </h1>
 
-                <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-mono font-extrabold bg-amber-400 text-amber-950 border border-amber-500 flex items-center gap-1.5 shadow-sm">
+                <span className="px-2 py-0.5 rounded-lg text-[10px] font-mono font-extrabold bg-amber-400 text-amber-950 border border-amber-500 flex items-center gap-1 shadow-sm">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-950 animate-pulse" />
                   Open to Opportunities
                 </span>
 
-                <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-mono font-extrabold bg-blue-900/90 text-white border border-blue-300/40 flex items-center gap-1 shadow-sm">
+                <span className="px-2 py-0.5 rounded-lg text-[10px] font-mono font-extrabold bg-blue-900/90 text-white border border-blue-300/40 flex items-center gap-1 shadow-sm">
                   <Target size={11} className="text-amber-400" />
-                  Active Career Target
+                  Active Target
                 </span>
 
-                <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-mono font-extrabold bg-emerald-400 text-emerald-950 border border-emerald-500 flex items-center gap-1 shadow-sm">
+                <span className="px-2 py-0.5 rounded-lg text-[10px] font-mono font-extrabold bg-emerald-400 text-emerald-950 border border-emerald-500 flex items-center gap-1 shadow-sm">
                   <ShieldCheck size={11} />
-                  W3C Standard Calibration
+                  W3C Calibration
                 </span>
               </div>
 
               {/* Target Role / Headline */}
-              <div className="text-sm sm:text-base font-black text-white uppercase tracking-tight line-clamp-1">
+              <div className="text-sm sm:text-base font-black text-white uppercase tracking-tight leading-snug w-full">
                 {targetCareerGoal}
               </div>
 
-              {/* Benchmark Operational Readiness Statement */}
-              <p className="text-xs font-sans font-medium text-blue-100 leading-relaxed max-w-2xl">
+              {/* Benchmark Operational Readiness Statement - Full Width */}
+              <p className="text-xs font-sans font-medium text-blue-100 leading-relaxed w-full">
                 Real-time operational readiness mapped against FMCG, commercial banking, and multinational conglomerate entry benchmarks.
               </p>
 

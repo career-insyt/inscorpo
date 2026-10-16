@@ -145,22 +145,25 @@ interface StatsOverviewBarProps {
 
 export function StatsOverviewBar({ totalOrgs, totalJobs, totalVacancies }: StatsOverviewBarProps) {
   const stats = [
-    { label: "Organizations", value: totalOrgs, icon: <Building2 className="w-4 h-4 text-[#2563eb]" /> },
-    { label: "Job Categories", value: totalJobs, icon: <Briefcase className="w-4 h-4 text-[#2563eb]" /> },
-    { label: "Total Vacancies", value: totalVacancies, icon: <Users className="w-4 h-4 text-[#2563eb]" /> },
+    { label: "Organizations", shortLabel: "Orgs", value: totalOrgs, icon: <Building2 className="w-3.5 h-3.5 text-[#2563eb]" /> },
+    { label: "Job Categories", shortLabel: "Roles", value: totalJobs, icon: <Briefcase className="w-3.5 h-3.5 text-[#2563eb]" /> },
+    { label: "Total Vacancies", shortLabel: "Vacancies", value: totalVacancies, icon: <Users className="w-3.5 h-3.5 text-[#2563eb]" /> },
   ];
 
   return (
-    <div className="flex flex-wrap items-center justify-around gap-4 py-3.5 px-6 rounded-sm border-y-2 border-blue-400/40 bg-blue-500/5 font-mono text-xs shadow-sm">
+    <div className="grid grid-cols-3 gap-2 py-2 sm:py-3.5 px-3 sm:px-6 rounded-md border-y-2 border-blue-400/40 bg-blue-500/5 font-mono text-xs shadow-xs">
       {stats.map((s, idx) => (
-        <div key={s.label} className="flex items-center gap-3">
-          <div className="p-1.5 rounded-sm bg-blue-500/10 border border-blue-400/40">{s.icon}</div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-xl font-black text-corp-text">{s.value}</span>
-            <span className="text-[11px] font-bold uppercase text-corp-text-tertiary tracking-wider">{s.label}</span>
+        <div key={s.label} className="flex items-center justify-center sm:justify-start gap-1.5 sm:gap-3 min-w-0">
+          <div className="p-1 sm:p-1.5 rounded bg-blue-500/10 border border-blue-400/40 shrink-0 hidden xs:flex">{s.icon}</div>
+          <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-1.5 text-center sm:text-left min-w-0">
+            <span className="text-sm sm:text-xl font-black text-corp-text leading-tight">{s.value}</span>
+            <span className="text-[9px] sm:text-[11px] font-bold uppercase text-corp-text-tertiary tracking-wider truncate">
+              <span className="sm:hidden">{s.shortLabel}</span>
+              <span className="hidden sm:inline">{s.label}</span>
+            </span>
           </div>
           {idx < stats.length - 1 && (
-            <div className="hidden md:block h-6 w-px bg-blue-400/30 ml-6" />
+            <div className="hidden md:block h-6 w-px bg-blue-400/30 ml-auto" />
           )}
         </div>
       ))}

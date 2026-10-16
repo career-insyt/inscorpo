@@ -7,7 +7,7 @@ import Link from "next/link";
 import {
   Search, Bell, ChevronRight, X,
   BookOpen, Award, LogOut, Crown, User, Building2, Flame,
-  CheckCheck, Trash2, AlertCircle, Sparkles, Zap, ArrowRight, Settings
+  CheckCheck, Trash2, AlertCircle, Sparkles, Zap, ArrowRight, Settings, Layers
 } from "lucide-react";
 import { useUser } from "@/components/providers/user-context";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -20,7 +20,6 @@ const breadcrumbMap: Record<string, string> = {
   "/profile": "User Profile",
   "/dashboard": "Dashboard",
   "/learn": "Learn",
-  "/learn/courses": "Individual Courses",
   "/mock-tests": "Practice Tests",
   "/career-passport": "Career Passport",
   "/career-hub": "Career Hub",
@@ -176,12 +175,11 @@ export function DashboardTopbar() {
       {/* Left: Brand + Breadcrumb */}
       <div className="flex items-center gap-1.5 sm:gap-2 text-xs flex-shrink-0 font-mono min-w-0">
         <Link href="/dashboard" className="md:hidden flex items-center gap-2 flex-shrink-0">
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white font-black text-xs border border-blue-400"
-            style={{ background: "#2563eb", boxShadow: "2px 2px 0px 0px #1e3a8a" }}
-          >
-            I
-          </div>
+          <img
+            src="/logo/logo_main.png"
+            alt="INSYT Logo"
+            className="w-8 h-8 rounded-full object-contain border border-blue-400 shadow-sm"
+          />
         </Link>
         <span className="hidden xl:inline font-extrabold uppercase text-corp-text-tertiary">INSYT</span>
         <ChevronRight size={12} className="hidden xl:inline text-corp-text-tertiary" />
@@ -228,6 +226,18 @@ export function DashboardTopbar() {
           <Search size={15} className="text-[#2563eb]" />
         </button>
 
+        {/* Mobile More Option (Swapped from Bottom Nav) */}
+        <button
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent("open-mobile-more-drawer"));
+          }}
+          className="md:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-black uppercase bg-[#2563eb] text-white border-2 border-blue-400 shadow-[2px_2px_0px_0px_#1e3a8a] active:scale-95 transition-all cursor-pointer flex-shrink-0"
+          aria-label="Open More Menu"
+          title="More Options"
+        >
+          <Layers size={13} className="shrink-0" />
+          <span className="text-[10px] font-mono">More</span>
+        </button>
 
         {/* Streak Pill — Strictly "{streak}d", Yellow colored with dark brown borders and animated fire on hover */}
         <div
@@ -267,8 +277,8 @@ export function DashboardTopbar() {
           </Link>
         )}
 
-        {/* Notifications Dropdown Trigger (Circular matching navbar aesthetics) */}
-        <div className="relative flex-shrink-0">
+        {/* Notifications Dropdown Trigger (Desktop only - mobile has notifications at bottom nav) */}
+        <div className="hidden md:block relative flex-shrink-0">
           <button
             onClick={toggleNotif}
             className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all border-2 border-corp-border hover:bg-corp-bg-secondary active:scale-95 flex-shrink-0 cursor-pointer relative"
@@ -423,8 +433,8 @@ export function DashboardTopbar() {
           </AnimatePresence>
         </div>
 
-        {/* USER PROFILE MENU TRIGGER (Circular matching navbar aesthetics) */}
-        <div className="relative flex-shrink-0">
+        {/* USER PROFILE MENU TRIGGER (Desktop only - mobile has profile in bottom nav) */}
+        <div className="hidden md:block relative flex-shrink-0">
           {(() => {
             const userPhoto = state.passportProfile?.photoUrl;
             const userDisplayName = user?.name || state.name || "Candidate";
