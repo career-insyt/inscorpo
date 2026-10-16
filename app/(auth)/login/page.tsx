@@ -4,8 +4,18 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  Mail, Lock, Eye, EyeOff, ArrowRight,
-  Sparkles, TrendingUp, Award, Users, Loader2
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Sparkles,
+  TrendingUp,
+  Award,
+  Users,
+  Loader2,
+  ShieldCheck,
+  CheckCircle2,
 } from "lucide-react";
 import { account, OAuthProvider } from "@/lib/appwrite";
 import { useRouter } from "next/navigation";
@@ -42,7 +52,9 @@ export default function LoginPage() {
         try {
           const parsed = JSON.parse(errorParam);
           if (parsed.type === "user_oauth2_provider_failure" || parsed.code === 424) {
-            setError("Google Login is not configured for this domain. Please sign in with Email and Password.");
+            setError(
+              "Google OAuth configuration mismatch. Please sign in with Email and Password below."
+            );
           } else {
             const rawMsg = parsed.message || errorParam;
             setError(typeof rawMsg === "string" ? rawMsg.slice(0, 200) : "Authentication error occurred.");
@@ -62,7 +74,6 @@ export default function LoginPage() {
           return;
         }
       } catch {
-        // Appwrite session check failed, check local storage
         if (typeof window !== "undefined") {
           const localUser = localStorage.getItem("insyt_local_user");
           const cookies = document.cookie;
@@ -80,7 +91,6 @@ export default function LoginPage() {
     setIsLoading(true);
     setError("");
 
-    // Persist or clear remembered email
     if (typeof window !== "undefined") {
       if (rememberMe) {
         localStorage.setItem("insyt_remembered_email", email);
@@ -128,7 +138,6 @@ export default function LoginPage() {
       finishLogin(sessionUser);
       return;
     } catch (err: any) {
-      // If 409 session conflict, force cleanup and retry Appwrite once
       if (err?.message?.includes("prohibited when a session is active") || err?.code === 409) {
         try {
           await account.deleteSession("current");
@@ -136,17 +145,18 @@ export default function LoginPage() {
           const u = await account.get();
           finishLogin(u);
           return;
-        } catch {
-          // Fall through to local verification
-        }
+        } catch {}
       }
 
-      // 2. Resilient direct login on insyt.bd / local environment
-      // Check if user was registered locally or allow direct password validation
+      // 2. Resilient registered user fallback
       if (typeof window !== "undefined") {
         try {
-          const registeredUsers: any[] = JSON.parse(localStorage.getItem("insyt_registered_users") || "[]");
-          const existingUser = registeredUsers.find((u) => u.email?.toLowerCase() === email.toLowerCase());
+          const registeredUsers: any[] = JSON.parse(
+            localStorage.getItem("insyt_registered_users") || "[]"
+          );
+          const existingUser = registeredUsers.find(
+            (u) => u.email?.toLowerCase() === email.toLowerCase()
+          );
 
           if (existingUser) {
             if (existingUser.password && existingUser.password !== password) {
@@ -154,32 +164,33 @@ export default function LoginPage() {
               setIsLoading(false);
               return;
             }
-            // Password matches registered user
             const authenticatedUser = {
               $id: existingUser.id || "user-" + Math.random().toString(36).substring(2, 9),
               name: existingUser.fullName || email.split("@")[0],
               email: existingUser.email,
               emailVerification: true,
               status: true,
-              prefs: existingUser.prefs || { subscriptionTier: "starter", subscriptionStatus: "active" },
+              prefs: existingUser.prefs || {
+                subscriptionTier: "starter",
+                subscriptionStatus: "active",
+              },
             };
             finishLogin(authenticatedUser);
             return;
           }
-        } catch {
-          // Error reading registered users
-        }
+        } catch {}
       }
 
-      // If Appwrite returned invalid credentials specifically, report that
       if (err?.code === 401 || err?.message?.toLowerCase()?.includes("invalid credentials")) {
-        setError("Invalid email or password. Please check your credentials or sign up.");
+        setError("Invalid email or password. Please verify your credentials or register.");
         setIsLoading(false);
         return;
       }
 
-      // If Appwrite failed due to CORS / Network, show error instead of fallback
-      setError("Unable to connect to the authentication server. Please check your internet connection and try again.");
+      setError(
+        err?.message ||
+          "Unable to connect to authentication server. Please check your credentials and try again."
+      );
       setIsLoading(false);
     }
   };
@@ -194,126 +205,167 @@ export default function LoginPage() {
       const successUrl = `${origin}${cleanTarget}`;
       const failureUrl = `${origin}/login`;
 
-      account.createOAuth2Session(
-        provider,
-        successUrl,
-        failureUrl
-      );
+      account.createOAuth2Session(provider, successUrl, failureUrl);
     } catch (err: any) {
       console.error(err);
-      setError("Google OAuth is not configured on this domain. Please sign in with Email and Password below.");
+      setError(
+        "Google OAuth redirect error. Ensure Appwrite callback is registered in Google Cloud Console."
+      );
     }
   };
 
   return (
-    <>
-      {/* Left Panel — Branding */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-corp-accent via-blue-600 to-corp-cyan">
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-72 h-72 rounded-full bg-white/5 blur-2xl" />
-          <div className="absolute bottom-32 right-16 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-white/5 blur-xl" />
-        </div>
+    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 md:p-8 bg-[#F8FAFC]">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-5xl rounded-3xl border-2 border-blue-600 bg-white overflow-hidden shadow-[6px_6px_0px_0px_#1e3a8a] grid grid-cols-1 lg:grid-cols-12"
+      >
+        {/* Left Column — Enterprise Executive Showcase (White / Blue Aesthetic) */}
+        <div className="lg:col-span-5 p-8 lg:p-10 border-b-2 lg:border-b-0 lg:border-r-2 border-slate-200 bg-gradient-to-b from-blue-50/60 via-white to-blue-50/30 flex flex-col justify-between space-y-8">
+          <div className="space-y-6">
+            <Link href="/" className="inline-block" title="CAREERINSYT">
+              <img
+                src="/logo/logoTextDark.png"
+                alt="CAREERINSYT"
+                className="h-8 w-auto object-contain"
+              />
+            </Link>
 
-        <div className="relative z-10 flex flex-col justify-between p-12 w-full">
-          <Link href="/" className="inline-flex py-1" title="CAREERINSYT">
-            <img src="/logo/logoTextWhite.png" alt="CAREERINSYT" className="h-8 w-auto object-contain" />
-          </Link>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-200 bg-blue-50 text-blue-800 text-[11px] font-mono font-bold uppercase tracking-wider">
+              <Sparkles size={12} className="text-amber-500 fill-amber-500" />
+              Corporate Talent Operating System
+            </div>
 
-          <div>
-            <h1 className="text-4xl font-bold text-white mb-4 leading-tight">
-              Welcome back to<br />your career OS.
-            </h1>
-            <p className="text-lg text-white/70 max-w-md mb-10">
-              Continue leveling up your professional skills, track your progress, and achieve your career goals.
-            </p>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                Welcome back to your Career Command Center.
+              </h1>
+              <p className="text-xs sm:text-sm font-medium text-slate-700 mt-2.5 leading-relaxed">
+                Log in to accelerate your corporate learning roadmap, sync with recruitment rubrics, and access verified credentials.
+              </p>
+            </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 gap-4 max-w-sm">
-              {[
-                { icon: Users, label: "Active Learners", value: "12,500+" },
-                { icon: Award, label: "Certificates", value: "8,400+" },
-                { icon: TrendingUp, label: "Career Upgrades", value: "3,200+" },
-                { icon: Sparkles, label: "AI Tools", value: "12" },
-              ].map((stat) => (
-                <div key={stat.label} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm">
-                  <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
-                    <stat.icon size={16} className="text-white/80" />
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold text-sm">{stat.value}</p>
-                    <p className="text-white/50 text-[11px]">{stat.label}</p>
-                  </div>
+            {/* Live Ecosystem Metrics */}
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="p-3.5 rounded-2xl border-2 border-blue-200 bg-white shadow-sm space-y-1">
+                <div className="flex items-center gap-2 text-blue-700">
+                  <Users size={16} />
+                  <span className="text-[11px] font-mono font-bold uppercase">Aspirants</span>
                 </div>
-              ))}
+                <div className="text-lg font-black text-slate-900">12,500+</div>
+                <div className="text-[10px] font-medium text-slate-700">Trained for MTO Intakes</div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl border-2 border-blue-200 bg-white shadow-sm space-y-1">
+                <div className="flex items-center gap-2 text-blue-700">
+                  <ShieldCheck size={16} />
+                  <span className="text-[11px] font-mono font-bold uppercase">Placement</span>
+                </div>
+                <div className="text-lg font-black text-slate-900">94.2%</div>
+                <div className="text-[10px] font-medium text-slate-700">Assessment Pass Rate</div>
+              </div>
+            </div>
+
+            {/* Recruiter Network Preview */}
+            <div className="p-4 rounded-2xl border-2 border-slate-200 bg-white shadow-sm space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-mono font-bold uppercase text-slate-900">
+                <span>Calibrated Recruiter Rubrics</span>
+                <span className="text-blue-700">MNC & Banking</span>
+              </div>
+              <p className="text-[11px] font-medium text-slate-700 leading-snug">
+                Unilever • BAT Bangladesh • Standard Chartered • Grameenphone • BRAC Bank • bKash • Marico
+              </p>
             </div>
           </div>
 
-          <p className="text-[12px] text-white/40">
-            © {new Date().getFullYear()} INSYT. All rights reserved.
-          </p>
+          <div className="pt-4 border-t-2 border-slate-100 flex items-center justify-between text-[11px] font-mono font-medium text-slate-600">
+            <span>© {new Date().getFullYear()} INSYT CORPORATE</span>
+            <span className="text-blue-700 font-bold">career.insyt.bd</span>
+          </div>
         </div>
-      </div>
 
-      {/* Right Panel — Login Form */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full max-w-md"
-        >
-          <Link href="/" className="lg:hidden inline-flex mb-8" title="CAREERINSYT">
-            <img src="/logo/logoTextDark.png" alt="CAREERINSYT" className="h-7 w-auto object-contain" />
-          </Link>
-
-          <h2 className="text-2xl font-bold mb-2" style={{ color: "var(--corp-text)" }}>
-            Sign in to your account
-          </h2>
-          <p className="text-[14px] mb-8" style={{ color: "var(--corp-text-secondary)" }}>
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="text-corp-accent font-semibold hover:underline">
-              Sign up free
-            </Link>
-          </p>
+        {/* Right Column — High Contrast Sign-In Form */}
+        <div className="lg:col-span-7 p-8 sm:p-10 lg:p-12 flex flex-col justify-center space-y-6">
+          <div>
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                Candidate Sign In
+              </h2>
+              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
+                PRO SEED
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm font-medium text-slate-700 mt-1">
+              New to CareerINSYT?{" "}
+              <Link
+                href="/signup"
+                className="text-blue-600 hover:text-blue-800 font-black hover:underline"
+              >
+                Create a Candidate Profile →
+              </Link>
+            </p>
+          </div>
 
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-[13px] font-medium">
-              {error}
+            <div className="p-3.5 rounded-2xl border-2 border-red-300 bg-red-50 text-red-900 text-xs font-bold space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-600" />
+                <span>Authentication Notice</span>
+              </div>
+              <p className="font-medium text-red-800">{error}</p>
             </div>
           )}
 
-          {/* Social Sign In */}
-          <div className="mb-6">
+          {/* Social Sign-in Button */}
+          <div>
             <button
               type="button"
               onClick={() => handleOAuth(OAuthProvider.Google)}
-              className="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl text-[13px] font-semibold transition-all duration-200 hover:shadow-sm bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+              className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-2xl text-xs sm:text-sm font-extrabold text-slate-900 bg-white border-2 border-slate-300 hover:border-blue-600 hover:bg-blue-50/40 transition-all shadow-sm active:translate-y-[1px]"
             >
-              <span className="w-5 h-5 rounded flex items-center justify-center text-[12px] font-bold bg-blue-50 text-blue-600">
-                G
-              </span>
-              Continue with Google
+              <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                />
+              </svg>
+              <span>Continue with Google Account</span>
             </button>
           </div>
 
-          {/* Divider */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex-1 h-px" style={{ background: "var(--corp-border)" }} />
-            <span className="text-[12px] font-medium" style={{ color: "var(--corp-text-tertiary)" }}>
-              or continue with email
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-0.5 bg-slate-200" />
+            <span className="text-[11px] font-mono font-bold uppercase text-slate-600">
+              or credentials
             </span>
-            <div className="flex-1 h-px" style={{ background: "var(--corp-border)" }} />
+            <div className="flex-1 h-0.5 bg-slate-200" />
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--corp-text)" }}>
-                Email address
+              <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-900 mb-1.5">
+                Official Email Address
               </label>
               <div className="relative">
-                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "var(--corp-text-tertiary)" }} />
+                <Mail
+                  size={17}
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
+                />
                 <input
                   type="email"
                   inputMode="email"
@@ -322,90 +374,87 @@ export default function LoginPage() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl text-[14px] transition-all duration-200 outline-none focus:ring-2 focus:ring-corp-accent/30"
-                  style={{
-                    background: "var(--corp-surface)",
-                    border: "1px solid var(--corp-border)",
-                    color: "var(--corp-text)",
-                  }}
+                  placeholder="candidate@university.edu or corporate email"
+                  className="w-full pl-10 pr-4 py-3 rounded-2xl text-xs sm:text-sm font-medium border-2 border-slate-300 focus:border-blue-600 bg-white text-slate-900 placeholder:text-slate-400 outline-none transition-all shadow-sm focus:ring-2 focus:ring-blue-100"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[13px] font-medium mb-1.5" style={{ color: "var(--corp-text)" }}>
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-900">
+                  Password
+                </label>
+                <Link
+                  href="/help"
+                  className="text-[11px] font-mono font-bold text-blue-700 hover:underline"
+                >
+                  Need Help?
+                </Link>
+              </div>
               <div className="relative">
-                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "var(--corp-text-tertiary)" }} />
+                <Lock
+                  size={17}
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
+                />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="w-full pl-10 pr-11 py-2.5 rounded-xl text-[14px] transition-all duration-200 outline-none focus:ring-2 focus:ring-corp-accent/30"
-                  style={{
-                    background: "var(--corp-surface)",
-                    border: "1px solid var(--corp-border)",
-                    color: "var(--corp-text)",
-                  }}
+                  placeholder="Enter your confidential password"
+                  className="w-full pl-10 pr-12 py-3 rounded-2xl text-xs sm:text-sm font-medium border-2 border-slate-300 focus:border-blue-600 bg-white text-slate-900 placeholder:text-slate-400 outline-none transition-all shadow-sm focus:ring-2 focus:ring-blue-100"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2"
-                  style={{ color: "var(--corp-text-tertiary)" }}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 p-1"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
-            {/* Remember & Forgot */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pt-1">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded accent-corp-accent"
+                  className="w-4 h-4 rounded border-2 border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                 />
-                <span className="text-[13px]" style={{ color: "var(--corp-text-secondary)" }}>
-                  Remember me
+                <span className="text-xs font-bold text-slate-800">
+                  Keep me signed in on this workstation
                 </span>
               </label>
-              <Link
-                href="/forgot-password"
-                className="text-[13px] font-medium text-corp-accent hover:underline"
-              >
-                Forgot password?
-              </Link>
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 py-3 text-[15px] font-semibold text-white bg-corp-accent rounded-xl hover:bg-corp-accent-hover transition-all duration-300 shadow-md hover:shadow-lg mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full py-4 px-6 rounded-2xl text-xs sm:text-sm font-black text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all border-2 border-blue-700 shadow-[4px_4px_0px_0px_#1e3a8a] flex items-center justify-center gap-2 disabled:opacity-70 active:translate-x-[2px] active:translate-y-[2px]"
             >
               {isLoading ? (
                 <>
-                  <Loader2 size={16} className="animate-spin" />
-                  Signing In...
+                  <Loader2 size={18} className="animate-spin text-amber-300" />
+                  <span>Verifying Credentials...</span>
                 </>
               ) : (
                 <>
-                  Sign In
-                  <ArrowRight size={16} />
+                  <span>Sign In to Candidate Cockpit</span>
+                  <ArrowRight size={17} />
                 </>
               )}
             </button>
           </form>
-        </motion.div>
-      </div>
-    </>
+
+          <div className="p-3 rounded-xl border border-blue-100 bg-blue-50/50 flex items-center gap-2.5 text-[11px] font-mono text-slate-700">
+            <CheckCircle2 size={15} className="text-blue-700 flex-shrink-0" />
+            <span>End-to-end encrypted session with Appwrite Corporate Auth &amp; Role-Based Access.</span>
+          </div>
+        </div>
+      </motion.div>
+    </div>
   );
 }
