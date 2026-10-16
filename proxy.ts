@@ -40,7 +40,6 @@ const PROTECTED_PREFIXES = [
   "/simulations",
   "/rewards",
   "/settings",
-  "/audit",
   "/error-preview",
 ];
 

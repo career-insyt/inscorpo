@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Rocket, BookOpen, ClipboardList, FileText, Briefcase,
   Mic, Target, Zap, Award, Settings, HelpCircle,
-  ChevronLeft, ChevronRight, Calendar, ShieldCheck
+  ChevronLeft, ChevronRight, Calendar
 } from "lucide-react";
 import { useUser } from "@/components/providers/user-context";
 import { cn } from "@/lib/utils";
@@ -35,7 +35,6 @@ function buildNavSections() {
     accountSection: {
       label: "System & Settings",
       items: [
-        { icon: ShieldCheck, label: "Platform Auditor", href: "/audit", color: "blue", isNew: true },
         { icon: Settings,   label: "Settings",    href: "/settings", color: "slate" },
         { icon: HelpCircle, label: "Help Center", href: "/help",     color: "blue" },
       ],
