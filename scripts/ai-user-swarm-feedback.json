@@ -1,0 +1,231 @@
+{
+  "timestamp": "2026-10-16T20:19:25.456Z",
+  "baseUrl": "http://127.0.0.1:3000",
+  "routesTested": {
+    "/dashboard": {
+      "status": 200,
+      "duration": 2248,
+      "sizeKb": "39.7",
+      "title": "CAREERINSYT — Career OS",
+      "sampleText": " CAREERINSYT — Career OS (function(){try{document.documentElement.classList.remove('dark');localStorage.removeItem('insyt-corp-theme');}catch(e){}})(); Corporate Talent Operating System Welcome back to your Career Command Center. Log in to accelerate your corporate learning roadmap, sync with recruitment rubrics, and access verified credentials. Aspirants 12,500+ Trained for MTO Intakes Placement 94.2% Assessment Pass Rate Calibrated Recruiter Rubrics MNC &amp; Banking Unilever • BAT Bangladesh • Standard Chartered • Grameenphone • BRAC Bank • bKash • Marico © 2026 INSYT CORPORATE career.insyt.bd Candidate Sign In PRO SEED New to CareerINSYT? Create a Candidate Profile → Continue with Google Account or credentials Official Email Address Password Need Help? Keep me signed in on this workstation Sign In to Candidate Cockpit End-to-end encrypted session with Appwrite Corporate Auth &amp; Role-Based Access. self.__next_r=\"sgz_9nJ-GLz-QjSm_gJ_G\" (self.__next_f=self.__next_f||[]).push([0]) self.__next_f.push([1,\"d:I[\\\"[project]/node_modules/next/dist/client/components/layout-router.js [app-client] (ecmascript)\\\",[\\\"/_next/static/chunks/_0jo00zi._.js\\\",\\\"/_next/static/chunks/node_modules_next_12whqff._.js\\\",\\\"/_next/static/chunks/node_modules_appwrite_dist_esm_sdk_0nevybf.js\\\",\\\"/_next/static/chunks/node_modules_motion-dom_dist_es_0g6cuzy._.js\\\",\\\"/_next/static/chunks/node_modules_framer-motion_dist_es_1_a7n4k._.js\\\",\\\"/_next/static/chunks/node_modules_1qa5mjd._.js\\\",\\\"/_next/static",
+      "ok": true
+    },
+    "/opportunities": {
+      "status": 200,
+      "duration": 2216,
+      "sizeKb": "39.7",
+      "title": "CAREERINSYT — Career OS",
+      "sampleText": " CAREERINSYT — Career OS (function(){try{document.documentElement.classList.remove('dark');localStorage.removeItem('insyt-corp-theme');}catch(e){}})(); Corporate Talent Operating System Welcome back to your Career Command Center. Log in to accelerate your corporate learning roadmap, sync with recruitment rubrics, and access verified credentials. Aspirants 12,500+ Trained for MTO Intakes Placement 94.2% Assessment Pass Rate Calibrated Recruiter Rubrics MNC &amp; Banking Unilever • BAT Bangladesh • Standard Chartered • Grameenphone • BRAC Bank • bKash • Marico © 2026 INSYT CORPORATE career.insyt.bd Candidate Sign In PRO SEED New to CareerINSYT? Create a Candidate Profile → Continue with Google Account or credentials Official Email Address Password Need Help? Keep me signed in on this workstation Sign In to Candidate Cockpit End-to-end encrypted session with Appwrite Corporate Auth &amp; Role-Based Access. self.__next_r=\"rx1XzCJYrBOjJap6LPUid\" (self.__next_f=self.__next_f||[]).push([0]) self.__next_f.push([1,\"d:I[\\\"[project]/node_modules/next/dist/client/components/layout-router.js [app-client] (ecmascript)\\\",[\\\"/_next/static/chunks/_0jo00zi._.js\\\",\\\"/_next/static/chunks/node_modules_next_12whqff._.js\\\",\\\"/_next/static/chunks/node_modules_appwrite_dist_esm_sdk_0nevybf.js\\\",\\\"/_next/static/chunks/node_modules_motion-dom_dist_es_0g6cuzy._.js\\\",\\\"/_next/static/chunks/node_modules_framer-motion_dist_es_1_a7n4k._.js\\\",\\\"/_next/static/chunks/node_modules_1qa5mjd._.js\\\",\\\"/_next/static",
+      "ok": true
+    },
+    "/passport": {
+      "status": 200,
+      "duration": 2217,
+      "sizeKb": "39.7",
+      "title": "CAREERINSYT — Career OS",
+      "sampleText": " CAREERINSYT — Career OS (function(){try{document.documentElement.classList.remove('dark');localStorage.removeItem('insyt-corp-theme');}catch(e){}})(); Corporate Talent Operating System Welcome back to your Career Command Center. Log in to accelerate your corporate learning roadmap, sync with recruitment rubrics, and access verified credentials. Aspirants 12,500+ Trained for MTO Intakes Placement 94.2% Assessment Pass Rate Calibrated Recruiter Rubrics MNC &amp; Banking Unilever • BAT Bangladesh • Standard Chartered • Grameenphone • BRAC Bank • bKash • Marico © 2026 INSYT CORPORATE career.insyt.bd Candidate Sign In PRO SEED New to CareerINSYT? Create a Candidate Profile → Continue with Google Account or credentials Official Email Address Password Need Help? Keep me signed in on this workstation Sign In to Candidate Cockpit End-to-end encrypted session with Appwrite Corporate Auth &amp; Role-Based Access. self.__next_r=\"g5xtM72UEz3d6FQ_SZ0jt\" (self.__next_f=self.__next_f||[]).push([0]) self.__next_f.push([1,\"d:I[\\\"[project]/node_modules/next/dist/client/components/layout-router.js [app-client] (ecmascript)\\\",[\\\"/_next/static/chunks/_0jo00zi._.js\\\",\\\"/_next/static/chunks/node_modules_next_12whqff._.js\\\",\\\"/_next/static/chunks/node_modules_appwrite_dist_esm_sdk_0nevybf.js\\\",\\\"/_next/static/chunks/node_modules_motion-dom_dist_es_0g6cuzy._.js\\\",\\\"/_next/static/chunks/node_modules_framer-motion_dist_es_1_a7n4k._.js\\\",\\\"/_next/static/chunks/node_modules_1qa5mjd._.js\\\",\\\"/_next/static",
+      "ok": true
+    },
+    "/learn": {
+      "status": 200,
+      "duration": 2217,
+      "sizeKb": "39.7",
+      "title": "CAREERINSYT — Career OS",
+      "sampleText": " CAREERINSYT — Career OS (function(){try{document.documentElement.classList.remove('dark');localStorage.removeItem('insyt-corp-theme');}catch(e){}})(); Corporate Talent Operating System Welcome back to your Career Command Center. Log in to accelerate your corporate learning roadmap, sync with recruitment rubrics, and access verified credentials. Aspirants 12,500+ Trained for MTO Intakes Placement 94.2% Assessment Pass Rate Calibrated Recruiter Rubrics MNC &amp; Banking Unilever • BAT Bangladesh • Standard Chartered • Grameenphone • BRAC Bank • bKash • Marico © 2026 INSYT CORPORATE career.insyt.bd Candidate Sign In PRO SEED New to CareerINSYT? Create a Candidate Profile → Continue with Google Account or credentials Official Email Address Password Need Help? Keep me signed in on this workstation Sign In to Candidate Cockpit End-to-end encrypted session with Appwrite Corporate Auth &amp; Role-Based Access. self.__next_r=\"_Jq7BvblvYGaFtpmpFAlr\" (self.__next_f=self.__next_f||[]).push([0]) self.__next_f.push([1,\"d:I[\\\"[project]/node_modules/next/dist/client/components/layout-router.js [app-client] (ecmascript)\\\",[\\\"/_next/static/chunks/_0jo00zi._.js\\\",\\\"/_next/static/chunks/node_modules_next_12whqff._.js\\\",\\\"/_next/static/chunks/node_modules_appwrite_dist_esm_sdk_0nevybf.js\\\",\\\"/_next/static/chunks/node_modules_motion-dom_dist_es_0g6cuzy._.js\\\",\\\"/_next/static/chunks/node_modules_framer-motion_dist_es_1_a7n4k._.js\\\",\\\"/_next/static/chunks/node_modules_1qa5mjd._.js\\\",\\\"/_next/static",
+      "ok": true
+    },
+    "/mock-tests": {
+      "status": 200,
+      "duration": 2217,
+      "sizeKb": "39.7",
+      "title": "CAREERINSYT — Career OS",
+      "sampleText": " CAREERINSYT — Career OS (function(){try{document.documentElement.classList.remove('dark');localStorage.removeItem('insyt-corp-theme');}catch(e){}})(); Corporate Talent Operating System Welcome back to your Career Command Center. Log in to accelerate your corporate learning roadmap, sync with recruitment rubrics, and access verified credentials. Aspirants 12,500+ Trained for MTO Intakes Placement 94.2% Assessment Pass Rate Calibrated Recruiter Rubrics MNC &amp; Banking Unilever • BAT Bangladesh • Standard Chartered • Grameenphone • BRAC Bank • bKash • Marico © 2026 INSYT CORPORATE career.insyt.bd Candidate Sign In PRO SEED New to CareerINSYT? Create a Candidate Profile → Continue with Google Account or credentials Official Email Address Password Need Help? Keep me signed in on this workstation Sign In to Candidate Cockpit End-to-end encrypted session with Appwrite Corporate Auth &amp; Role-Based Access. self.__next_r=\"f4xeoFx5rwGstxthL2slP\" (self.__next_f=self.__next_f||[]).push([0]) self.__next_f.push([1,\"d:I[\\\"[project]/node_modules/next/dist/client/components/layout-router.js [app-client] (ecmascript)\\\",[\\\"/_next/static/chunks/_0jo00zi._.js\\\",\\\"/_next/static/chunks/node_modules_next_12whqff._.js\\\",\\\"/_next/static/chunks/node_modules_appwrite_dist_esm_sdk_0nevybf.js\\\",\\\"/_next/static/chunks/node_modules_motion-dom_dist_es_0g6cuzy._.js\\\",\\\"/_next/static/chunks/node_modules_framer-motion_dist_es_1_a7n4k._.js\\\",\\\"/_next/static/chunks/node_modules_1qa5mjd._.js\\\",\\\"/_next/static",
+      "ok": true
+    },
+    "/certificates": {
+      "status": 200,
+      "duration": 2278,
+      "sizeKb": "39.7",
+      "title": "CAREERINSYT — Career OS",
+      "sampleText": " CAREERINSYT — Career OS (function(){try{document.documentElement.classList.remove('dark');localStorage.removeItem('insyt-corp-theme');}catch(e){}})(); Corporate Talent Operating System Welcome back to your Career Command Center. Log in to accelerate your corporate learning roadmap, sync with recruitment rubrics, and access verified credentials. Aspirants 12,500+ Trained for MTO Intakes Placement 94.2% Assessment Pass Rate Calibrated Recruiter Rubrics MNC &amp; Banking Unilever • BAT Bangladesh • Standard Chartered • Grameenphone • BRAC Bank • bKash • Marico © 2026 INSYT CORPORATE career.insyt.bd Candidate Sign In PRO SEED New to CareerINSYT? Create a Candidate Profile → Continue with Google Account or credentials Official Email Address Password Need Help? Keep me signed in on this workstation Sign In to Candidate Cockpit End-to-end encrypted session with Appwrite Corporate Auth &amp; Role-Based Access. self.__next_r=\"kA6ZrbKh0xtS48M7eJFtY\" (self.__next_f=self.__next_f||[]).push([0]) self.__next_f.push([1,\"d:I[\\\"[project]/node_modules/next/dist/client/components/layout-router.js [app-client] (ecmascript)\\\",[\\\"/_next/static/chunks/_0jo00zi._.js\\\",\\\"/_next/static/chunks/node_modules_next_12whqff._.js\\\",\\\"/_next/static/chunks/node_modules_appwrite_dist_esm_sdk_0nevybf.js\\\",\\\"/_next/static/chunks/node_modules_motion-dom_dist_es_0g6cuzy._.js\\\",\\\"/_next/static/chunks/node_modules_framer-motion_dist_es_1_a7n4k._.js\\\",\\\"/_next/static/chunks/node_modules_1qa5mjd._.js\\\",\\\"/_next/static",
+      "ok": true
+    },
+    "/challenges": {
+      "status": 200,
+      "duration": 2279,
+      "sizeKb": "39.7",
+      "title": "CAREERINSYT — Career OS",
+      "sampleText": " CAREERINSYT — Career OS (function(){try{document.documentElement.classList.remove('dark');localStorage.removeItem('insyt-corp-theme');}catch(e){}})(); Corporate Talent Operating System Welcome back to your Career Command Center. Log in to accelerate your corporate learning roadmap, sync with recruitment rubrics, and access verified credentials. Aspirants 12,500+ Trained for MTO Intakes Placement 94.2% Assessment Pass Rate Calibrated Recruiter Rubrics MNC &amp; Banking Unilever • BAT Bangladesh • Standard Chartered • Grameenphone • BRAC Bank • bKash • Marico © 2026 INSYT CORPORATE career.insyt.bd Candidate Sign In PRO SEED New to CareerINSYT? Create a Candidate Profile → Continue with Google Account or credentials Official Email Address Password Need Help? Keep me signed in on this workstation Sign In to Candidate Cockpit End-to-end encrypted session with Appwrite Corporate Auth &amp; Role-Based Access. self.__next_r=\"YPu_8u-Q7k3pg5clcwGND\" (self.__next_f=self.__next_f||[]).push([0]) self.__next_f.push([1,\"d:I[\\\"[project]/node_modules/next/dist/client/components/layout-router.js [app-client] (ecmascript)\\\",[\\\"/_next/static/chunks/_0jo00zi._.js\\\",\\\"/_next/static/chunks/node_modules_next_12whqff._.js\\\",\\\"/_next/static/chunks/node_modules_appwrite_dist_esm_sdk_0nevybf.js\\\",\\\"/_next/static/chunks/node_modules_motion-dom_dist_es_0g6cuzy._.js\\\",\\\"/_next/static/chunks/node_modules_framer-motion_dist_es_1_a7n4k._.js\\\",\\\"/_next/static/chunks/node_modules_1qa5mjd._.js\\\",\\\"/_next/static",
+      "ok": true
+    },
+    "/jobs": {
+      "status": 200,
+      "duration": 2279,
+      "sizeKb": "39.7",
+      "title": "CAREERINSYT — Career OS",
+      "sampleText": " CAREERINSYT — Career OS (function(){try{document.documentElement.classList.remove('dark');localStorage.removeItem('insyt-corp-theme');}catch(e){}})(); Corporate Talent Operating System Welcome back to your Career Command Center. Log in to accelerate your corporate learning roadmap, sync with recruitment rubrics, and access verified credentials. Aspirants 12,500+ Trained for MTO Intakes Placement 94.2% Assessment Pass Rate Calibrated Recruiter Rubrics MNC &amp; Banking Unilever • BAT Bangladesh • Standard Chartered • Grameenphone • BRAC Bank • bKash • Marico © 2026 INSYT CORPORATE career.insyt.bd Candidate Sign In PRO SEED New to CareerINSYT? Create a Candidate Profile → Continue with Google Account or credentials Official Email Address Password Need Help? Keep me signed in on this workstation Sign In to Candidate Cockpit End-to-end encrypted session with Appwrite Corporate Auth &amp; Role-Based Access. self.__next_r=\"Zq7KnWByJIRehqq-Bsy25\" (self.__next_f=self.__next_f||[]).push([0]) self.__next_f.push([1,\"d:I[\\\"[project]/node_modules/next/dist/client/components/layout-router.js [app-client] (ecmascript)\\\",[\\\"/_next/static/chunks/_0jo00zi._.js\\\",\\\"/_next/static/chunks/node_modules_next_12whqff._.js\\\",\\\"/_next/static/chunks/node_modules_appwrite_dist_esm_sdk_0nevybf.js\\\",\\\"/_next/static/chunks/node_modules_motion-dom_dist_es_0g6cuzy._.js\\\",\\\"/_next/static/chunks/node_modules_framer-motion_dist_es_1_a7n4k._.js\\\",\\\"/_next/static/chunks/node_modules_1qa5mjd._.js\\\",\\\"/_next/static",
+      "ok": true
+    },
+    "/help": {
+      "status": 200,
+      "duration": 2281,
+      "sizeKb": "39.7",
+      "title": "CAREERINSYT — Career OS",
+      "sampleText": " CAREERINSYT — Career OS (function(){try{document.documentElement.classList.remove('dark');localStorage.removeItem('insyt-corp-theme');}catch(e){}})(); Corporate Talent Operating System Welcome back to your Career Command Center. Log in to accelerate your corporate learning roadmap, sync with recruitment rubrics, and access verified credentials. Aspirants 12,500+ Trained for MTO Intakes Placement 94.2% Assessment Pass Rate Calibrated Recruiter Rubrics MNC &amp; Banking Unilever • BAT Bangladesh • Standard Chartered • Grameenphone • BRAC Bank • bKash • Marico © 2026 INSYT CORPORATE career.insyt.bd Candidate Sign In PRO SEED New to CareerINSYT? Create a Candidate Profile → Continue with Google Account or credentials Official Email Address Password Need Help? Keep me signed in on this workstation Sign In to Candidate Cockpit End-to-end encrypted session with Appwrite Corporate Auth &amp; Role-Based Access. self.__next_r=\"3o-1v3NZkbvWUacRCj4FZ\" (self.__next_f=self.__next_f||[]).push([0]) self.__next_f.push([1,\"d:I[\\\"[project]/node_modules/next/dist/client/components/layout-router.js [app-client] (ecmascript)\\\",[\\\"/_next/static/chunks/_0jo00zi._.js\\\",\\\"/_next/static/chunks/node_modules_next_12whqff._.js\\\",\\\"/_next/static/chunks/node_modules_appwrite_dist_esm_sdk_0nevybf.js\\\",\\\"/_next/static/chunks/node_modules_motion-dom_dist_es_0g6cuzy._.js\\\",\\\"/_next/static/chunks/node_modules_framer-motion_dist_es_1_a7n4k._.js\\\",\\\"/_next/static/chunks/node_modules_1qa5mjd._.js\\\",\\\"/_next/static",
+      "ok": true
+    },
+    "/career-passport": {
+      "status": 200,
+      "duration": 2315,
+      "sizeKb": "39.7",
+      "title": "CAREERINSYT — Career OS",
+      "sampleText": " CAREERINSYT — Career OS (function(){try{document.documentElement.classList.remove('dark');localStorage.removeItem('insyt-corp-theme');}catch(e){}})(); Corporate Talent Operating System Welcome back to your Career Command Center. Log in to accelerate your corporate learning roadmap, sync with recruitment rubrics, and access verified credentials. Aspirants 12,500+ Trained for MTO Intakes Placement 94.2% Assessment Pass Rate Calibrated Recruiter Rubrics MNC &amp; Banking Unilever • BAT Bangladesh • Standard Chartered • Grameenphone • BRAC Bank • bKash • Marico © 2026 INSYT CORPORATE career.insyt.bd Candidate Sign In PRO SEED New to CareerINSYT? Create a Candidate Profile → Continue with Google Account or credentials Official Email Address Password Need Help? Keep me signed in on this workstation Sign In to Candidate Cockpit End-to-end encrypted session with Appwrite Corporate Auth &amp; Role-Based Access. self.__next_r=\"nePWBjd6yhRA70FPE4V_r\" (self.__next_f=self.__next_f||[]).push([0]) self.__next_f.push([1,\"d:I[\\\"[project]/node_modules/next/dist/client/components/layout-router.js [app-client] (ecmascript)\\\",[\\\"/_next/static/chunks/_0jo00zi._.js\\\",\\\"/_next/static/chunks/node_modules_next_12whqff._.js\\\",\\\"/_next/static/chunks/node_modules_appwrite_dist_esm_sdk_0nevybf.js\\\",\\\"/_next/static/chunks/node_modules_motion-dom_dist_es_0g6cuzy._.js\\\",\\\"/_next/static/chunks/node_modules_framer-motion_dist_es_1_a7n4k._.js\\\",\\\"/_next/static/chunks/node_modules_1qa5mjd._.js\\\",\\\"/_next/static",
+      "ok": true
+    },
+    "/profile": {
+      "status": 200,
+      "duration": 2319,
+      "sizeKb": "39.7",
+      "title": "CAREERINSYT — Career OS",
+      "sampleText": " CAREERINSYT — Career OS (function(){try{document.documentElement.classList.remove('dark');localStorage.removeItem('insyt-corp-theme');}catch(e){}})(); Corporate Talent Operating System Welcome back to your Career Command Center. Log in to accelerate your corporate learning roadmap, sync with recruitment rubrics, and access verified credentials. Aspirants 12,500+ Trained for MTO Intakes Placement 94.2% Assessment Pass Rate Calibrated Recruiter Rubrics MNC &amp; Banking Unilever • BAT Bangladesh • Standard Chartered • Grameenphone • BRAC Bank • bKash • Marico © 2026 INSYT CORPORATE career.insyt.bd Candidate Sign In PRO SEED New to CareerINSYT? Create a Candidate Profile → Continue with Google Account or credentials Official Email Address Password Need Help? Keep me signed in on this workstation Sign In to Candidate Cockpit End-to-end encrypted session with Appwrite Corporate Auth &amp; Role-Based Access. self.__next_r=\"i0vrz5yzuqy2xzEGXKu2w\" (self.__next_f=self.__next_f||[]).push([0]) self.__next_f.push([1,\"d:I[\\\"[project]/node_modules/next/dist/client/components/layout-router.js [app-client] (ecmascript)\\\",[\\\"/_next/static/chunks/_0jo00zi._.js\\\",\\\"/_next/static/chunks/node_modules_next_12whqff._.js\\\",\\\"/_next/static/chunks/node_modules_appwrite_dist_esm_sdk_0nevybf.js\\\",\\\"/_next/static/chunks/node_modules_motion-dom_dist_es_0g6cuzy._.js\\\",\\\"/_next/static/chunks/node_modules_framer-motion_dist_es_1_a7n4k._.js\\\",\\\"/_next/static/chunks/node_modules_1qa5mjd._.js\\\",\\\"/_next/static",
+      "ok": true
+    }
+  },
+  "personaFeedbacks": [
+    {
+      "persona": {
+        "id": "persona_anika",
+        "name": "Anika Rahman",
+        "role": "BBA Fresh Graduate, UIU",
+        "device": "iPhone 14 Pro (Mobile Safari, 390x844, 4G)",
+        "intent": "Looking for entry-level corporate jobs / MTO circulars and wants to build a Career Passport to prove skills to recruiters."
+      },
+      "feedback": {
+        "firstImpression": "I felt excited at first glance because the layout was clean and professional, but I quickly got overwhelmed by the amount of information presented.",
+        "systemUsabilityScore": 75,
+        "delightedBy": [
+          "The Daily Quest Engine was really engaging and helped me track my progress easily.",
+          "I loved the Degree Eligibility Search Engine; it made it straightforward to see what jobs I qualify for.",
+          "The Career Passport feature with verifiable credentials is a game-changer for proving my skills."
+        ],
+        "confusedOrFrustratedBy": [
+          "I found the corporate jargon in some sections confusing; terms like 'readiness index' and 'evidence cards' need simpler explanations.",
+          "The mobile filters on the opportunities page felt cluttered and hard to navigate quickly.",
+          "The sticky AI Assistant was a bit distracting; I often accidentally tapped it when trying to scroll."
+        ],
+        "mobileExperienceFeedback": "Overall, the mobile experience was decent in terms of load speed, but some tap targets were too small, especially the bottom navigation icons. Readability was fine, but clearer labels would help me navigate faster.",
+        "verdict": "Has Minor Friction",
+        "topOneFeatureOrFixRequest": "I would really want a simplified glossary or tooltips for the corporate jargon used throughout the site to make everything more user-friendly."
+      }
+    },
+    {
+      "persona": {
+        "id": "persona_tanvir",
+        "name": "Tanvir Ahmed",
+        "role": "Mid-Level Corporate Analyst, Square Group",
+        "device": "MacBook Pro 16\" (Desktop Chrome, 1728x1117, High-speed Fiber)",
+        "intent": "Looking for career advancement, taking skill assessments, benchmarking financial modeling / BI skills, evaluating pro membership."
+      },
+      "feedback": {
+        "firstImpression": "I found the site visually appealing and easy to navigate, but I was immediately skeptical about the claims of instant scoring and verified credentials.",
+        "systemUsabilityScore": 82,
+        "delightedBy": [
+          "The Daily Quest Engine is a fantastic way to track my learning progress, making me feel more accountable.",
+          "The digital verifiable certificates are a standout feature, as they provide a level of credibility that I value.",
+          "The real-world business case studies in the Skill Challenges section were engaging and relevant to my career."
+        ],
+        "confusedOrFrustratedBy": [
+          "The loading times, although not excessive, felt longer than I expected for a SaaS platform, which could hinder quick assessments.",
+          "I found the terminology around 'Corporate Readiness Index calibration' a bit vague; it could use clearer explanations.",
+          "The layout on the mobile version felt cluttered at times, especially with the AI Assistant overlapping some content."
+        ],
+        "mobileExperienceFeedback": "While the bottom navigation bar is easy to access, I struggled with some tap targets being too small. The AI Assistant, although useful, sometimes got in the way of what I was trying to read or interact with.",
+        "verdict": "Has Minor Friction",
+        "topOneFeatureOrFixRequest": "I would want clearer explanations and examples around the Corporate Readiness Index to fully understand its value before recommending it to others."
+      }
+    },
+    {
+      "persona": {
+        "id": "persona_mizan",
+        "name": "Dr. Mizanur Rahman",
+        "role": "Agricultural Science Postgrad, BAU",
+        "device": "Samsung Galaxy A54 (Mobile Chrome, 412x915, 3G/4G)",
+        "intent": "Looking for official Government Research circulars (BARI, BRRI, BINA, BJRI) under National Pay Scale 2015 for Grade 9/10 Scientific Officer roles."
+      },
+      "feedback": {
+        "firstImpression": "When I opened this on my phone, I was pleasantly surprised by the clean layout and intuitive design of the site. It felt professional and tailored for career seekers like me.",
+        "systemUsabilityScore": 85,
+        "delightedBy": [
+          "The job matching feature was impressive as it allowed me to filter opportunities based on my educational background and pay scale, which is crucial for my job search.",
+          "The Daily Quest Engine is a great touch; it helps me keep track of my progress and motivates me to engage with the platform.",
+          "I appreciated the Upcoming Events hub; it makes it easy to find relevant workshops and seminars that can boost my career."
+        ],
+        "confusedOrFrustratedBy": [
+          "I found the search functionality for specific government research circulars a bit lacking; it didn’t seem to return targeted results for the institutions I was looking for.",
+          "The AI Assistant, while helpful, felt a bit too intrusive on mobile; it sometimes obscured content and was not always relevant to my current task.",
+          "Navigating back to the previous page was less intuitive than I expected; I had to rely on the bottom nav, which isn’t always visible when scrolling."
+        ],
+        "mobileExperienceFeedback": "Overall, the mobile experience was decent, but some tap targets felt a bit small for my fingers. The bottom navigation was clear but could benefit from more spacing. Readability was good, but I noticed some loading times could be improved, especially when switching pages.",
+        "verdict": "Ready for Real Users",
+        "topOneFeatureOrFixRequest": "I would want a more effective search feature specifically for government research circulars, as that is critical for my job search."
+      }
+    },
+    {
+      "persona": {
+        "id": "persona_nabila",
+        "name": "Nabila Hossain",
+        "role": "First-Time Job Seeker / Non-Tech",
+        "device": "iPhone 13 (Mobile Safari, 390x844)",
+        "intent": "Heard about INSYT from a friend, wants to see how the AI Assistant works, complete the daily quest, and understand how to get started."
+      },
+      "feedback": {
+        "firstImpression": "When I opened this on my phone, I was pleasantly surprised by the clean design but quickly felt overwhelmed by the amount of information on the dashboard.",
+        "systemUsabilityScore": 75,
+        "delightedBy": [
+          "The Daily Quest Engine is really engaging and made me motivated to complete tasks.",
+          "I found the AI Assistant helpful whenever I felt lost, especially with navigating the different sections.",
+          "The visual representation of my learning activity with the heatmap is clear and encouraging."
+        ],
+        "confusedOrFrustratedBy": [
+          "The bottom navigation bar has too many tabs for me to easily remember what each one does.",
+          "I wasn't sure how to jump back to the dashboard quickly after exploring a different section.",
+          "Some terms like 'readiness index' and 'evidence cards' were confusing and I had to look them up."
+        ],
+        "mobileExperienceFeedback": "The mobile interface feels decent, but some tap targets are a bit small for my fingers, especially when trying to access the notifications. The AI Assistant is useful, but sometimes it covers important content when expanded.",
+        "verdict": "Has Minor Friction",
+        "topOneFeatureOrFixRequest": "I would want clearer explanations or tooltips for the more complex terms and features to help first-time users like me navigate better."
+      }
+    }
+  ],
+  "chaosStressResults": [
+    {
+      "test": "AI Chat Injection & Buffer Stress",
+      "status": 200,
+      "duration": 164,
+      "safeResponse": true
+    },
+    {
+      "test": "AI Chat 10x Concurrent Burst",
+      "allOk": true,
+      "duration": 4361,
+      "statuses": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ]
+    },
+    {
+      "test": "Payments Checkout Invalid Payload",
+      "status": 400,
+      "duration": 58,
+      "gracefulError": true
+    }
+  ]
+}

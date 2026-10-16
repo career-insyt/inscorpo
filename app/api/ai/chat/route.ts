@@ -12,11 +12,10 @@ const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 // OpenRouter model fallback list to guarantee 100% API uptime
 const OPENROUTER_MODELS = [
-  "google/gemini-2.0-flash-001",
-  "google/gemini-flash-1.5",
-  "meta-llama/llama-3.3-70b-instruct:free",
-  "deepseek/deepseek-r1:free",
+  "openai/gpt-4o-mini",
   "openai/gpt-3.5-turbo",
+  "meta-llama/llama-3.3-70b-instruct",
+  "google/gemini-2.0-flash-exp:free",
 ];
 
 // Zod Input Schema Validation
