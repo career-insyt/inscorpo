@@ -13,25 +13,22 @@ const features = [
     icon: Target,
     tag: "MODULE // 01 · TESTING",
     shadow: "#2563eb",
-    xpBadge: "+50 XP / TEST",
     span: "md:col-span-2",
   },
   {
     title: "Cryptographic Career Passport",
-    description: "Your verifiable talent ledger. W3C ED25519 signed skill credentials, tamper-proof project hashes, and recruiter-ready verified exports.",
+    description: "Your verifiable talent ledger. Cryptographically signed skill credentials, tamper-proof project hashes, and recruiter-ready verified exports.",
     icon: Shield,
     tag: "MODULE // 02 · IDENTITY",
     shadow: "#059669",
-    xpBadge: "VERIFIABLE W3C",
     span: "",
   },
   {
-    title: "Daily Quests & Streak Engine",
-    description: "Every action drives momentum. Daily missions, consecutive velocity streaks, XP multiplier bonuses, and tiered talent promotions.",
+    title: "Daily Practice & Streak Engine",
+    description: "Every action drives momentum. Daily practice missions, consecutive consistency streaks, skill acceleration, and tiered talent promotions.",
     icon: Flame,
-    tag: "MODULE // 03 · GAMIFICATION",
+    tag: "MODULE // 03 · DISCIPLINE",
     shadow: "#d97706",
-    xpBadge: "1.5x STREAK BOOST",
     span: "",
   },
   {
@@ -40,7 +37,6 @@ const features = [
     icon: Brain,
     tag: "MODULE // 04 · INTELLIGENCE",
     shadow: "#7c3aed",
-    xpBadge: "12 SPECIALIZED TOOLS",
     span: "md:col-span-2",
   },
   {
@@ -49,23 +45,21 @@ const features = [
     icon: BookOpen,
     tag: "MODULE // 05 · SIMULATION",
     shadow: "#0891b2",
-    xpBadge: "100% PRACTICAL",
     span: "",
   },
   {
-    title: "XP Rewards & Voucher Market",
-    description: "Redeem hard-earned talent XP for professional exam vouchers, resume review passes, mock interview tokens, and Pro membership tiers.",
+    title: "Career Vouchers & Certification Market",
+    description: "Redeem career perks for professional exam vouchers, resume review passes, mock interview tokens, and Pro membership tiers.",
     icon: ShoppingBag,
-    tag: "MODULE // 06 · ECONOMY",
+    tag: "MODULE // 06 · CERTIFICATIONS",
     shadow: "#e11d48",
-    xpBadge: "REDEEMABLE ASSETS",
     span: "",
   },
 ];
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="relative py-20 sm:py-28 overflow-hidden bg-[#F0F7FF] border-b-2 border-slate-900 font-mono">
+    <section id="features" className="hidden md:block relative py-20 sm:py-28 overflow-hidden bg-[#F0F7FF] border-b-2 border-slate-900 font-mono">
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-14 space-y-4">
@@ -78,7 +72,7 @@ export function FeaturesSection() {
             Built for Elite Corporate Competency.
           </h2>
           <p className="text-base sm:text-lg text-slate-700 font-sans font-normal leading-relaxed">
-            A comprehensive, gamified talent operating system structured around high-stakes corporate execution, verified skill credentials, and daily accountability.
+            A comprehensive talent operating system structured around high-stakes corporate execution, verified skill credentials, and daily accountability.
           </p>
         </div>
 
@@ -95,16 +89,10 @@ export function FeaturesSection() {
                 }}
               >
                 <div className="space-y-4">
-                  {/* Top Bar: Tag & XP Badge */}
+                  {/* Top Bar: Tag */}
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">
                       {feature.tag}
-                    </span>
-                    <span 
-                      className="text-[10px] font-black px-2 py-0.5 rounded border-2 border-slate-900 text-slate-950 shadow-[1px_1px_0px_0px_#0f172a]"
-                      style={{ backgroundColor: `${feature.shadow}25` }}
-                    >
-                      {feature.xpBadge}
                     </span>
                   </div>
 

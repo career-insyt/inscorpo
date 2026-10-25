@@ -1372,8 +1372,8 @@ export const ALL_PATHS: Record<string, LearningPathItem> = {
             tier: "Tier 1",
             name: "Self-Paced Track",
             target: "University Students & Self-Directed Learners",
-            priceBdt: 5999,
-            priceUsd: 49,
+            priceBdt: 0.01,
+            priceUsd: 0.01,
             features: [
               "Access to Modules 1 through 6 recorded masterclasses",
               "Downloadable practice workbooks (.xlsx) & starter files",
@@ -1385,8 +1385,8 @@ export const ALL_PATHS: Record<string, LearningPathItem> = {
             tier: "Tier 2",
             name: "Career Accelerator (Flagship)",
             target: "Final-Year Students, MTO Applicants & Junior Analysts",
-            priceBdt: 11999,
-            priceUsd: 98,
+            priceBdt: 0.01,
+            priceUsd: 0.01,
             features: [
               "Complete 10-Module curriculum (all 48 lessons)",
               "All 5 enterprise mini-project assignments with automated grading",
@@ -1399,8 +1399,8 @@ export const ALL_PATHS: Record<string, LearningPathItem> = {
             tier: "Tier 3",
             name: "Executive Cohort Fellowship",
             target: "Early-Career Analysts, Finance Executives & Career Pivoters",
-            priceBdt: 17999,
-            priceUsd: 148,
+            priceBdt: 0.01,
+            priceUsd: 0.01,
             features: [
               "Everything in Career Accelerator",
               "8 Live weekend masterclass labs with senior FP&A directors",

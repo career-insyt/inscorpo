@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { triggerFileDownload, SAMPLE_CASE_PLAYBOOK_TEXT } from "@/lib/utils/download-helper";
 import { AlertDialog } from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
+import { BKASH_CONFIG } from "@/lib/payments/bkash-config";
 
 interface MarketplaceItem {
   id: string;
@@ -379,9 +380,24 @@ export default function MarketplacePage() {
                   <div className="p-4 rounded-2xl bg-corp-bg-secondary space-y-3 border text-xs" style={{ borderColor: "var(--corp-border)" }}>
                     {["bkash", "nagad", "rocket", "upay"].includes(selectedGateway) && (
                       <div className="space-y-3">
-                        <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-[11px] space-y-1">
-                          <p className="font-bold text-corp-accent">Official Merchant Number: 01700-000000</p>
-                          <p className="text-corp-text-secondary">Please send {selectedItem.price} to our merchant number and paste your Transaction ID below.</p>
+                        <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-[11px] flex items-center gap-3">
+                          {selectedGateway === "bkash" && (
+                            <div className="w-8 h-8 rounded-lg bg-white p-0.5 flex items-center justify-center shrink-0 border border-slate-700">
+                              <img
+                                src={BKASH_CONFIG.LOGO_URL}
+                                alt="bKash"
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                          )}
+                          <div className="space-y-0.5 flex-1">
+                            <p className="font-bold text-corp-accent">
+                              {selectedGateway === "bkash" ? "Official bKash Account: " + BKASH_CONFIG.ACCOUNT_NUMBER : "Official Merchant Number: 01771047033"}
+                            </p>
+                            <p className="text-corp-text-secondary">
+                              Please send {selectedItem.price} via {selectedGateway === "bkash" ? "Send Money" : "payment"} and paste your Transaction ID below.
+                            </p>
+                          </div>
                         </div>
                         <div>
                           <label className="block font-bold mb-1" style={{ color: "var(--corp-text)" }}>Your {selectedGateway.toUpperCase()} Mobile Number *</label>

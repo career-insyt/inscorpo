@@ -93,7 +93,17 @@ async function processSync(fileFilter?: string | null) {
   };
 }
 
+function isAuthorizedSync(req: Request): boolean {
+  const adminSecret = req.headers.get("x-admin-secret");
+  const expectedSecret = process.env.ADMIN_SECRET_KEY;
+  if (!expectedSecret) return false;
+  return Boolean(adminSecret && adminSecret === expectedSecret);
+}
+
 export async function GET(req: Request) {
+  if (!isAuthorizedSync(req)) {
+    return NextResponse.json({ error: "Unauthorized access. x-admin-secret required." }, { status: 401 });
+  }
   try {
     const { searchParams } = new URL(req.url);
     const file = searchParams.get("file");
@@ -105,6 +115,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  if (!isAuthorizedSync(req)) {
+    return NextResponse.json({ error: "Unauthorized access. x-admin-secret required." }, { status: 401 });
+  }
   try {
     let file: string | null = null;
     try {

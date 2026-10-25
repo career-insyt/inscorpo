@@ -201,27 +201,6 @@ export default function MockInterviewChatPage() {
     };
   }, [interviewStarted, interviewFinished]);
 
-  // ── Periodic Gaze & Posture AI Monitor Simulation ──
-  useEffect(() => {
-    if (!interviewStarted || interviewFinished) return;
-
-    const interval = setInterval(() => {
-      const rand = Math.random();
-      if (rand < 0.12) {
-        setGazeStatus("Looking Away");
-        setProctorWarningToast("Gaze Warning: Candidate looking away from screen.");
-        setTimeout(() => {
-          setGazeStatus("Verified");
-          setProctorWarningToast(null);
-        }, 3500);
-      } else if (rand > 0.90) {
-        setPostureStatus("Checking Notes");
-        setTimeout(() => setPostureStatus("Executive Posture"), 4000);
-      }
-    }, 12000);
-
-    return () => clearInterval(interval);
-  }, [interviewStarted, interviewFinished]);
 
   // ── Fullscreen Handlers ──
   const toggleFullscreen = () => {

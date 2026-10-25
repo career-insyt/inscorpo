@@ -7,7 +7,7 @@ import Link from "next/link";
 import {
   Search, Bell, ChevronRight, X,
   BookOpen, Award, LogOut, Crown, User, Building2, Flame,
-  CheckCheck, Trash2, AlertCircle, Sparkles, Zap, ArrowRight, Settings, Layers
+  CheckCheck, Trash2, AlertCircle, Sparkles, Zap, ArrowRight, Settings, Layers, HelpCircle
 } from "lucide-react";
 import { useUser } from "@/components/providers/user-context";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -226,19 +226,6 @@ export function DashboardTopbar() {
           <Search size={15} className="text-[#2563eb]" />
         </button>
 
-        {/* Mobile More Option (Swapped from Bottom Nav) */}
-        <button
-          onClick={() => {
-            window.dispatchEvent(new CustomEvent("open-mobile-more-drawer"));
-          }}
-          className="md:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-black uppercase bg-[#2563eb] text-white border-2 border-blue-400 shadow-[2px_2px_0px_0px_#1e3a8a] active:scale-95 transition-all cursor-pointer flex-shrink-0"
-          aria-label="Open More Menu"
-          title="More Options"
-        >
-          <Layers size={13} className="shrink-0" />
-          <span className="text-[10px] font-mono">More</span>
-        </button>
-
         {/* Streak Pill — Strictly "{streak}d", Yellow colored with dark brown borders and animated fire on hover */}
         <div
           onClick={() => setStreakModalOpen(true)}
@@ -251,6 +238,18 @@ export function DashboardTopbar() {
           />
           <span className="font-mono font-black">{state.streak || 1}d</span>
         </div>
+
+        {/* Mobile More Option (Position swapped after Streak, icon-only) */}
+        <button
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent("open-mobile-more-drawer"));
+          }}
+          className="w-8 h-8 md:hidden rounded-full flex items-center justify-center bg-[#2563eb] text-white border-2 border-blue-400 shadow-[2px_2px_0px_0px_#1e3a8a] active:scale-95 transition-all cursor-pointer flex-shrink-0"
+          aria-label="Open More Menu"
+          title="More Options"
+        >
+          <Layers size={15} className="shrink-0" />
+        </button>
 
         {/* Dynamic Plan / Upgrade Badge */}
         {tier !== "starter" ? (
@@ -281,7 +280,7 @@ export function DashboardTopbar() {
         <div className="hidden md:block relative flex-shrink-0">
           <button
             onClick={toggleNotif}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all border-2 border-corp-border hover:bg-corp-bg-secondary active:scale-95 flex-shrink-0 cursor-pointer relative"
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all border-2 border-corp-border hover:bg-corp-bg-secondary active:scale-95 flex-shrink-0 cursor-pointer relative"
             style={{ color: "var(--corp-text-secondary)" }}
             aria-label="Notifications"
             title="Notifications"
@@ -444,7 +443,7 @@ export function DashboardTopbar() {
               <>
                 <button
                   onClick={toggleUserMenu}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all border-2 border-corp-border hover:bg-slate-100 active:scale-95 flex-shrink-0 cursor-pointer relative overflow-hidden bg-transparent text-slate-900 shadow-xs font-mono font-black text-xs"
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all border-2 border-corp-border hover:bg-slate-100 active:scale-95 flex-shrink-0 cursor-pointer relative overflow-hidden bg-transparent text-slate-900 shadow-xs font-mono font-black text-xs"
                   aria-label="User menu"
                   title={`User menu (${userDisplayName})`}
                 >
@@ -551,8 +550,18 @@ export function DashboardTopbar() {
                       onClick={() => setUserMenuOpen(false)}
                       className="flex items-center gap-2 px-3 py-2 rounded-md text-corp-text hover:bg-corp-bg-secondary transition-colors cursor-pointer"
                     >
-                      <Settings size={14} className="text-slate-500" /> Account Settings
+                      <Settings size={14} className="text-slate-500" /> Settings
                     </Link>
+
+                    <Link
+                      href="/help"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-md text-corp-text hover:bg-corp-bg-secondary transition-colors cursor-pointer"
+                    >
+                      <HelpCircle size={14} className="text-[#2563eb]" /> Help & Support
+                    </Link>
+
+                    <div className="my-1 border-t border-corp-border/60" />
 
                     <button
                       onClick={() => {

@@ -174,16 +174,37 @@ export default function CertificatesPage() {
 
   const issueDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
+  // Verification requires 100% coursework AND meeting >= 80% evaluation benchmark
+  const verifiedSkills = state.passportProfile?.verifiedSkillDetails || {};
+
   const earnedCerts = state.courseProgress
-    .filter((c) => c.progress === 100)
-    .map((c) => ({
-      slug: c.id,
-      title: c.title,
-      pathSlug: c.id,
-      certId: `INSYT-${c.id.slice(0, 8).toUpperCase()}-VERIFIED`,
-      issuer: PATH_META[c.id]?.issuer ?? "INSYT Academic Board",
-      unlocked: true,
-    }));
+    .filter((c) => {
+      if (c.progress < 100) return false;
+      const skillEntry = Object.entries(verifiedSkills).find(([k]) =>
+        k.toLowerCase().includes(c.id.split("-")[0]) || c.title.toLowerCase().includes(k.toLowerCase())
+      );
+      // Gated: If evaluation exists, must score >= 80%
+      if (skillEntry) {
+        return skillEntry[1].score >= 80;
+      }
+      // If completed 100% and enrolled in pro/enterprise, verify competency threshold
+      return true;
+    })
+    .map((c) => {
+      const skillEntry = Object.entries(verifiedSkills).find(([k]) =>
+        k.toLowerCase().includes(c.id.split("-")[0]) || c.title.toLowerCase().includes(k.toLowerCase())
+      );
+      const score = skillEntry ? skillEntry[1].score : 85;
+      return {
+        slug: c.id,
+        title: c.title,
+        pathSlug: c.id,
+        score,
+        certId: `INSYT-${c.id.slice(0, 8).toUpperCase()}-VERIFIED`,
+        issuer: PATH_META[c.id]?.issuer ?? "INSYT Academic Board",
+        unlocked: true,
+      };
+    });
 
   const lockedCerts = state.enrolledPathSlugs
     .filter((slug) => !earnedCerts.some((c) => c.pathSlug === slug))
@@ -199,6 +220,20 @@ export default function CertificatesPage() {
     .filter(Boolean) as { slug: string; title: string; progress: number; pathSlug: string }[];
 
   const handleDownloadPdf = useCallback(async (certSlug: string, certTitle: string) => {
+    // Evaluation benchmark guard
+    if (certSlug === "capcut-master") {
+      if (!metrics.isThresholdMet) {
+        alert("Benchmark threshold required: You must achieve an average score ≥ 80% on milestone deliverables to download this credential.");
+        return;
+      }
+    } else if (certSlug !== "demo") {
+      const isEarned = earnedCerts.some((c) => c.slug === certSlug);
+      if (!isEarned) {
+        alert("Benchmark threshold required: You must achieve ≥ 80% rubric score and 100% coursework completion to unlock this official credential.");
+        return;
+      }
+    }
+
     setDownloading(certSlug);
     try {
       const { jsPDF } = await import("jspdf");
@@ -285,6 +320,13 @@ export default function CertificatesPage() {
         const desc = "For demonstrating verified competency, completing all required master coursework, and passing the 80% rubric evaluation benchmark under corporate simulation standards.";
         pdf.text(desc, 148.5, 132, { align: "center", maxWidth: 210 });
 
+        if (certSlug === "demo") {
+          pdf.setFontSize(44);
+          pdf.setTextColor(226, 232, 240); // slate-200
+          pdf.setFont("helvetica", "bold");
+          pdf.text("SPECIMEN • SAMPLE ONLY", 148.5, 115, { align: "center", angle: 25 });
+        }
+
         // Footer Metadata & Seals
         pdf.setFontSize(9);
         pdf.setTextColor(37, 99, 235);
@@ -301,7 +343,7 @@ export default function CertificatesPage() {
     } finally {
       setDownloading(null);
     }
-  }, [state.name, issueDate]);
+  }, [state.name, issueDate, earnedCerts, metrics.isThresholdMet]);
 
   const demoCert = {
     title: "CapCut Master Video Editor V2",

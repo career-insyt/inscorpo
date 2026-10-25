@@ -87,8 +87,8 @@ const flagshipCourses = [
     stageCount: 3,
     totalHours: 24,
     totalModules: 18,
-    pricePerStage: "৳990",
-    fullCoursePass: "৳2,990",
+    pricePerStage: "৳0.01",
+    fullCoursePass: "৳0.01",
     uniqueFeature: "FMCG Commercial Capstone",
     uniqueFeatureDesc: "Build an auditable operating model with P&L, working capital and KPI dashboard",
     icon: FileSpreadsheet,
@@ -202,17 +202,6 @@ const flagshipCourses = [
   },
 ];
 
-/* ═══════════════════════════════════════════════════════════════
-   Universal Lesson Template (Consensus across all 3 audits)
-   ═══════════════════════════════════════════════════════════════ */
-const lessonRhythm = [
-  { step: "01", title: "Hook Scenario", desc: "Real business problem sets context", time: "2 min", icon: Lightbulb },
-  { step: "02", title: "Concept Clip", desc: "Focused 3-5 minute video demonstration", time: "5 min", icon: Play },
-  { step: "03", title: "Live Demo", desc: "Side-by-side walkthrough of technique", time: "5 min", icon: Monitor },
-  { step: "04", title: "Guided Practice", desc: "Scaffolded task with error checking", time: "10 min", icon: Target },
-  { step: "05", title: "Independent Challenge", desc: "Build your own artifact from scratch", time: "15 min", icon: Zap },
-  { step: "06", title: "Auto-Feedback", desc: "Server-validated diagnostic with instant results", time: "3 min", icon: CheckCircle2 },
-];
 
 /* ═══════════════════════════════════════════════════════════════
    PAGE COMPONENT
@@ -413,45 +402,6 @@ export default function LearnHubPage() {
         </div>
       </div>
 
-      {/* ═══════════ UNIVERSAL LESSON RHYTHM (Scientific Pedagogy) ═══════════ */}
-      <div className="rounded-xl p-5 sm:p-6 border-2 border-amber-500 bg-amber-500/5 space-y-4 font-mono">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <span className="px-2.5 py-0.5 rounded text-[10px] font-black uppercase bg-amber-500 text-amber-950">
-              Evidence-Backed Pedagogy
-            </span>
-            <h3 className="text-sm sm:text-base font-black uppercase text-corp-text mt-1">
-              Every Lesson Follows This Rhythm
-            </h3>
-            <p className="text-xs font-sans text-corp-text-secondary font-medium">
-              Based on Sweller&apos;s Cognitive Load Theory, Ericsson&apos;s Deliberate Practice, and Bloom&apos;s Revised Taxonomy (Deng &amp; Gao, 2023; Fyfield et al., 2022):
-            </p>
-          </div>
-          <span className="text-xs font-bold text-amber-600 font-mono flex-shrink-0">
-            ~40 Min Active Learning / Session
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-          {lessonRhythm.map((step) => {
-            const StepIcon = step.icon;
-            return (
-              <div
-                key={step.step}
-                className="p-2.5 rounded-lg border border-amber-500/30 bg-corp-surface space-y-1"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black font-mono text-amber-600">{step.step}</span>
-                  <StepIcon size={12} className="text-amber-500" />
-                </div>
-                <p className="text-[10px] font-black uppercase font-mono text-corp-text leading-tight">{step.title}</p>
-                <p className="text-[9px] font-sans font-medium text-corp-text-tertiary leading-tight">{step.desc}</p>
-                <p className="text-[9px] font-mono font-bold text-amber-600">{step.time}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
     </div>
   );
 }

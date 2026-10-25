@@ -4,12 +4,12 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Building2, GraduationCap, Banknote, Calendar, ShieldCheck,
-  Sparkles, CheckCircle2, AlertCircle, ExternalLink, Award,
+  Sparkles, ExternalLink,
   TrendingUp, Compass, Check, Tag, ArrowRight
 } from "lucide-react";
 import Link from "next/link";
 import {
-  GovJob, checkDegreeEligibility, calculateGovJobSkillGap,
+  GovJob, calculateGovJobSkillGap,
   getSkillBundles
 } from "@/lib/data/gov-jobs-db";
 import { CompanyLogo } from "./company-logo";
@@ -31,14 +31,12 @@ const ORG_BRAND_BG: Record<string, string> = {
 };
 
 export function GovJobModal({ job, onClose }: GovJobModalProps) {
-  const [userDegreeInput, setUserDegreeInput] = useState("");
   const [selectedUserSkills, setSelectedUserSkills] = useState<string[]>([]);
   const [showCvFit, setShowCvFit] = useState(false);
   const skillBundles = getSkillBundles();
 
   if (!job) return null;
 
-  const eligibility = checkDegreeEligibility(job, userDegreeInput || undefined);
   const skillGap = calculateGovJobSkillGap(job, selectedUserSkills);
   const brandBg = ORG_BRAND_BG[job.organizationAcronym] || "bg-[#2563eb] text-white";
 
@@ -152,44 +150,6 @@ export function GovJobModal({ job, onClose }: GovJobModalProps) {
               </div>
             </div>
 
-            {/* Degree Eligibility Checker — Sky Blue Accent */}
-            <div className="p-5 rounded-md border-2 border-sky-400 shadow-[3px_3px_0px_0px_#0284c7] bg-corp-bg-secondary">
-              <h3 className="text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-2 text-corp-text">
-                <Sparkles className="w-4 h-4 text-sky-500" />
-                INSYT Degree Match Engine
-              </h3>
-              <div className="flex flex-col sm:flex-row gap-2 mb-3">
-                <input
-                  type="text"
-                  placeholder="Type your degree (e.g. Agriculture, Library Science, Civil, Statistics)..."
-                  value={userDegreeInput}
-                  onChange={(e) => setUserDegreeInput(e.target.value)}
-                  className="flex-1 px-4 py-2.5 rounded-md border-2 border-blue-400 text-xs font-mono font-extrabold outline-none focus:border-[#2563eb] transition-all bg-corp-surface text-corp-text"
-                />
-              </div>
-
-              {userDegreeInput && (
-                <div className="p-3.5 rounded-md border-2 border-blue-400 text-xs flex items-start gap-2 bg-corp-surface">
-                  {eligibility.status === "HIGHLY_RECOMMENDED" && (
-                    <CheckCircle2 className="w-4 h-4 text-[#2563eb] shrink-0 mt-0.5" />
-                  )}
-                  {eligibility.status === "POTENTIALLY_ELIGIBLE" && (
-                    <Award className="w-4 h-4 text-sky-500 shrink-0 mt-0.5" />
-                  )}
-                  {eligibility.status === "NEEDS_CHECK" && (
-                    <AlertCircle className="w-4 h-4 text-sky-500 shrink-0 mt-0.5" />
-                  )}
-                  <div className="font-sans">
-                    <div className="font-bold text-corp-text">{eligibility.notes}</div>
-                    {eligibility.matchedDegrees.length > 0 && (
-                      <div className="mt-1 text-corp-text-tertiary">
-                        Matched Domain: {eligibility.matchedDegrees.join(", ")}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
 
             {/* Pre-Joining & Post-Joining Skill Intelligence */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

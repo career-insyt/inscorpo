@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { execSync } from "child_process";
+import { execFileSync, execSync } from "child_process";
 import fs from "fs";
 import path from "path";
 
 const AUTHORIZED_OWNERS = ["career@insyt.bd", "insyt.bd@gmail.com"];
-const REPO_URL = "https://github.com/insytbd-design/inscorpo.git";
-const TOKEN_FILE = path.join(process.cwd(), ".git_token");
-const ENV_LOCAL_FILE = path.join(process.cwd(), ".env.local");
+const REPO_URL = "https://github.com/career-insyt/inscorpo.git";
 
 function getGitExecutable(): string {
   try {
-    execSync("git --version", { stdio: "ignore" });
+    execFileSync("git", ["--version"], { stdio: "ignore" });
     return "git";
   } catch {
     const minGit = "C:\\Users\\Taba\\mingit\\cmd\\git.exe";
@@ -20,76 +18,33 @@ function getGitExecutable(): string {
 }
 
 function getStoredToken(): string {
-  // 1. Process environment
+  // 1. Process environment only — never plaintext disk files
   if (process.env.GITHUB_TOKEN?.trim()) return process.env.GITHUB_TOKEN.trim();
   if (process.env.GITHUB_PAT?.trim()) return process.env.GITHUB_PAT.trim();
-
-  // 2. .git_token file (gitignored)
-  if (fs.existsSync(TOKEN_FILE)) {
-    try {
-      const token = fs.readFileSync(TOKEN_FILE, "utf-8").trim();
-      if (token) return token;
-    } catch {}
-  }
-
-  // 3. .env.local file
-  if (fs.existsSync(ENV_LOCAL_FILE)) {
-    try {
-      const content = fs.readFileSync(ENV_LOCAL_FILE, "utf-8");
-      const match = content.match(/GITHUB_TOKEN=["']?([^"'\r\n]+)["']?/);
-      if (match && match[1]?.trim()) return match[1].trim();
-    } catch {}
-  }
-
   return "";
 }
 
-function saveToken(token: string) {
-  if (!token) return;
-  try {
-    fs.writeFileSync(TOKEN_FILE, token.trim(), "utf-8");
-  } catch {}
-
-  try {
-    let envContent = "";
-    if (fs.existsSync(ENV_LOCAL_FILE)) {
-      envContent = fs.readFileSync(ENV_LOCAL_FILE, "utf-8");
-    }
-    if (envContent.includes("GITHUB_TOKEN=")) {
-      envContent = envContent.replace(/GITHUB_TOKEN=.*(\r?\n|$)/g, `GITHUB_TOKEN="${token.trim()}"$1`);
-    } else {
-      envContent += `\nGITHUB_TOKEN="${token.trim()}"\n`;
-    }
-    fs.writeFileSync(ENV_LOCAL_FILE, envContent, "utf-8");
-  } catch {}
-}
-
-function verifyAuthorization(req: NextRequest, bodyEmail?: string): boolean {
-  // Check cookie
-  const cookieEmail = req.cookies.get("insyt_admin_email")?.value;
-  if (cookieEmail && AUTHORIZED_OWNERS.includes(decodeURIComponent(cookieEmail).toLowerCase().trim())) {
-    return true;
+function verifyAuthorization(req: NextRequest): boolean {
+  // 1. Block in production environments unless explicitly enabled
+  if (process.env.NODE_ENV === "production" && process.env.ALLOW_PROD_GIT_PUSH !== "true") {
+    return false;
   }
 
-  // Check header
-  const headerEmail = req.headers.get("x-user-email");
-  if (headerEmail && AUTHORIZED_OWNERS.includes(headerEmail.toLowerCase().trim())) {
-    return true;
+  // 2. Strict secret header check — fail closed if ADMIN_SECRET_KEY is undefined
+  const adminSecret = req.headers.get("x-admin-secret");
+  const expectedSecret = process.env.ADMIN_SECRET_KEY;
+  if (!expectedSecret || adminSecret !== expectedSecret) {
+    return false;
   }
 
-  // Check body email
-  if (bodyEmail && AUTHORIZED_OWNERS.includes(bodyEmail.toLowerCase().trim())) {
-    return true;
-  }
-
-  return false;
+  return true;
 }
 
 // GET: Query repository status
 export async function GET(req: NextRequest) {
   if (!verifyAuthorization(req)) {
     return NextResponse.json(
-      { error: "Unauthorized. This endpoint is strictly restricted to account owner career@insyt.bd." },
+      { error: "Unauthorized. Git repository control requires a valid x-admin-secret matching ADMIN_SECRET_KEY." },
       { status: 403 }
     );
   }
@@ -98,14 +53,14 @@ export async function GET(req: NextRequest) {
   const cwd = process.cwd();
 
   try {
-    const branch = execSync(`"${git}" rev-parse --abbrev-ref HEAD`, { cwd }).toString().trim();
-    const lastCommit = execSync(`"${git}" log -1 --oneline`, { cwd }).toString().trim();
-    const statusRaw = execSync(`"${git}" status --porcelain`, { cwd }).toString().trim();
+    const branch = execFileSync(git, ["rev-parse", "--abbrev-ref", "HEAD"], { cwd }).toString().trim();
+    const lastCommit = execFileSync(git, ["log", "-1", "--oneline"], { cwd }).toString().trim();
+    const statusRaw = execFileSync(git, ["status", "--porcelain"], { cwd }).toString().trim();
     const uncommittedFiles = statusRaw ? statusRaw.split("\n").map((f) => f.trim()) : [];
 
     let commitsAhead = 0;
     try {
-      const aheadStr = execSync(`"${git}" rev-list --count origin/main..HEAD`, { cwd }).toString().trim();
+      const aheadStr = execFileSync(git, ["rev-list", "--count", "origin/main..HEAD"], { cwd }).toString().trim();
       commitsAhead = parseInt(aheadStr, 10) || 0;
     } catch {
       commitsAhead = 0;
@@ -133,44 +88,40 @@ export async function GET(req: NextRequest) {
 
 // POST: Trigger git commit & push
 export async function POST(req: NextRequest) {
-  let body: any = {};
-  try {
-    body = await req.json();
-  } catch {}
-
-  const userEmail = body.userEmail;
-  if (!verifyAuthorization(req, userEmail)) {
+  if (!verifyAuthorization(req)) {
     return NextResponse.json(
       { error: "Unauthorized. This endpoint is strictly restricted to account owner career@insyt.bd." },
       { status: 403 }
     );
   }
 
+  let body: any = {};
+  try {
+    body = await req.json();
+  } catch {}
+
   const git = getGitExecutable();
   const cwd = process.cwd();
   const logs: string[] = [];
-
-  // If a new token is provided, store it
-  if (body.githubToken?.trim()) {
-    saveToken(body.githubToken.trim());
-  }
 
   const activeToken = body.githubToken?.trim() || getStoredToken();
 
   try {
     logs.push("🔍 Checking working tree status...");
-    const statusRaw = execSync(`"${git}" status --porcelain`, { cwd }).toString().trim();
+    const statusRaw = execFileSync(git, ["status", "--porcelain"], { cwd }).toString().trim();
 
     if (statusRaw) {
       logs.push(`📦 Found uncommitted changes (${statusRaw.split("\n").length} files). Staging...`);
-      execSync(`"${git}" add -A`, { cwd });
+      execFileSync(git, ["add", "-A"], { cwd });
       logs.push("✅ Staged all updates (git add -A)");
 
       const defaultMsg = `feat(auto-sync): updates pushed by admin ${new Date().toISOString()}`;
-      const commitMsg = (body.commitMessage?.trim() || defaultMsg).replace(/"/g, '\\"');
+      // Sanitize commit message to prevent shell metacharacters and single-line constraint
+      const rawMsg = typeof body.commitMessage === "string" ? body.commitMessage.trim() : "";
+      const safeMsg = (rawMsg.replace(/[\r\n]+/g, " ").slice(0, 150)) || defaultMsg;
 
       try {
-        const commitOut = execSync(`"${git}" commit -m "${commitMsg}"`, { cwd }).toString().trim();
+        const commitOut = execFileSync(git, ["commit", "-m", safeMsg], { cwd }).toString().trim();
         logs.push(`📝 Committed: ${commitOut.split("\n")[0]}`);
       } catch (commitErr: any) {
         logs.push(`ℹ️ No changes needed to commit: ${commitErr.message}`);
@@ -181,27 +132,27 @@ export async function POST(req: NextRequest) {
 
     // Configure user identity if not already set
     try {
-      execSync(`"${git}" config user.name "INSYT"`, { cwd });
-      execSync(`"${git}" config user.email "career@insyt.bd"`, { cwd });
+      execFileSync(git, ["config", "user.name", "INSYT"], { cwd });
+      execFileSync(git, ["config", "user.email", "career@insyt.bd"], { cwd });
     } catch {}
 
     // Push to GitHub
     logs.push("🚀 Pushing to GitHub remote (branch: main)...");
-    let pushCommand = `"${git}" push origin main`;
+    let pushArgs = ["push", "origin", "main"];
 
     if (activeToken) {
-      const authenticatedUrl = `https://${activeToken}@github.com/insytbd-design/inscorpo.git`;
-      pushCommand = `"${git}" push "${authenticatedUrl}" main`;
+      const authenticatedUrl = `https://${activeToken}@github.com/career-insyt/inscorpo.git`;
+      pushArgs = ["push", authenticatedUrl, "main"];
       logs.push("🔑 Using authorized GitHub Personal Access Token...");
     } else {
       logs.push("🌐 Using configured Git credential manager...");
     }
 
-    const pushOutput = execSync(pushCommand, { cwd, stdio: "pipe" }).toString().trim();
+    const pushOutput = execFileSync(git, pushArgs, { cwd, stdio: "pipe" }).toString().trim();
     logs.push("🎉 Push completed successfully!");
     if (pushOutput) logs.push(pushOutput);
 
-    const latestCommit = execSync(`"${git}" log -1 --oneline`, { cwd }).toString().trim();
+    const latestCommit = execFileSync(git, ["log", "-1", "--oneline"], { cwd }).toString().trim();
 
     // Trigger Netlify deploy hook if configured
     const netlifyHook = process.env.NETLIFY_BUILD_HOOK || process.env.NETLIFY_DEPLOY_HOOK;

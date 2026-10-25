@@ -7,6 +7,8 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { account } from "@/lib/appwrite";
 import { syncUserProfile, fetchTasks, fetchEvents, fetchCommunityPosts } from "@/lib/db";
 import { generateId } from "@/lib/id";
+import { isFreeAccessUser } from "@/lib/auth/whitelist";
+import { sha256Sync } from "@/lib/utils/sha256";
 
 type UserContextType = {
   state: UserState;
@@ -105,24 +107,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     lastCheckInRef.current = state.lastCheckInDate;
   }, [state.lastCheckInDate]);
 
-  // ─── Instant LocalStorage Sync for Enrollment State & Subscription Tier ───
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("insyt_enrolled_paths");
-      const storedTier = localStorage.getItem("insyt_subscription_tier");
-      const clean = stored
-        ? (JSON.parse(stored) as string[]).filter((s) => s && s !== "corporate-mto" && s !== "excel-corporate")
-        : [];
-      setState((prev) => ({
-        ...prev,
-        ...(clean.length ? { enrolledPathSlugs: Array.from(new Set([...prev.enrolledPathSlugs, ...clean])) } : {}),
-        ...(storedTier ? { subscriptionTier: storedTier as any } : {}),
-      }));
-    } catch {
-      // fallback
-    }
-  }, []);
-
   // ─── Load from Appwrite Preferences ───────────────────────────────────────
 
   useEffect(() => {
@@ -188,7 +172,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             recentBadges: resolvedBadges,
             communityPosts: dbCommunityPosts,
             passportProfile: prefs.passportProfile ?? (typeof window !== "undefined" ? JSON.parse(localStorage.getItem("insyt_passport_profile") || "null") : undefined) ?? undefined,
-            enrolledPathSlugs: cleanEnrolled.length ? cleanEnrolled : ["excel-modeling"],
+            enrolledPathSlugs: isFreeAccessUser(user.email)
+              ? Array.from(new Set([...cleanEnrolled, "corporate-financial-commercial-modeling-excel", "excel-modeling"]))
+              : cleanEnrolled,
             lastCheckInDate: prefs.lastCheckInDate ?? undefined,
             lastNameChangeDate: prefs.lastNameChangeDate ?? (typeof window !== "undefined" ? localStorage.getItem("insyt_last_name_change_date") : null) ?? undefined,
             redeemedVouchers: prefs.redeemedVouchers ?? [],
@@ -197,12 +183,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             completedChecklistTaskIds: prefs.completedChecklistTaskIds ?? [],
             careerGoals: prefs.careerGoals ?? [],
             experienceLevel: prefs.experienceLevel ?? "",
-            subscriptionTier: prefs.subscriptionTier || (typeof window !== "undefined" ? (localStorage.getItem("insyt_subscription_tier") as any) : null) || "starter",
+            subscriptionTier: prefs.subscriptionTier || "starter",
             subscriptionStatus: prefs.subscriptionStatus ?? "active",
           });
 
         } else {
           // Fresh user — initialize defaults
+          const isWhitelistedFresh = isFreeAccessUser(user.email);
           const freshState: UserState = {
             ...INITIAL_USER_STATE,
             name: user.name || INITIAL_USER_STATE.name,
@@ -215,7 +202,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             upcomingEvents: dbEvents,
             recentBadges: INITIAL_USER_STATE.recentBadges,
             communityPosts: dbCommunityPosts,
-            enrolledPathSlugs: ["excel-modeling"],
+            enrolledPathSlugs: isWhitelistedFresh ? ["corporate-financial-commercial-modeling-excel", "excel-modeling"] : [],
             completedChecklistTaskIds: [],
             careerGoals: prefs.careerGoals ?? [],
             experienceLevel: prefs.experienceLevel ?? "",
@@ -463,7 +450,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       if (typeof window !== "undefined") {
         try {
           localStorage.setItem("insyt_last_name_change_date", nowIso);
-        } catch {}
+        } catch (e) {
+          console.warn("[UserContext Storage]: Failed to cache last name change date", e);
+        }
       }
     } catch (err) {
       console.error("Failed to update profile name in Appwrite:", err);
@@ -471,7 +460,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       if (typeof window !== "undefined") {
         try {
           localStorage.setItem("insyt_last_name_change_date", nowIso);
-        } catch {}
+        } catch (e) {
+          console.warn("[UserContext Storage]: Failed to cache last name change date fallback", e);
+        }
       }
     }
   };
@@ -557,8 +548,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       const nextSlugs = [...prev.enrolledPathSlugs, slug];
       try {
         localStorage.setItem("insyt_enrolled_paths", JSON.stringify(nextSlugs));
-      } catch {
-        // storage fallback
+      } catch (err) {
+        console.warn("[UserContext Storage]: Failed to persist enrolled paths to localStorage", err);
       }
       const newNotif = {
         id: generateId("notif"),
@@ -789,6 +780,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       if (score >= 60 && updatedPassport) {
         const skillName = title ? title.replace(/Assessment|Mock|Benchmark|Drill/gi, "").trim() : "Corporate Analytics";
         const currentVerified = updatedPassport.verifiedSkillDetails || {};
+        const verificationPayload = `${prev.email || prev.username || "candidate"}:${testId}:${score}:${todayStr}`;
+        const authenticHash = `urn:sha256:${sha256Sync(verificationPayload)}`;
         updatedPassport = {
           ...updatedPassport,
           verifiedSkillDetails: {
@@ -797,7 +790,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
               verified: true,
               score,
               verifiedAt: todayStr,
-              hash: `INSYT-${testId.toUpperCase()}-${Date.now().toString(36).toUpperCase()}`,
+              hash: authenticHash,
             },
           },
         };
@@ -826,7 +819,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       const parsed = JSON.parse(raw);
       parsed.unshift({ testId, score, date: todayStr, timestamp: Date.now() });
       localStorage.setItem("insyt_mock_test_results", JSON.stringify(parsed));
-    } catch {}
+    } catch (err) {
+      console.warn("[UserContext Storage]: Failed to save mock test results to localStorage", err);
+    }
   };
 
   const completeLesson = (courseId: string, lessonSlug: string, lessonTitle?: string, xp: number = 50) => {
@@ -882,7 +877,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       const parsed = JSON.parse(raw);
       if (!parsed.includes(lessonSlug)) parsed.push(lessonSlug);
       localStorage.setItem("insyt_completed_lessons_list", JSON.stringify(parsed));
-    } catch {}
+    } catch (err) {
+      console.warn("[UserContext Storage]: Failed to save completed lesson to localStorage", err);
+    }
   };
 
   const updateSubscriptionTier = async (
@@ -935,8 +932,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     try {
       localStorage.setItem("insyt_subscription_tier", tier);
       localStorage.setItem("insyt_subscription_status", status);
-    } catch {
-      // storage fallback
+    } catch (err) {
+      console.warn("[UserContext Storage]: Failed to save subscription tier to localStorage", err);
     }
 
     // 3. Persist to Appwrite account preferences & database user collection

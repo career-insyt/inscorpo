@@ -31,12 +31,29 @@ export function CvFitModal({ isOpen, job, onClose }: CvFitModalProps) {
   const [isAnalyzed, setIsAnalyzed] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<CvFitResult | null>(null);
 
-  // Esc key listener
+  // Esc & Tab key listener (Focus trapping - UX-08)
   useEffect(() => {
     if (isOpen === false) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose();
+      }
+      if (e.key === "Tab") {
+        const modal = document.getElementById("cv-fit-modal-container");
+        if (!modal) return;
+        const focusable = modal.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -86,10 +103,15 @@ export function CvFitModal({ isOpen, job, onClose }: CvFitModalProps) {
           source_confidence: "VERIFIED_GOVT_CIRCULAR",
         };
 
+    const verifiedSkills = Object.entries(passportProfile.verifiedSkillDetails || {})
+      .filter(([_, v]: any) => v.verified)
+      .map(([k]: any) => k);
+
     // Run AI / Rule Engine analysis
     const result = analyzeCvFit(govJobForAnalysis, {
       degree: customDegree,
       skills: skillsArray,
+      verifiedSkills,
     });
 
     setAnalysisResult(result);
@@ -116,6 +138,7 @@ export function CvFitModal({ isOpen, job, onClose }: CvFitModalProps) {
         className="fixed inset-0 z-[99999] flex items-center justify-center p-4 overflow-y-auto bg-black/60 backdrop-blur-md font-mono"
       >
         <motion.div
+          id="cv-fit-modal-container"
           onClick={(e) => e.stopPropagation()}
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}

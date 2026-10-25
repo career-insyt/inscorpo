@@ -19,7 +19,8 @@
         "application_mode": "Online via Teletalk",
         "application_fee": "56/112/168/223 BDT depending on grade",
         "selection": "Written; practical where applicable; oral",
-        "source": "The supplied BARI circular contains the full 30-category table; the official BARI Teletalk portal confirms circular ref 12.21.0000.000.005.11.0004.25.3447 dated 11-03-2026 and application dates.  ([Bari Teletalk][1])"
+        "source": "The supplied BARI circular contains the full 30-category table; the official BARI Teletalk portal (http://bari.teletalk.com.bd) confirms circular ref 12.21.0000.000.005.11.0004.25.3447 dated 11-03-2026 and application dates.",
+        "portal_url": "http://bari.teletalk.com.bd"
       },
       "institutional_career_intelligence": {
         "high_value_degree_domains": [
@@ -675,7 +676,11 @@
         "total_vacancies": 47,
         "age": "18-30 generally; specified quota relaxations",
         "application_mode": "Online via Teletalk",
-        "source": "Supplied BINA circular and independent reproduction both show 13 categories and 47 vacancies.  ([Bangla Cyber][2])"
+        "source": "Supplied BINA circular (2023) and independent reproduction both show 13 categories and 47 vacancies. Official BINA Teletalk portal (http://bina.teletalk.com.bd).",
+        "is_expired": true,
+        "is_archived": true,
+        "archive_notice": "Historical Circular (2023) — Kept for role requirements & syllabus research.",
+        "portal_url": "http://bina.teletalk.com.bd"
       },
       "institutional_career_intelligence": {
         "high_value_degree_domains": [
@@ -973,7 +978,8 @@
         "age": "18-32 years on 20-08-2026",
         "district": "All districts",
         "application_mode": "Online",
-        "source": "The supplied 2026 re-recruitment circular and official BJRI Teletalk portal align on the 2026 recruitment; Teletalk currently shows the 2026 re-advertisement with deadline 20 August 2026.  ([Bangladesh Jute Research Institute][3])"
+        "source": "The supplied 2026 re-recruitment circular and official BJRI Teletalk portal (http://bjri.teletalk.com.bd) align on the 2026 recruitment; Teletalk currently shows the 2026 re-advertisement with deadline 20 August 2026.",
+        "portal_url": "http://bjri.teletalk.com.bd"
       },
       "institutional_career_intelligence": {
         "high_value_degree_domains": [
@@ -997,7 +1003,7 @@
           "Textile Physics",
           "Physical and mechanical properties of natural/artificial fibres and composites"
         ],
-        "source": "BJRI's official pages describe Fibre Chemistry/Industrial Chemistry and Textile Physics research, including physical, chemical and mechanical properties of fibres and composites. ([Bangladesh Judicial Service Commission][4])",
+        "source": "BJRI official documentation describes Fibre Chemistry/Industrial Chemistry and Textile Physics research, including physical, chemical and mechanical properties of fibres and composites.",
         "insyt_priority": "EXTREMELY_HIGH"
       },
       "jobs": [
@@ -1231,7 +1237,11 @@
         "age": "18-32 years on 30-10-2025",
         "application_start": "07-10-2025",
         "application_deadline": "30-10-2025 17:00",
-        "source": "Supplied BRRI circular image and independent reproduction identify 27 job categories and the same role structure.  ([Studyonline BD][5])"
+        "source": "Supplied BRRI circular image and independent reproduction identify 27 job categories and the same role structure. Official BRRI Teletalk portal (http://brri.teletalk.com.bd).",
+        "is_expired": true,
+        "is_archived": true,
+        "archive_notice": "Archived Circular (Deadline: 30-10-2025) — Kept for career requirements & exam pattern intelligence.",
+        "portal_url": "http://brri.teletalk.com.bd"
       },
       "institutional_career_intelligence": {
         "research_domains": [
@@ -1255,7 +1265,7 @@
           "Applied Research",
           "Training"
         ],
-        "source": "BRRI officially lists these research divisions; its Agricultural Economics division evaluates effectiveness and impact of rice technologies, while Agricultural Statistics supports experimental design, data collection, analysis and interpretation. ([Bangladesh Rice Research Institute][6])",
+        "source": "BRRI official institutional documentation lists these research divisions; its Agricultural Economics division evaluates effectiveness and impact of rice technologies, while Agricultural Statistics supports experimental design, data collection, analysis and interpretation.",
         "insyt_priority": "EXTREMELY_HIGH",
         "special_note": "For Agricultural Economics/Data Science users, BRRI is one of the most valuable organizations in this dataset because its official research structure explicitly includes Agricultural Economics and Agricultural Statistics."
       },
@@ -1953,7 +1963,9 @@
             "institutional_kitchen_operations"
           ]
         }
-      ]
+      ],
+      "archive_notice": "Historical Reference Dataset — Ongoing recruitment pending new circular.",
+      "is_archived": true
     },
     {
       "organization": "Bangladesh Sugarcrop Research Institute",
@@ -2019,7 +2031,7 @@
           "Research Technology Transfer",
           "Socioeconomic Research"
         ],
-        "source": "BSRI officially describes research on sugarcane, palm, date palm, golpata and sugarbeet; its Agronomy/Farming Systems department works on crop management, fertilizer, cropping systems and socioeconomic improvement, while its Biotechnology department researches multiple sugarcrops. ([BSRI][7])",
+        "source": "BSRI official portal describes research on sugarcane, palm, date palm, golpata and sugarbeet; its Agronomy/Farming Systems department works on crop management, fertilizer, cropping systems and socioeconomic improvement, while its Biotechnology department researches multiple sugarcrops.",
         "insyt_priority": "EXTREMELY_HIGH"
       },
       "jobs": [
@@ -2699,7 +2711,9 @@
           "source": "Separate supplied BSRI 2023 circular.",
           "insyt_priority": "EXTREMELY_HIGH"
         }
-      ]
+      ],
+      "archive_notice": "Historical Reference Dataset — Ongoing recruitment pending new circular.",
+      "is_archived": true
     }
   ],
   "insyt_corporate_schema": {

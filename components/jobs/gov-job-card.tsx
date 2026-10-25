@@ -47,6 +47,11 @@ export function GovJobCard({ job, onSelect }: GovJobCardProps) {
             <span className="text-[9px] sm:text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border border-blue-400 bg-corp-bg-secondary text-corp-text-secondary">
               G{job.grade}
             </span>
+            {job.isArchived && (
+              <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 border border-slate-400">
+                Archived
+              </span>
+            )}
           </div>
 
           {/* Vacancy tag strictly yellow */}
@@ -114,7 +119,11 @@ export function GovJobCard({ job, onSelect }: GovJobCardProps) {
           </div>
           <div className="text-[10px] font-medium flex items-center gap-1 mt-0.5 text-corp-text-tertiary">
             <Calendar className="w-3 h-3" />
-            Deadline: {job.applicationDeadline.split(" ")[0]}
+            {job.isArchived ? (
+              <span className="text-amber-700 font-bold">Archived ({job.applicationDeadline.split(" ")[0]})</span>
+            ) : (
+              <span>Deadline: {job.applicationDeadline.split(" ")[0]}</span>
+            )}
           </div>
         </div>
 

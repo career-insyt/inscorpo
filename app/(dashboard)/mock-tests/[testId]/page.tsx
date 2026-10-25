@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@/components/providers/user-context";
-import { MOCK_TESTS_DATABASE, MockTestDetail, Question } from "@/lib/data/mock-tests-db";
+import { getSanitizedMockTest, SanitizedMockTestDetail, GradeResult } from "@/lib/data/mock-tests-db";
 import { cn } from "@/lib/utils";
 
 interface PageProps {
@@ -19,7 +19,7 @@ interface PageProps {
 export default function MockTestSolverPage(props: PageProps) {
   const params = use(props.params);
   const testId = params?.testId || "bb-ad-full-mock";
-  const testData: MockTestDetail = MOCK_TESTS_DATABASE[testId] || MOCK_TESTS_DATABASE["bb-ad-full-mock"];
+  const testData: SanitizedMockTestDetail = getSanitizedMockTest(testId) || getSanitizedMockTest("excel-commercial-modeling")!;
   const { addNotification, completeMockTest } = useUser();
 
   // State Controls
@@ -27,11 +27,11 @@ export default function MockTestSolverPage(props: PageProps) {
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [flaggedQuestions, setFlaggedQuestions] = useState<Record<number, boolean>>({});
-  const [timeLeft, setTimeLeft] = useState(testData.durationMins * 60);
+  const [timeLeft, setTimeLeft] = useState((testData?.durationMins || 30) * 60);
   const [examFinished, setExamFinished] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Score Analytics State
+  // Score Analytics State (Server Authoritative)
   const [scoreSummary, setScoreSummary] = useState<{
     correctCount: number;
     incorrectCount: number;
@@ -40,6 +40,8 @@ export default function MockTestSolverPage(props: PageProps) {
     accuracyPercent: number;
     percentileRank: number;
   } | null>(null);
+  const [questionResults, setQuestionResults] = useState<GradeResult["questionResults"] | null>(null);
+  const [isGrading, setIsGrading] = useState(false);
 
   // Timer Countdown Loop
   useEffect(() => {
@@ -87,59 +89,49 @@ export default function MockTestSolverPage(props: PageProps) {
     }));
   };
 
-  const handleFinishExam = () => {
+  const handleFinishExam = async () => {
     if (document.exitFullscreen && document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
       setIsFullscreen(false);
     }
 
     setExamFinished(true);
+    setIsGrading(true);
 
-    let correct = 0;
-    let incorrect = 0;
-    let unanswered = 0;
+    try {
+      const res = await fetch("/api/assessment/grade", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ testId, answers: selectedAnswers }),
+      });
+      const data = await res.json();
 
-    testData.questions.forEach((q, idx) => {
-      const chosen = selectedAnswers[idx];
-      if (chosen === undefined) {
-        unanswered++;
-      } else if (chosen === q.correct) {
-        correct++;
-      } else {
-        incorrect++;
+      if (data.success) {
+        const summary = {
+          correctCount: data.correctCount,
+          incorrectCount: data.incorrectCount,
+          unansweredCount: data.unansweredCount,
+          netScore: data.netScore,
+          accuracyPercent: data.accuracyPercent,
+          percentileRank: data.percentileRank,
+        };
+
+        setScoreSummary(summary);
+        setQuestionResults(data.questionResults);
+
+        completeMockTest(testId, data.accuracyPercent, testData.title);
+
+        addNotification({
+          type: "achievement",
+          title: "Mock Test Results Compiled!",
+          message: `Scored ${data.accuracyPercent}% on ${testData.title}. Percentile: ${data.percentileRank}th. Verified in Career Passport.`,
+        });
       }
-    });
-
-    const totalQuestions = testData.questions.length;
-    const penaltyPerError = testData.negativeMarking;
-    const netPoints = Math.max(0, correct * 1.0 - incorrect * penaltyPerError);
-    const accuracy = Math.round((netPoints / totalQuestions) * 100);
-
-    let percentile = 50;
-    if (accuracy >= 90) percentile = 98;
-    else if (accuracy >= 75) percentile = 88;
-    else if (accuracy >= 60) percentile = 74;
-    else if (accuracy >= 40) percentile = 55;
-    else percentile = 35;
-
-    const summary = {
-      correctCount: correct,
-      incorrectCount: incorrect,
-      unansweredCount: unanswered,
-      netScore: Math.round(netPoints * 100) / 100,
-      accuracyPercent: accuracy,
-      percentileRank: percentile,
-    };
-
-    setScoreSummary(summary);
-
-    completeMockTest(testId, accuracy, testData.title);
-
-    addNotification({
-      type: "achievement",
-      title: "Mock Test Results Compiled!",
-      message: `Scored ${accuracy}% on ${testData.title}. Percentile: ${percentile}th. Verified in Career Passport.`,
-    });
+    } catch (err) {
+      console.error("[MockTest] Server grading failed:", err);
+    } finally {
+      setIsGrading(false);
+    }
   };
 
   const formatTime = (secs: number) => {
@@ -501,9 +493,12 @@ export default function MockTestSolverPage(props: PageProps) {
 
             <div className="space-y-4">
               {testData.questions.map((q, idx) => {
+                const qRes = questionResults ? questionResults[idx] : null;
                 const userChoice = selectedAnswers[idx];
-                const isCorrect = userChoice === q.correct;
+                const correctAnswer = qRes ? qRes.correctAnswer : undefined;
+                const isCorrect = qRes ? qRes.isCorrect : userChoice === correctAnswer;
                 const isUnanswered = userChoice === undefined;
+                const explanation = qRes?.explanation || "";
 
                 return (
                   <div
@@ -539,7 +534,7 @@ export default function MockTestSolverPage(props: PageProps) {
                     <div className="space-y-2 text-xs">
                       {q.options.map((opt, optIdx) => {
                         const isUserSelected = userChoice === optIdx;
-                        const isRightAnswer = q.correct === optIdx;
+                        const isRightAnswer = correctAnswer === optIdx;
 
                         let optStyle = "bg-corp-bg-secondary text-corp-text border-corp-border";
                         if (isRightAnswer) {
@@ -568,10 +563,12 @@ export default function MockTestSolverPage(props: PageProps) {
                     </div>
 
                     {/* Explanation Box */}
-                    <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs text-slate-800 font-sans space-y-1">
-                      <span className="font-black uppercase text-[#2563eb] text-[10px] block">Solution &amp; Explanation</span>
-                      <p className="leading-relaxed font-medium">{q.explanation}</p>
-                    </div>
+                    {explanation ? (
+                      <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs text-slate-800 font-sans space-y-1">
+                        <span className="font-black uppercase text-[#2563eb] text-[10px] block">Solution &amp; Explanation</span>
+                        <p className="leading-relaxed font-medium">{explanation}</p>
+                      </div>
+                    ) : null}
                   </div>
                 );
               })}

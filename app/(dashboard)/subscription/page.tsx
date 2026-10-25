@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Check, ShieldCheck, Zap, Star, Building2, Crown, ArrowRight, Users, Lock, RefreshCw } from "lucide-react";
 import { useUser } from "@/components/providers/user-context";
 import { AlertDialog } from "@/components/ui/alert-dialog";
+import { isFreeAccessUser } from "@/lib/auth/whitelist";
+import { BkashSubscriptionModal } from "@/components/learning/bkash-subscription-modal";
 
 export default function SubscriptionPage() {
   const { state, updateSubscriptionTier } = useUser();
@@ -77,32 +79,38 @@ export default function SubscriptionPage() {
     }
   };
 
+  const isWhitelisted = isFreeAccessUser(state.email);
+
   const plans = [
     {
-      id: "single_course",
+      id: "single_course" as const,
       name: "একক কোর্স পাস (Single Course Pass)",
       priceMonthly: "৳৪৯৯",
       priceYearly: "৳৪৯৯",
       priceDisplay: "৳৪৯৯",
+      amountBdt: 499,
+      period: "lifetime" as const,
       description: "নির্দিষ্ট যেকোনো ১টি কর্পোরেট মাস্টার কোর্সে আজীবন অ্যাক্সেস (যেমন: অ্যাডভান্সড কর্পোরেট এক্সেল বা ভিডিও প্রোডাকশন)।",
       features: [
         "নির্বাচিত ১টি মাস্টার কোর্সে আজীবন অ্যাক্সেস",
         "ইন্টারেক্টিভ ফর্মুলা স্যান্ডবক্স ও এক্সারসাইজ",
         "কোর্স সমাপ্তি ভেরিফাইড সার্টিফিকেট",
         "ডাউনলোডযোগ্য রিসোর্স ও প্রজেক্ট ফাইলসমূহ",
-        "বিকাশ ও নগদ ১-ক্লিক মোবাইল পেমেন্ট",
+        "বিকাশ ইনস্ট্যান্ট ভেরিফাইড পেমেন্ট (01771047033)",
       ],
-      current: state.subscriptionTier === "single_course",
+      current: !isWhitelisted && state.subscriptionTier === "single_course",
       popular: false,
-      buttonText: state.subscriptionTier === "single_course" ? "আপনার সক্রিয় প্ল্যান (সক্রিয়)" : "একক কোর্স পাস কিনুন (৳৪৯৯)",
+      buttonText: isWhitelisted ? "ভিআইপি স্টাফ লাইসেন্স সক্রিয়" : state.subscriptionTier === "single_course" ? "আপনার সক্রিয় প্ল্যান (সক্রিয়)" : "একক কোর্স পাস কিনুন (৳৪৯৯)",
       buttonVariant: "secondary",
     },
     {
-      id: "flagship_path",
+      id: "flagship_path" as const,
       name: "ফ্ল্যাগশিপ ট্র্যাক পাস (Track Pass)",
       priceMonthly: "৳১,৯৯৯",
       priceYearly: "৳১,৯৯৯",
       priceDisplay: "৳১,৯৯৯",
+      amountBdt: 1999,
+      period: "lifetime" as const,
       savings: "একবারই পরিশোধযোগ্য",
       description: "একটি সম্পূর্ণ ক্যারিয়ার ট্র্যাকের আজীবন অ্যাক্সেস (যেমন: বিজনেস অ্যানালিটিক্স বা ক্রিয়েটিভ প্রোডাকশন)।",
       features: [
@@ -113,17 +121,19 @@ export default function SubscriptionPage() {
         "এআই রেজুমে অডিট ও মক ইন্টারভিউয়ার অ্যাক্সেস",
         "কর্পোরেট এইচআর রিক্রুটার ডাটাবেসে প্রোফাইল ইনডেক্স",
       ],
-      current: state.subscriptionTier === "flagship_path",
+      current: !isWhitelisted && state.subscriptionTier === "flagship_path",
       popular: true,
-      buttonText: state.subscriptionTier === "flagship_path" ? "আপনার সক্রিয় প্ল্যান (সক্রিয়)" : "ফ্ল্যাগশিপ ট্র্যাক এনরোল করুন (৳১,৯৯৯)",
+      buttonText: isWhitelisted ? "ভিআইপি স্টাফ লাইসেন্স সক্রিয়" : state.subscriptionTier === "flagship_path" ? "আপনার সক্রিয় প্ল্যান (সক্রিয়)" : "ফ্ল্যাগশিপ ট্র্যাক এনরোল করুন (৳১,৯৯৯)",
       buttonVariant: "primary",
     },
     {
-      id: "pro",
+      id: "pro" as const,
       name: "প্রো অল-অ্যাক্সেস মেম্বারশিপ (INSYT Pro)",
       priceMonthly: "৳৭৯৯/মাস",
       priceYearly: "৳৪,৯৯৯/বছর",
       priceDisplay: selectedBilling === "monthly" ? "৳৭৯৯/মাস" : "৳৪,৯৯৯/বছর",
+      amountBdt: selectedBilling === "monthly" ? 799 : 4999,
+      period: (selectedBilling === "monthly" ? "monthly" : "annual") as "monthly" | "annual",
       savings: "৪৮% সাশ্রয়",
       description: "সবকটি লার্নিং ট্র্যাক, মাস্টার কোর্স এবং ১২টি এআই ক্যারিয়ার টুলের আনলিমিটেড অল-অ্যাক্সেস।",
       features: [
@@ -134,9 +144,9 @@ export default function SubscriptionPage() {
         "ভেরিফাইড অ্যালুমনাই ও ক্যান্ডিডেট ব্যাজ",
         "প্রাধিকারভিত্তিক প্রশ্ন-উত্তর ও প্রিমিয়াম সাপোর্ট",
       ],
-      current: state.subscriptionTier === "pro",
+      current: isWhitelisted || state.subscriptionTier === "pro",
       popular: false,
-      buttonText: state.subscriptionTier === "pro" ? "আপনার সক্রিয় প্ল্যান (সক্রিয়)" : "প্রো অল-অ্যাক্সেসে আপগ্রেড করুন",
+      buttonText: isWhitelisted ? "Pro VIP স্টাফ ফ্রি অ্যাক্সেস (সক্রিয়)" : state.subscriptionTier === "pro" ? "আপনার সক্রিয় প্ল্যান (সক্রিয়)" : "প্রো অল-অ্যাক্সেসে আপগ্রেড করুন",
       buttonVariant: "primary",
     },
   ];
@@ -156,6 +166,18 @@ export default function SubscriptionPage() {
         <p className="text-xs md:text-sm font-bangla max-w-xl mx-auto leading-relaxed text-slate-600 font-medium">
           ফ্ল্যাগশিপ লার্নিং ট্র্যাক, প্র্যাকটিক্যাল অ্যানালিটিক্স স্যান্ডবক্স, এআই ইন্টারভিউয়ার এবং ভেরিফাইড ক্যারিয়ার পাসপোর্টের আনলিমিটেড অ্যাক্সেস আনলক করুন।
         </p>
+
+        {isWhitelisted && (
+          <div className="p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-950 font-bangla space-y-1 shadow-[4px_4px_0px_0px_#059669] max-w-2xl mx-auto">
+            <div className="flex items-center justify-center gap-2 font-black text-sm uppercase">
+              <Crown size={18} className="text-amber-500" />
+              <span>Corporate VIP Staff Whitelist — ১০০% ফ্রি লাইফটাইম Pro অ্যাক্সেস</span>
+            </div>
+            <p className="text-xs text-emerald-800">
+              আপনার ইমেইল <strong>{state.email}</strong> অনুমোদিত ইনসাইট কর্পোরেট ভিআইপি তালিকাভুক্ত। আপনি আজীবন ফ্রিতে Pro মেম্বারশিপের সমস্ত কোর্স, লার্নিং ট্র্যাক ও এআই টুলস ব্যবহার করতে পারবেন।
+            </p>
+          </div>
+        )}
 
         {/* Billing Cycle Toggle - Soft Brutalist with light blue border */}
         <div className="inline-flex items-center p-1 rounded-full border-2 border-blue-200 bg-white shadow-[3px_3px_0px_0px_#bfdbfe] mt-2">
@@ -229,7 +251,9 @@ export default function SubscriptionPage() {
               <span className="text-xs font-black uppercase text-slate-900">আপনার বর্তমান প্ল্যান:</span>
               <span
                 className={`px-3 py-1 rounded-full text-[11px] font-mono font-black uppercase tracking-wider border-2 ${
-                  state.subscriptionTier === "pro"
+                  isWhitelisted
+                    ? "bg-emerald-400 text-emerald-950 border-emerald-600 shadow-[2px_2px_0px_0px_#059669]"
+                    : state.subscriptionTier === "pro"
                     ? "bg-amber-300 text-amber-950 border-amber-500 shadow-[2px_2px_0px_0px_#78350f]"
                     : state.subscriptionTier === "flagship_path"
                     ? "bg-violet-600 text-white border-violet-400 shadow-[2px_2px_0px_0px_#4c1d95]"
@@ -238,7 +262,9 @@ export default function SubscriptionPage() {
                     : "bg-blue-100 text-blue-900 border-blue-300 shadow-[2px_2px_0px_0px_#2563eb]"
                 }`}
               >
-                {state.subscriptionTier === "pro"
+                {isWhitelisted
+                  ? "PRO VIP (LIFETIME STAFF LICENSE)"
+                  : state.subscriptionTier === "pro"
                   ? "PRO ALL-ACCESS"
                   : state.subscriptionTier === "flagship_path"
                   ? "TRACK PASS"
@@ -398,89 +424,28 @@ export default function SubscriptionPage() {
         </Link>
       </div>
 
-      {/* Payment Checkout Modal - Soft Brutalist with light blue border */}
-      {checkoutModalOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs font-bangla">
-          <div className="w-full max-w-md rounded-2xl p-6 border-2 border-blue-300 shadow-[8px_8px_0px_0px_#2563eb] space-y-5 bg-white text-slate-900">
-            <div className="flex items-center justify-between border-b-2 border-blue-100 pb-3">
-              <div>
-                <h3 className="text-base font-black text-slate-900">
-                  {selectedPlan?.name || "মেম্বারশিপ আপগ্রেড"}
-                </h3>
-                <p className="text-xs text-[#2563eb] font-black font-mono mt-0.5">
-                  মূল্য: {selectedPlan?.priceDisplay || (selectedBilling === "monthly" ? "৳৭৯৯/মাস" : "৳৪,৯৯৯/বছর")}
-                </p>
-              </div>
-              <button
-                onClick={() => setCheckoutModalOpen(false)}
-                className="w-8 h-8 rounded-full border-2 border-blue-200 bg-blue-50 text-blue-700 font-black flex items-center justify-center text-xs hover:bg-blue-100 cursor-pointer shadow-[2px_2px_0px_0px_#bfdbfe]"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Payment Method Selector */}
-            <div className="space-y-2">
-              <label className="text-xs font-black text-slate-800">পেমেন্ট মেথড নির্বাচন করুন</label>
-              <div className="grid grid-cols-2 gap-2 font-mono">
-                {[
-                  { id: "bkash", name: "bKash / বিকাশ", icon: "📱" },
-                  { id: "nagad", name: "Nagad / নগদ", icon: "💸" },
-                  { id: "sslcommerz", name: "SSLCommerz / কার্ড", icon: "💳" },
-                  { id: "stripe", name: "Stripe International", icon: "🌐" },
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setSelectedMethod(item.id as any)}
-                    className={`p-3 rounded-xl text-left border-2 flex items-center gap-2.5 transition-all cursor-pointer font-bangla ${
-                      selectedMethod === item.id
-                        ? "border-[#2563eb] bg-blue-50 font-black shadow-[2px_2px_0px_0px_#2563eb]"
-                        : "border-blue-200 bg-slate-50 hover:bg-white"
-                    }`}
-                  >
-                    <span className="text-lg">{item.icon}</span>
-                    <span className="text-xs font-black text-slate-900">{item.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Account / Phone Number Input */}
-            {(selectedMethod === "bkash" || selectedMethod === "nagad") && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-slate-800">
-                  {selectedMethod.toUpperCase()} মোবাইল নম্বর
-                </label>
-                <input
-                  type="text"
-                  placeholder="01711XXXXXX"
-                  value={accountNumber}
-                  onChange={(e) => setAccountNumber(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl text-xs outline-none bg-blue-50/50 border-2 border-blue-200 text-slate-900 font-mono font-black focus:border-[#2563eb]"
-                />
-              </div>
-            )}
-
-            {/* Checkout Action Button */}
-            <button
-              onClick={handleProcessPayment}
-              disabled={isProcessing}
-              className="w-full py-3.5 rounded-xl text-xs font-black uppercase text-white bg-[#2563eb] hover:bg-blue-600 transition-all shadow-[4px_4px_0px_0px_#1e3a8a] border-2 border-blue-400 flex items-center justify-center gap-2 cursor-pointer active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-            >
-              {isProcessing ? (
-                <span>প্রসেসিং হচ্ছে...</span>
-              ) : (
-                <>
-                  <span>
-                    পেমেন্ট সম্পন্ন করুন ({selectedPlan?.priceDisplay || (selectedBilling === "monthly" ? "৳৭৯৯" : "৳৪,৯৯৯")}) এবং অ্যাক্টিভ করুন
-                  </span>
-                  <ArrowRight size={14} />
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* bKash Subscription Checkout & Verification Modal */}
+      <BkashSubscriptionModal
+        isOpen={checkoutModalOpen}
+        onClose={() => setCheckoutModalOpen(false)}
+        planId={selectedPlan?.id || "pro"}
+        planName={selectedPlan?.name || "মেম্বারশিপ প্ল্যান"}
+        priceDisplay={selectedPlan?.priceDisplay || (selectedBilling === "monthly" ? "৳৭৯৯/মাস" : "৳৪,৯৯৯/বছর")}
+        amountBdt={selectedPlan?.amountBdt || (selectedBilling === "monthly" ? 799 : 4999)}
+        period={selectedPlan?.period || (selectedBilling === "monthly" ? "monthly" : "annual")}
+        userEmail={state.email}
+        userName={state.name}
+        onSuccess={async (result) => {
+          setCheckoutModalOpen(false);
+          await updateSubscriptionTier(result.subscriptionTier || selectedPlan?.id || "pro", "active");
+          setAlertDialog({
+            isOpen: true,
+            title: "পেমেন্ট সফল ও মেম্বারশিপ সক্রিয়! 🎉",
+            message: `অভিনন্দন! আপনার ${selectedPlan?.name || "আপগ্রেড প্ল্যান"} bKash (${result.subscription?.trxId || "VERIFIED"}) এর মাধ্যমে সফলভাবে সক্রিয় করা হয়েছে।`,
+            type: "success",
+          });
+        }}
+      />
 
       <AlertDialog
         isOpen={alertDialog.isOpen}

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Rocket, BookOpen, ClipboardList, FileText, Briefcase,
-  Mic, Target, Zap, Award, Settings, HelpCircle,
+  Mic, Target, Zap, Award,
   ChevronLeft, ChevronRight, Calendar
 } from "lucide-react";
 import { useUser } from "@/components/providers/user-context";
@@ -30,13 +30,6 @@ function buildNavSections() {
         { icon: Target, label: "Career Strategy Hub", href: "/career-hub", color: "indigo" },
         { icon: Zap,    label: "Case Challenges",    href: "/challenges", color: "red" },
         { icon: Award,  label: "Credentials Archive", href: "/certificates", color: "blue" },
-      ],
-    },
-    accountSection: {
-      label: "System & Settings",
-      items: [
-        { icon: Settings,   label: "Settings",    href: "/settings", color: "slate" },
-        { icon: HelpCircle, label: "Help Center", href: "/help",     color: "blue" },
       ],
     },
   };
@@ -221,25 +214,6 @@ export function DashboardSidebar() {
           )}
           <div className="space-y-1">
             {nav.contextualTools.items.map((item) => (
-              <NavLink
-                key={item.href}
-                item={item}
-                collapsed={collapsed}
-                active={isActive(item.href, pathname)}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Account & Support Section */}
-        <div className="pt-3 border-t-2" style={{ borderColor: "var(--corp-border)" }}>
-          {!collapsed && (
-            <p className="px-2 pb-1 text-[9px] font-mono font-black uppercase tracking-wider text-corp-text-tertiary">
-              {nav.accountSection.label}
-            </p>
-          )}
-          <div className="space-y-1">
-            {nav.accountSection.items.map((item) => (
               <NavLink
                 key={item.href}
                 item={item}

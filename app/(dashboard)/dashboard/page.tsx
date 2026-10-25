@@ -36,23 +36,39 @@ export default function LinkedInDashboardPage() {
   const totalWeeklyMinutes = state.weeklyActivity.reduce((a, b) => a + b, 0);
   const dailyAverageMins = Math.round(totalWeeklyMinutes / 7);
 
-  const totalDaysInGrid = 168;
   const today = new Date();
+  const todayDayOfWeek = (today.getDay() + 6) % 7; // 0 = Mon, 6 = Sun
+  const WEEKS = 24;
 
-  const heatmapGrid = Array.from({ length: totalDaysInGrid }).map((_, idx) => {
-    const dayOffset = totalDaysInGrid - 1 - idx;
-    const d = new Date(today);
-    d.setDate(d.getDate() - dayOffset);
-    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    const dayOfWeek = d.getDay() === 0 ? 6 : d.getDay() - 1;
-    const isRecentWeek = dayOffset < 7;
-    const weeklyMins = isRecentWeek ? (state.weeklyActivity[dayOfWeek] || 0) : 0;
+  const heatmapGrid = Array.from({ length: WEEKS * 7 }).map((_, idx) => {
+    const w = Math.floor(idx / 7);
+    const d = idx % 7;
+    const daysAgo = (WEEKS - 1 - w) * 7 + (todayDayOfWeek - d);
+
+    if (daysAgo < 0) {
+      return null;
+    }
+
+    const date = new Date(today);
+    date.setDate(today.getDate() - daysAgo);
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+    let weeklyMins = 0;
+    if (daysAgo < 7) {
+      const dayIdx = (date.getDay() + 6) % 7;
+      weeklyMins = state.weeklyActivity[dayIdx] || 0;
+    }
+
     let activityLevel = 0;
     if (weeklyMins >= 45) activityLevel = 3;
     else if (weeklyMins >= 20) activityLevel = 2;
     else if (weeklyMins > 0) activityLevel = 1;
-    return { dateStr, level: activityLevel, totalXp: 0, mins: weeklyMins };
-  });
+
+    const totalXp = weeklyMins > 0 ? weeklyMins * 10 : 0;
+    return { dateStr, level: activityLevel, totalXp, mins: weeklyMins };
+  }).filter((c): c is { dateStr: string; level: number; totalXp: number; mins: number } => c !== null);
+
+  const totalLogsCount = heatmapGrid.filter(c => c.level > 0).length || (state.streak > 0 ? state.streak : 1);
 
   return (
     <motion.div
@@ -81,7 +97,7 @@ export default function LinkedInDashboardPage() {
           <LinkedInExperienceCard state={state} />
 
           {/* Activity Heatmap & Commit Graph (Blue Outline) */}
-          <ActivityHeatmap heatmapGrid={heatmapGrid} totalLogsCount={0} />
+          <ActivityHeatmap heatmapGrid={heatmapGrid} totalLogsCount={totalLogsCount} />
 
           {/* Weekly Learning Velocity Chart */}
           <WeeklyVelocityChart

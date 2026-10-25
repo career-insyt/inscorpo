@@ -2,12 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { scanForPromptInjection, redactPII } from "@/lib/assessment/anti-injection";
 
-const FALLBACK_KEY = Buffer.from(
-  "c2stb3ItdjEtZDJmMzc0MGE5ZTYyY2UzY2U2MmU1ZTI2ZWVlMjcwNTQ4ZTRlODg5ODZiNzliZDI4MjcwNTFkZTZjYTkzNDAwMQ==",
-  "base64"
-).toString("utf-8");
-
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || FALLBACK_KEY;
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 // OpenRouter model fallback list to guarantee 100% API uptime

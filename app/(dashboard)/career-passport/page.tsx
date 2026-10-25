@@ -91,9 +91,12 @@ function PassportEditPen({ onClick, title = "Edit Section" }: { onClick?: () => 
       type="button"
       onClick={onClick}
       title={title}
-      className="w-6 h-6 rounded-full bg-[#2563eb] text-white flex items-center justify-center border border-slate-950 shadow-[1.5px_1.5px_0px_0px_#000] hover:scale-110 active:scale-95 transition-all cursor-pointer flex-shrink-0"
+      aria-label={title}
+      className="min-w-[44px] min-h-[44px] rounded-full text-white flex items-center justify-center transition-all cursor-pointer flex-shrink-0 group"
     >
-      <Pen size={11} className="stroke-[2.5]" />
+      <span className="w-8 h-8 rounded-full bg-[#2563eb] flex items-center justify-center border border-slate-950 shadow-[1.5px_1.5px_0px_0px_#000] group-hover:scale-110 group-active:scale-95 transition-transform">
+        <Pen size={13} className="stroke-[2.5]" />
+      </span>
     </button>
   );
 }
@@ -323,65 +326,147 @@ export default function CareerPassportPage() {
 
   const [showProModal, setShowProModal] = useState(false);
 
-  // High-resolution vector/canvas PDF export
+  // Recruiter-ready ATS-optimized vector PDF Career Passport export (100% selectable UTF-8 text)
   const handleDownloadPdf = useCallback(async () => {
     setDownloading(true);
     try {
-      const html2canvas = (await import("html2canvas")).default;
       const { jsPDF } = await import("jspdf");
-
-      const el = printCvRef.current || passportRef.current;
-      if (!el) {
-        setDownloading(false);
-        return;
-      }
-
-      const canvas = await html2canvas(el, {
-        scale: 2.5,
-        useCORS: true,
-        backgroundColor: "#0d1b2a",
-        logging: false,
-        allowTaint: true,
-        windowWidth: 800,
-      });
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
+      const doc = new jsPDF({
         orientation: "portrait",
-        unit: "px",
-        format: [canvas.width / 2.5, canvas.height / 2.5],
+        unit: "mm",
+        format: "a4",
       });
-      pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2.5, canvas.height / 2.5);
-      pdf.save(`${(state.name || "Candidate").replace(/\s+/g, "_")}_Career_Passport.pdf`);
-    } catch (err) {
-      console.error("PDF generation error, executing direct PDF fallback:", err);
-      try {
-        const { jsPDF } = await import("jspdf");
-        const doc = new jsPDF();
-        doc.setFontSize(22);
-        doc.text(state.name || "Candidate Career Passport", 20, 25);
-        doc.setFontSize(12);
-        doc.text(pp?.headline || "Corporate Business Analyst", 20, 35);
-        doc.setFontSize(10);
-        doc.text(`Email: ${state.email || "career@insyt.bd"} | Verification: ${verificationId}`, 20, 43);
-        doc.text(`Location: ${pp?.location || "Dhaka, Bangladesh"} | Phone: ${pp?.phone || "+880..."}`, 20, 49);
-        doc.setFontSize(14);
-        doc.text("Executive Bio", 20, 62);
-        doc.setFontSize(10);
-        doc.text(doc.splitTextToSize(pp?.summary || "Dedicated corporate professional.", 170), 20, 70);
-        doc.setFontSize(14);
-        doc.text("Academic Education", 20, 100);
-        doc.setFontSize(10);
-        doc.text(`${pp?.degree || "BBA"} - ${pp?.university || "University"} (${pp?.gradYear || "2026"})`, 20, 108);
-        doc.setFontSize(14);
-        doc.text("Verified Skills & Masteries", 20, 125);
-        doc.setFontSize(10);
-        const skillList = (pp?.customSkills || ["Financial Modeling", "Corporate Business Analytics", "SQL Data Analysis"]).join(" • ");
-        doc.text(doc.splitTextToSize(skillList, 170), 20, 133);
-        doc.save(`${(state.name || "Candidate").replace(/\s+/g, "_")}_Career_Passport.pdf`);
-      } catch (fallbackErr) {
-        console.error("Fallback PDF export failed:", fallbackErr);
+
+      const primaryColor = [26, 29, 46]; // #1a1d2e (Corporate Midnight)
+      const accentColor = [37, 99, 235]; // #2563eb (Corporate Blue)
+      const secondaryColor = [71, 85, 105]; // #475569 (Slate text)
+
+      let yPos = 20;
+
+      // 1. Candidate Header
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(22);
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.text(state.name || "Candidate Career Passport", 20, yPos);
+      yPos += 7;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+      doc.text(pp?.headline || "Corporate Business Analyst & Financial Modeler", 20, yPos);
+      yPos += 6;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      const contactLine = `${state.email || "career@insyt.bd"} | ${pp?.phone || "+880 1700-000000"} | ${pp?.location || "Dhaka, Bangladesh"}`;
+      doc.text(contactLine, 20, yPos);
+      yPos += 5;
+
+      const trustLine = `INSYT Trust Plane Cryptographic ID: ${verificationId || "INSYT-VERIFIED"}`;
+      doc.text(trustLine, 20, yPos);
+      yPos += 8;
+
+      // Divider line
+      doc.setDrawColor(203, 213, 225); // slate-300
+      doc.setLineWidth(0.4);
+      doc.line(20, yPos, 190, yPos);
+      yPos += 8;
+
+      // 2. Executive Bio
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.text("EXECUTIVE PROFILE & SUMMARY", 20, yPos);
+      yPos += 5;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      const summaryText = pp?.summary || "Dedicated corporate professional with demonstrated capability in financial modeling, commercial analytics, and data-driven workflow automation.";
+      const splitSummary = doc.splitTextToSize(summaryText, 170);
+      doc.text(splitSummary, 20, yPos);
+      yPos += splitSummary.length * 4.5 + 4;
+
+      // 3. Verified Competencies & Skills
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.text("VERIFIED COMPETENCIES & TECHNICAL SKILLS", 20, yPos);
+      yPos += 5;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      const skillList = (pp?.customSkills || ["Corporate Financial Modeling", "Excel Dynamic Arrays", "SQL Analytics", "Power BI", "Data Automation"]).join(" • ");
+      const splitSkills = doc.splitTextToSize(skillList, 170);
+      doc.text(splitSkills, 20, yPos);
+      yPos += splitSkills.length * 4.5 + 4;
+
+      // 4. Professional Experience
+      if (pp?.experience && pp.experience.length > 0) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+        doc.text("PROFESSIONAL & PRACTICUM EXPERIENCE", 20, yPos);
+        yPos += 5;
+
+        for (const exp of pp.experience) {
+          if (yPos > 260) {
+            doc.addPage();
+            yPos = 20;
+          }
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(9.5);
+          doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+          doc.text(`${exp.title} — ${exp.company}`, 20, yPos);
+
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8.5);
+          doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+          doc.text(exp.duration, 190, yPos, { align: "right" });
+          yPos += 4.5;
+
+          if (exp.desc) {
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8.5);
+            doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+            const splitDesc = doc.splitTextToSize(exp.desc, 170);
+            doc.text(splitDesc, 20, yPos);
+            yPos += splitDesc.length * 4 + 3;
+          }
+        }
+        yPos += 2;
       }
+
+      // 5. Academic Background
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.text("ACADEMIC CREDENTIALS", 20, yPos);
+      yPos += 5;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      const eduText = `${pp?.degree || "Bachelor of Business Administration"} · ${pp?.university || "University"} (Graduation: ${pp?.gradYear || "2026"})`;
+      doc.text(eduText, 20, yPos);
+      yPos += 8;
+
+      // 6. Verification Link Footer
+      doc.setDrawColor(203, 213, 225);
+      doc.setLineWidth(0.4);
+      doc.line(20, yPos, 190, yPos);
+      yPos += 6;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+      doc.text(`Verify authentic W3C credentials at: https://insyt.co/verify/${verificationId}`, 20, yPos);
+
+      doc.save(`${(state.name || "Candidate").replace(/\s+/g, "_")}_ATS_Career_Passport.pdf`);
+    } catch (err) {
+      console.error("Vector ATS PDF generation failed:", err);
     } finally {
       setDownloading(false);
     }

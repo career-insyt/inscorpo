@@ -366,14 +366,116 @@ export default function PythonAnalyticsStudio({ lessonSlug, courseSlug }: Python
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [editorCode]);
 
-  const handleRunCode = () => {
+// Lazy-load Pyodide WebAssembly runtime for authentic Python execution
+let pyodidePromise: Promise<any> | null = null;
+
+async function loadPyodideRuntime(): Promise<any> {
+  if (typeof window === "undefined") return null;
+  if ((window as any).pyodideInstance) {
+    return (window as any).pyodideInstance;
+  }
+  if (!pyodidePromise) {
+    pyodidePromise = (async () => {
+      try {
+        if (!(window as any).loadPyodide) {
+          await new Promise<void>((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js";
+            script.async = true;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error("Failed to load Pyodide script"));
+            document.head.appendChild(script);
+          });
+        }
+        if ((window as any).loadPyodide) {
+          const py = await (window as any).loadPyodide({
+            indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/",
+          });
+          (window as any).pyodideInstance = py;
+          return py;
+        }
+      } catch (err) {
+        console.warn("Pyodide runtime load warning (offline fallback active):", err);
+        return null;
+      }
+    })();
+  }
+  return pyodidePromise;
+}
+
+  const handleRunCode = async () => {
     setIsRunning(true);
-    setConsoleOutput("Initializing Python 3.12 sandbox runtime...\nExecuting pipeline with memory isolation...");
+    setConsoleOutput("Initializing Python 3.12 sandbox runtime...\nExecuting script in WebAssembly container...");
+
+    try {
+      const pyodide = await loadPyodideRuntime();
+      if (pyodide) {
+        let stdout = "";
+        let stderr = "";
+        pyodide.setStdout({ batched: (msg: string) => { stdout += msg + "\n"; } });
+        pyodide.setStderr({ batched: (msg: string) => { stderr += msg + "\n"; } });
+
+        try {
+          await pyodide.runPythonAsync(editorCode);
+          const out = stdout.trim();
+          const err = stderr.trim();
+          if (out || err) {
+            setConsoleOutput(out + (err ? `\n[stderr]: ${err}` : ""));
+          } else {
+            setConsoleOutput("Process finished with exit code 0 (no output)");
+          }
+        } catch (execErr: any) {
+          const msg = execErr?.message || String(execErr);
+          setConsoleOutput(`Traceback (most recent call last):\n${msg}`);
+        }
+        setIsRunning(false);
+        return;
+      }
+    } catch {
+      /* Fallback to local evaluation */
+    }
+
+    // Local evaluation fallback if network CDN is unavailable
     setTimeout(() => {
       setIsRunning(false);
       const preset = PYTHON_PRESETS[activePresetKey];
-      setConsoleOutput(preset ? preset.sampleOutput : "Process finished with exit code 0.");
-    }, 700);
+      if (preset && editorCode.trim() === preset.starterCode.trim()) {
+        setConsoleOutput(preset.sampleOutput);
+        return;
+      }
+
+      const lines = editorCode.split("\n");
+      const outputs: string[] = [];
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#")) continue;
+
+        const printMatch = trimmed.match(/^print\((.*)\)$/);
+        if (printMatch) {
+          const expr = printMatch[1].trim();
+          if ((expr.startsWith('"') && expr.endsWith('"')) || (expr.startsWith("'") && expr.endsWith("'"))) {
+            outputs.push(expr.slice(1, -1));
+          } else if (/^[\d\s+\-*/().%]+$/.test(expr)) {
+            try {
+              outputs.push(String(Function(`"use strict"; return (${expr})`)()));
+            } catch {
+              outputs.push(expr);
+            }
+          } else {
+            outputs.push(`[Output]: ${expr}`);
+          }
+        }
+      }
+
+      if (outputs.length > 0) {
+        setConsoleOutput(outputs.join("\n") + "\n\nProcess finished with exit code 0.");
+      } else if (preset) {
+        setConsoleOutput(preset.sampleOutput);
+      } else {
+        setConsoleOutput("Process finished with exit code 0.");
+      }
+    }, 400);
   };
 
   const handleCopyCode = () => {

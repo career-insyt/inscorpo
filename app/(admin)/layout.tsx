@@ -30,8 +30,7 @@ export default function AdminLayout({
     Boolean(user) &&
     (userLabels.includes("admin") ||
       userRole === "admin" ||
-      ADMIN_AUTHORIZED_EMAILS.includes(userEmail) ||
-      userEmail.endsWith("@insyt.bd"));
+      ADMIN_AUTHORIZED_EMAILS.includes(userEmail));
 
   // 1. Loading State
   if (isLoading) {

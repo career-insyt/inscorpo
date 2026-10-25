@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
 import {
   getAllGovJobs, getGovOrganizations, getGovJobStats, getSkillBundles,
-  getSkillTaxonomy, getGovJobsByOrg, checkDegreeEligibility
+  getSkillTaxonomy, getGovJobsByOrg
 } from "@/lib/data/gov-jobs-db";
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const org = searchParams.get("org");
-    const degree = searchParams.get("degree");
     const query = searchParams.get("q");
 
     let jobs = org ? getGovJobsByOrg(org) : getAllGovJobs();
@@ -22,13 +21,6 @@ export async function GET(request: Request) {
           j.requirements.toLowerCase().includes(qLower) ||
           j.organizationAcronym.toLowerCase().includes(qLower)
       );
-    }
-
-    if (degree) {
-      jobs = jobs.map((job) => ({
-        ...job,
-        eligibility: checkDegreeEligibility(job, degree),
-      }));
     }
 
     const stats = getGovJobStats();

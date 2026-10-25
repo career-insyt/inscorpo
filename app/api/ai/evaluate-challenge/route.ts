@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { scanForPromptInjection, sanitizeCandidateInput, buildIsolatedEvaluationPrompt } from "@/lib/assessment/anti-injection";
 import { evaluateFinancialModel, CellData, ModelSubmission } from "@/lib/assessment/excel-evaluator";
+import { challengesData, DiagnosticQuestion } from "@/lib/data/challenges";
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -22,7 +23,7 @@ const ChallengeEvaluationSchema = z.object({
   quizQuestions: z.array(z.object({
     id: z.number(),
     question: z.string(),
-    correct: z.string(),
+    correct: z.string().optional(),
   })).optional(),
   caseSubmission: z.string().min(3, "Submission must contain analytical text."),
   timeSpentSeconds: z.number().optional().default(0),
@@ -53,22 +54,23 @@ export interface EvaluationResult {
   employerVerdict: string;
   benchmarkComparison: string;
   recommendedNextSteps: string;
+  isFallback?: boolean;
 }
 
 function calculateQuizPoints(
   quizAnswers: Record<string, string> = {},
-  quizQuestions: Array<{ id: number; question: string; correct: string }> = []
+  authoritativeQuestions: DiagnosticQuestion[] = []
 ) {
-  if (!quizQuestions.length) return { correctCount: 0, totalCount: 0, points: 30 };
+  if (!authoritativeQuestions.length) return { correctCount: 0, totalCount: 0, points: 30 };
   let correct = 0;
-  quizQuestions.forEach((q) => {
+  authoritativeQuestions.forEach((q) => {
     const userAns = quizAnswers[q.id] || quizAnswers[String(q.id)];
     if (userAns && userAns.trim() === q.correct.trim()) {
       correct++;
     }
   });
-  const points = Math.round((correct / quizQuestions.length) * 30);
-  return { correctCount: correct, totalCount: quizQuestions.length, points };
+  const points = Math.round((correct / authoritativeQuestions.length) * 30);
+  return { correctCount: correct, totalCount: authoritativeQuestions.length, points };
 }
 
 function generateSmartFallbackEvaluation(
@@ -121,7 +123,8 @@ function generateSmartFallbackEvaluation(
     quizScore: quizResult,
     employerVerdict: totalScore >= 75 ? "RECOMMENDED FOR PRE-PLACEMENT INTERVIEW (PPI)" : "QUALIFIED WITH REVISION RECOMMENDED",
     benchmarkComparison: `Candidate scored ${totalScore}/100 compared to the Employer Gold Benchmark average of 88/100. Key formulas aligned well with standard FMCG / corporate models.`,
-    recommendedNextSteps: "Review the benchmark formula breakdown and submit your verified certificate to your INSYT Passport Profile."
+    recommendedNextSteps: "Review the benchmark formula breakdown and submit your verified certificate to your INSYT Passport Profile.",
+    isFallback: true,
   };
 }
 
@@ -136,7 +139,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const { challengeId, challengeTitle, category, quizAnswers, quizQuestions, caseSubmission, timeSpentSeconds, spreadsheetCells } = parsed.data;
+    const { challengeId, challengeTitle, category, quizAnswers, caseSubmission, timeSpentSeconds, spreadsheetCells } = parsed.data;
 
     // Stage 1 & 2: Prompt-Injection & Input Sanitization
     const injectionScan = scanForPromptInjection(caseSubmission);
@@ -151,7 +154,11 @@ export async function POST(request: NextRequest) {
     }
 
     const sanitizedSubmission = injectionScan.sanitizedText || caseSubmission;
-    const quizResult = calculateQuizPoints(quizAnswers, quizQuestions);
+
+    // Grade strictly against authoritative server-side diagnostic questions
+    const serverChallenge = challengesData.find(c => c.id === challengeId);
+    const authoritativeQuestions = serverChallenge?.diagnosticQuestions || [];
+    const quizResult = calculateQuizPoints(quizAnswers, authoritativeQuestions);
 
     // If candidate submitted spreadsheet cells, evaluate with Seeded Perturbation
     let hardcodedFlaw: string | null = null;
@@ -256,6 +263,7 @@ Score strictly between 50-100 (non-rounded). Return ONLY parseable JSON with key
                 employerVerdict: finalScore >= 75 ? "RECOMMENDED FOR PRE-PLACEMENT INTERVIEW (PPI)" : "QUALIFIED WITH REVISION",
                 benchmarkComparison: parsedAi.benchmarkComparison || "Matches employer benchmark standards.",
                 recommendedNextSteps: parsedAi.recommendedNextSteps || "Add this verified completion to your INSYT Talent Passport.",
+                isFallback: false,
               };
 
               return NextResponse.json({ evaluation: finalEvaluation });

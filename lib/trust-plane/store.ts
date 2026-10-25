@@ -14,6 +14,9 @@ import {
 import { getTaxonomyAlignments } from '../taxonomy/skills';
 import { recordAuditEvent } from './audit-log';
 
+import fs from 'fs';
+import path from 'path';
+
 export interface StoredCredentialRecord {
   id: string; // UUID or hash
   trackId: string;
@@ -24,20 +27,56 @@ export interface StoredCredentialRecord {
   statusIndex: number;
 }
 
+const REGISTRY_FILE = path.join(process.cwd(), 'DB', 'credentials_registry.json');
+
 // Global credential map
 const credentialRegistry = new Map<string, StoredCredentialRecord>();
+
+function loadRegistryFromFile(): void {
+  try {
+    if (fs.existsSync(REGISTRY_FILE)) {
+      const raw = fs.readFileSync(REGISTRY_FILE, 'utf-8');
+      const records: StoredCredentialRecord[] = JSON.parse(raw);
+      for (const rec of records) {
+        if (rec && rec.id) {
+          credentialRegistry.set(rec.id, rec);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("[TrustPlane Store] Failed to load registry from file (using memory store):", err);
+  }
+}
+
+function saveRegistryToFile(): void {
+  try {
+    const dir = path.dirname(REGISTRY_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const records = Array.from(credentialRegistry.values());
+    fs.writeFileSync(REGISTRY_FILE, JSON.stringify(records, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn("[TrustPlane Store] Read-only filesystem warning (memory store active):", err);
+  }
+}
+
+// Initialize on module load
+loadRegistryFromFile();
 
 /**
  * Registers an issued credential in the store
  */
 export function registerCredential(record: StoredCredentialRecord): void {
   credentialRegistry.set(record.id, record);
+  saveRegistryToFile();
 }
 
 /**
  * Retrieves a credential by ID
  */
 export function getCredentialById(id: string): StoredCredentialRecord | undefined {
+  if (!credentialRegistry.has(id)) {
+    loadRegistryFromFile();
+  }
   return credentialRegistry.get(id);
 }
 
@@ -45,6 +84,7 @@ export function getCredentialById(id: string): StoredCredentialRecord | undefine
  * Returns all credentials for a given user email
  */
 export function getCredentialsByEmail(email: string): StoredCredentialRecord[] {
+  loadRegistryFromFile();
   const norm = email.toLowerCase().trim();
   return Array.from(credentialRegistry.values()).filter(
     r => r.recipientEmail.toLowerCase().trim() === norm

@@ -56,6 +56,12 @@ export async function POST(req: Request) {
       { id: "mock_tests",       name: "Mock Tests" },
       { id: "workshops",        name: "Workshops" },
       { id: "certificates",     name: "Certificates" },
+      { id: "job_applications", name: "Job Applications" },
+      { id: "audit_ledger",     name: "Audit Ledger" },
+      { id: "trust_credentials",name: "Trust Credentials" },
+      { id: "enrollments",      name: "Course Enrollments" },
+      { id: "subscriptions",    name: "Subscriptions" },
+      { id: "transactions",     name: "Financial Transactions" },
     ];
 
     for (const col of collections) {
@@ -210,7 +216,69 @@ export async function POST(req: Request) {
 
     results.push("--- certificates ---");
     await stringAttr("certificates", "userId");
-    await stringAttr("certificates", "courseTitle");    // ─── Paths ───────────────────────────────────────────────────
+    await stringAttr("certificates", "courseTitle");
+    await stringAttr("certificates", "certId", 128);
+    await stringAttr("certificates", "issueDate", 64);
+    await sleep(500);
+
+    results.push("--- job_applications ---");
+    await stringAttr("job_applications", "userId", 128);
+    await stringAttr("job_applications", "jobId", 128);
+    await stringAttr("job_applications", "jobTitle", 255);
+    await stringAttr("job_applications", "company", 255);
+    await stringAttr("job_applications", "status", 64, false, "applied");
+    await stringAttr("job_applications", "appliedAt", 64);
+    await stringAttr("job_applications", "notes", 2048, false);
+    await sleep(500);
+
+    results.push("--- audit_ledger ---");
+    await stringAttr("audit_ledger", "eventId", 128);
+    await stringAttr("audit_ledger", "eventType", 64);
+    await stringAttr("audit_ledger", "actorId", 128);
+    await stringAttr("audit_ledger", "canonicalPayload", 4096);
+    await stringAttr("audit_ledger", "previousHash", 128);
+    await stringAttr("audit_ledger", "currentHash", 128);
+    await stringAttr("audit_ledger", "timestamp", 64);
+    await sleep(500);
+
+    results.push("--- trust_credentials ---");
+    await stringAttr("trust_credentials", "credentialId", 128);
+    await stringAttr("trust_credentials", "recipient", 255);
+    await stringAttr("trust_credentials", "recipientHash", 128);
+    await stringAttr("trust_credentials", "badgeName", 255);
+    await stringAttr("trust_credentials", "issuedAt", 64);
+    await stringAttr("trust_credentials", "status", 64);
+    await stringAttr("trust_credentials", "proofValue", 512);
+    await stringAttr("trust_credentials", "canonicalJson", 8192);
+    await sleep(500);
+
+    results.push("--- enrollments ---");
+    await stringAttr("enrollments", "userId", 128);
+    await stringAttr("enrollments", "courseId", 128);
+    await stringAttr("enrollments", "enrolledAt", 64);
+    await stringAttr("enrollments", "status", 64);
+    await stringAttr("enrollments", "trxId", 128, false);
+    await sleep(500);
+
+    results.push("--- subscriptions ---");
+    await stringAttr("subscriptions", "userId", 128);
+    await stringAttr("subscriptions", "tier", 64);
+    await stringAttr("subscriptions", "status", 64);
+    await stringAttr("subscriptions", "validUntil", 64);
+    await stringAttr("subscriptions", "trxId", 128, false);
+    await sleep(500);
+
+    results.push("--- transactions ---");
+    await stringAttr("transactions", "trxId", 128);
+    await stringAttr("transactions", "phone", 32);
+    await floatAttr("transactions", "amount");
+    await stringAttr("transactions", "courseOrTier", 128);
+    await stringAttr("transactions", "status", 64);
+    await stringAttr("transactions", "submittedAt", 64);
+    await stringAttr("transactions", "reconciledAt", 64, false);
+    await sleep(500);
+
+    // ─── Paths ───────────────────────────────────────────────────
     const paths = [
       {
         slug: "academic-english",

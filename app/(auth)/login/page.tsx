@@ -37,34 +37,36 @@ export default function LoginPage() {
     return false;
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [targetUrl, setTargetUrl] = useState("/dashboard");
-
-  useEffect(() => {
+  const [error, setError] = useState(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      const fromParam = params.get("from");
-      if (fromParam && fromParam.startsWith("/")) {
-        setTargetUrl(fromParam);
-      }
       const errorParam = params.get("error");
       if (errorParam) {
         try {
           const parsed = JSON.parse(errorParam);
           if (parsed.type === "user_oauth2_provider_failure" || parsed.code === 424) {
-            setError(
-              "Google OAuth configuration mismatch. Please sign in with Email and Password below."
-            );
-          } else {
-            const rawMsg = parsed.message || errorParam;
-            setError(typeof rawMsg === "string" ? rawMsg.slice(0, 200) : "Authentication error occurred.");
+            return "Google OAuth configuration mismatch. Please sign in with Email and Password below.";
           }
+          const rawMsg = parsed.message || errorParam;
+          return typeof rawMsg === "string" ? rawMsg.slice(0, 200) : "Authentication error occurred.";
         } catch {
-          setError(errorParam.slice(0, 200));
+          return errorParam.slice(0, 200);
         }
       }
     }
+    return "";
+  });
 
+  const [targetUrl, setTargetUrl] = useState(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const fromParam = params.get("from");
+      if (fromParam && fromParam.startsWith("/")) return fromParam;
+    }
+    return "/dashboard";
+  });
+
+  useEffect(() => {
     // Check if user has an active session
     const checkActiveSession = async () => {
       try {
@@ -148,44 +150,13 @@ export default function LoginPage() {
         } catch {}
       }
 
-      // 2. Resilient registered user fallback
-      if (typeof window !== "undefined") {
-        try {
-          const registeredUsers: any[] = JSON.parse(
-            localStorage.getItem("insyt_registered_users") || "[]"
-          );
-          const existingUser = registeredUsers.find(
-            (u) => u.email?.toLowerCase() === email.toLowerCase()
-          );
-
-          if (existingUser) {
-            if (existingUser.password && existingUser.password !== password) {
-              setError("Incorrect password. Please verify your credentials.");
-              setIsLoading(false);
-              return;
-            }
-            const authenticatedUser = {
-              $id: existingUser.id || "user-" + Math.random().toString(36).substring(2, 9),
-              name: existingUser.fullName || email.split("@")[0],
-              email: existingUser.email,
-              emailVerification: true,
-              status: true,
-              prefs: existingUser.prefs || {
-                subscriptionTier: "starter",
-                subscriptionStatus: "active",
-              },
-            };
-            finishLogin(authenticatedUser);
-            return;
-          }
-        } catch {}
-      }
-
+      // Handle invalid credentials or network errors strictly via server session
       if (err?.code === 401 || err?.message?.toLowerCase()?.includes("invalid credentials")) {
         setError("Invalid email or password. Please verify your credentials or register.");
         setIsLoading(false);
         return;
       }
+
 
       setError(
         err?.message ||

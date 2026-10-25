@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Sparkles, Check, Crown, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { BKASH_CONFIG } from "@/lib/payments/bkash-config";
 
 interface ProUpgradeModalProps {
   isOpen: boolean;
@@ -12,11 +14,11 @@ interface ProUpgradeModalProps {
 }
 
 const PRO_BENEFITS = [
-  "Unlimited AI Mock Interviews & Voice Feedback",
-  "High-Res 1-Page PDF Resume Exports from Career Passport",
+  "Unlimited AI Mock Interviews & Executive Voice Analysis",
+  "High-Resolution Vector ATS PDF Resumes with Selectable Text",
   "Access to all 8+ Executive Learning Paths & Certificates",
   "Unlimited Practice Assessments & Corporate Case Labs",
-  "Direct 1-Click Job Application Dispatch",
+  "Verified Career Passport Credentials with W3C Cryptographic Proof",
 ];
 
 export function ProUpgradeModal({
@@ -25,11 +27,47 @@ export function ProUpgradeModal({
   featureTitle = "Unlock INSYT Pro",
   featureDescription = "Upgrade your account to unlock this feature and supercharge your corporate career progression.",
 }: ProUpgradeModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Focus trap and Escape listener (UX-08)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+      if (e.key === "Tab" && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pro-modal-title"
+        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 font-sans"
+      >
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -41,6 +79,7 @@ export function ProUpgradeModal({
 
         {/* Modal Container */}
         <motion.div
+          ref={modalRef}
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -66,7 +105,8 @@ export function ProUpgradeModal({
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors text-white/80"
+            aria-label="Close dialog"
+            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors text-white/80 cursor-pointer"
           >
             <X size={16} />
           </button>
@@ -77,7 +117,7 @@ export function ProUpgradeModal({
           </div>
 
           {/* Header */}
-          <h2 className="text-xl font-extrabold tracking-tight text-white mb-1 flex items-center gap-2">
+          <h2 id="pro-modal-title" className="text-xl font-extrabold tracking-tight text-white mb-1 flex items-center gap-2">
             {featureTitle} <Sparkles size={18} className="text-[#F0D080]" />
           </h2>
           <p className="text-xs text-white/70 mb-5 leading-relaxed">
@@ -106,13 +146,13 @@ export function ProUpgradeModal({
                 background: "linear-gradient(135deg, #F0D080, #C9A84C)",
               }}
             >
-              <span>Upgrade to Pro — ৳999/mo</span>
+              <span>Upgrade to Pro — ৳{BKASH_CONFIG.SUBSCRIPTION_PRICES.pro}/mo</span>
               <ArrowRight size={14} />
             </Link>
 
             <button
               onClick={onClose}
-              className="w-full py-2.5 text-xs font-semibold text-white/60 hover:text-white transition-colors"
+              className="w-full py-2.5 text-xs font-semibold text-white/60 hover:text-white transition-colors cursor-pointer"
             >
               Maybe Later
             </button>

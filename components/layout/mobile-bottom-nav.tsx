@@ -15,13 +15,13 @@ import { Notification } from "@/lib/state/types";
 
 const FIRE_EMOJI_URL = "https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.webp";
 
-// 5 Canonical Pillars per Section 2 of the Supermassive Implementation Plan
+// 5 Canonical Pillars
 const primaryTabs = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: BookOpen,        label: "Learn",     href: "/learn" },
-  { icon: ClipboardList,   label: "Evaluate",  href: "/evaluate" },
-  { icon: FileText,        label: "Passport",  href: "/passport" },
-  { icon: Briefcase,       label: "Jobs",      href: "/opportunities" },
+  { icon: ClipboardList,   label: "Evaluate",  href: "/mock-tests" },
+  { icon: FileText,        label: "Passport",  href: "/career-passport" },
+  { icon: Briefcase,       label: "Jobs",      href: "/jobs" },
 ];
 
 function buildMobileCommandSections() {

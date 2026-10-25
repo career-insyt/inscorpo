@@ -152,7 +152,7 @@ export default function SignupPage() {
           filtered.push({
             id: userId,
             email: formData.email,
-            password: formData.password,
+            // SECURITY REMEDIATION: Passwords must never be stored in browser storage
             fullName: formData.fullName,
             phone: formData.phone,
             university: formData.university,

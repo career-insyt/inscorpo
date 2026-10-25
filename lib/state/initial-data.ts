@@ -17,7 +17,7 @@ export const INITIAL_USER_STATE: UserState = {
   experienceLevel: "",
   subscriptionTier: "starter",
   subscriptionStatus: "active",
-  enrolledPathSlugs: ["excel-modeling"],
+  enrolledPathSlugs: [],
   streakFreezes: 1,
   redeemedVouchers: [],
   completedChallengeIds: [],

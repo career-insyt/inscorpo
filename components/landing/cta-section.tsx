@@ -24,10 +24,10 @@ export function CTASection() {
           />
 
           <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
-            {/* Gamified Welcome XP Badge */}
+            {/* 20% Discount Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border-2 border-slate-900 bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#0f172a]">
               <Flame size={14} className="text-slate-950 fill-amber-500" />
-              <span>CLAIM +100 WELCOME XP ON SIGNUP</span>
+              <span>CLAIM 20% DISCOUNT ON YOUR FIRST COURSE</span>
             </div>
 
             <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white font-sans leading-tight">
@@ -39,7 +39,7 @@ export function CTASection() {
               Join thousands of corporate analysts, management trainees, and ambitious graduates leveling up on Bangladesh&apos;s leading career operating system.
             </p>
 
-            {/* Brutalist Action Buttons */}
+            {/* Brutalist Action Button */}
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="/signup"
@@ -48,29 +48,13 @@ export function CTASection() {
                 <span>GET STARTED FREE</span>
                 <ArrowRight size={16} />
               </Link>
-              
-              <Link
-                href="/dashboard"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl border-2 border-slate-900 bg-white hover:bg-slate-50 text-slate-950 font-black text-sm shadow-[4px_4px_0px_0px_#0f172a] hover:shadow-[2px_2px_0px_0px_#0f172a] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
-              >
-                <Zap size={16} className="text-[#2563eb]" />
-                <span>EXPLORE COCKPIT</span>
-              </Link>
             </div>
 
             {/* Trust Checks */}
-            <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs text-blue-100/80 font-bold">
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs text-blue-100/90 font-bold">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck size={14} className="text-amber-300" />
                 No Credit Card Required
-              </span>
-              <span className="flex items-center gap-1.5">
-                <ShieldCheck size={14} className="text-amber-300" />
-                Instant Account Activation
-              </span>
-              <span className="flex items-center gap-1.5">
-                <ShieldCheck size={14} className="text-amber-300" />
-                W3C ED25519 Verified
               </span>
             </div>
           </div>

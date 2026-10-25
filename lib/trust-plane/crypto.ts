@@ -161,15 +161,24 @@ export function getIssuerKeys() {
     };
   }
 
+  // Strict zero-trust: In production, hard fail if real issuer keys are missing
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'CRITICAL SECURITY FAULT: INSYT_ISSUER_PRIVATE_KEY_PEM and INSYT_ISSUER_PUBLIC_KEY_PEM must be set in production environments. Refusing to sign with dev seeds.'
+    );
+  }
+
   if (!cachedDevKeyPair) {
-    // Generate deterministic key for dev/test from seed
+    // Generate 100% deterministic key for dev/test from seed (RFC 8032 / PKCS#8 ASN.1)
     const seed = crypto.createHash('sha256').update(DEV_SEED).digest();
-    // Node.js crypto ed25519 key derivation
-    const { publicKey, privateKey } = crypto.generateKeyPairSync('ed25519', {
-      publicKeyEncoding: { type: 'spki', format: 'pem' },
-      privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
-    });
-    const spkiDer = crypto.createPublicKey(publicKey).export({ type: 'spki', format: 'der' });
+    const pkcs8Prefix = Buffer.from('302e020100300506032b657004220420', 'hex');
+    const der = Buffer.concat([pkcs8Prefix, seed]);
+    const privObj = crypto.createPrivateKey({ key: der, format: 'der', type: 'pkcs8' });
+    const pubObj = crypto.createPublicKey(privObj);
+    const privateKey = privObj.export({ type: 'pkcs8', format: 'pem' }) as string;
+    const publicKey = pubObj.export({ type: 'spki', format: 'pem' }) as string;
+
+    const spkiDer = pubObj.export({ type: 'spki', format: 'der' });
     const rawPub = spkiDer.slice(-32);
     cachedDevKeyPair = {
       publicKeyPem: publicKey,
@@ -187,7 +196,7 @@ export function getIssuerKeys() {
 
 export interface DataIntegrityProof {
   type: 'DataIntegrityProof';
-  cryptosuite: 'eddsa-rdfc-2022' | 'ed25519-2020';
+  cryptosuite: 'eddsa-jcs-2022' | 'eddsa-rdfc-2022' | 'ed25519-2020';
   created: string;
   verificationMethod: string;
   proofPurpose: 'assertionMethod';
@@ -195,7 +204,7 @@ export interface DataIntegrityProof {
 }
 
 /**
- * Signs a credential or object using W3C Data Integrity specification
+ * Signs a credential or object using W3C Data Integrity specification with RFC 8785 JCS
  */
 export function signDocument<T extends Record<string, any>>(
   doc: T,
@@ -209,7 +218,7 @@ export function signDocument<T extends Record<string, any>>(
 
   const proofConfig = {
     type: 'DataIntegrityProof' as const,
-    cryptosuite: 'eddsa-rdfc-2022' as const,
+    cryptosuite: 'eddsa-jcs-2022' as const,
     created,
     verificationMethod,
     proofPurpose: 'assertionMethod' as const,

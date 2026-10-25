@@ -20,21 +20,72 @@ export function CockpitCommandCenter({ state }: CockpitCommandCenterProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const targetCareerGoal = state.passportProfile?.headline || "Corporate Business Analyst / FMCG MTO";
 
-  // Synthesize candidate component scores from real state data
+  // Synthesize candidate component scores dynamically from verified assessments
   const evaluatedScores: ReadinessComponentScores = useMemo(() => {
-    const cognitiveScore = (state.completedMockTests || []).length > 0 ? 76 : null;
-    const hasTechnicalCourse = state.courseProgress.some(c => c.progress > 0);
-    const technicalScore = hasTechnicalCourse ? 72 : null;
-    const caseScore = state.completedChallengeIds.length > 0 ? 68 : null;
-    const communicationScore = null;
-    const interviewScore = 84;
+    const verifiedDetails = state.passportProfile?.verifiedSkillDetails || {};
+    const verifiedEntries = Object.entries(verifiedDetails).filter(([_, v]) => v.verified && typeof v.score === "number");
+
+    // Helper to calculate average score for matching keywords
+    const getDimensionScore = (keywords: string[]): number | null => {
+      const matches = verifiedEntries.filter(([name]) =>
+        keywords.some(kw => name.toLowerCase().includes(kw.toLowerCase()))
+      );
+      if (matches.length === 0) return null;
+      const sum = matches.reduce((acc, [_, v]) => acc + v.score, 0);
+      return Math.round(sum / matches.length);
+    };
+
+    // 1. Cognitive Readiness (Aptitude, quantitative, verbal, logical)
+    let cognitive = getDimensionScore(["quantitative", "verbal", "cognitive", "logical", "aptitude", "gre"]);
+    if (cognitive === null && (state.completedMockTests || []).length > 0) {
+      try {
+        if (typeof window !== "undefined") {
+          const raw = localStorage.getItem("insyt_mock_test_results");
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              const sum = parsed.reduce((acc: number, item: any) => acc + (item.score || 0), 0);
+              cognitive = Math.round(sum / parsed.length);
+            }
+          }
+        }
+      } catch {}
+    }
+
+    // 2. Technical Readiness (Excel, SQL, Power BI, Python, Modeling)
+    const technical = getDimensionScore(["excel", "sql", "power bi", "python", "modeling", "commercial", "analytics"]);
+
+    // 3. Case Readiness (Case Solving, Structuring)
+    let caseSolving = getDimensionScore(["case", "structuring", "market entry", "profitability"]);
+    if (caseSolving === null && state.completedChallengeIds.length > 0) {
+      caseSolving = 70; // baseline pass for completed challenge
+    }
+
+    // 4. Communication Readiness (Presentations, Gamma, Executive Writing)
+    const communication = getDimensionScore(["communication", "presentation", "deck", "storytelling", "gamma"]);
+
+    // 5. Interview Readiness (STAR behavioral, mock interview transcripts)
+    let interview: number | null = getDimensionScore(["interview", "behavioral", "viva"]);
+    if (interview === null) {
+      try {
+        if (typeof window !== "undefined") {
+          const rawInterview = localStorage.getItem("insyt_interview_scores");
+          if (rawInterview) {
+            const parsed = JSON.parse(rawInterview);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              interview = Math.round(parsed.reduce((a: number, b: any) => a + (b.score || 0), 0) / parsed.length);
+            }
+          }
+        }
+      } catch {}
+    }
 
     return {
-      cognitive: cognitiveScore,
-      technical: technicalScore,
-      caseSolving: caseScore,
-      communication: communicationScore,
-      interview: interviewScore,
+      cognitive,
+      technical,
+      caseSolving,
+      communication,
+      interview,
     };
   }, [state]);
 
@@ -67,12 +118,25 @@ export function CockpitCommandCenter({ state }: CockpitCommandCenterProps) {
             </div>
 
             <div className="text-right">
-              <span className="text-2xl font-black text-[#2563eb]">
-                {readinessResult.score !== null ? `${readinessResult.score}/100` : "Calibrating"}
-              </span>
-              <span className="block text-[10px] font-black uppercase text-emerald-700">
-                {readinessResult.confidence.toUpperCase()} CONFIDENCE
-              </span>
+              {readinessResult.score !== null ? (
+                <>
+                  <span className="text-2xl font-black text-[#2563eb]">
+                    {readinessResult.score}/100
+                  </span>
+                  <span className="block text-[10px] font-black uppercase text-emerald-700">
+                    {readinessResult.confidence.toUpperCase()} CONFIDENCE
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-xs font-black text-amber-700 uppercase block">
+                    Diagnostic Incomplete
+                  </span>
+                  <span className="block text-[10px] font-bold text-slate-500">
+                    Complete ≥ 2 assessments to calibrate
+                  </span>
+                </>
+              )}
             </div>
           </div>
 

@@ -51,7 +51,7 @@ const SECURITY_HEADERS: Record<string, string> = {
   "X-Frame-Options": "DENY",
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "X-DNS-Prefetch-Control": "on",
-  "Permissions-Policy": "camera=(), microphone=(self), geolocation=(), browsing-topics=()",
+  "Permissions-Policy": "camera=(self), microphone=(self), geolocation=(), browsing-topics=()",
   "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
 };
 
@@ -74,21 +74,17 @@ export function proxy(request: NextRequest) {
   const hasSession = hasSessionCookie(request);
 
   // ── 1. Admin route protection ──
+  // Requires an active authenticated session; client-side unverified cookies cannot bypass.
   if (pathname.startsWith("/admin")) {
-    if (!hasSession) {
+    const hasAppwriteSession = request.cookies.getAll().some(
+      (c) => c.name.startsWith("a_session_") && c.value.length > 20
+    );
+
+    if (!hasSession || !hasAppwriteSession) {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = "/login";
       loginUrl.searchParams.set("from", pathname);
       return applySecurityHeaders(NextResponse.redirect(loginUrl));
-    }
-
-    // Check admin email cookie (set during login for verified admin users)
-    const adminEmail = request.cookies.get("insyt_admin_email")?.value;
-    if (!adminEmail || !ALLOWED_ADMIN_EMAILS.includes(adminEmail.toLowerCase())) {
-      // Redirect non-admin users to dashboard instead of showing admin panel
-      const dashboardUrl = request.nextUrl.clone();
-      dashboardUrl.pathname = "/dashboard";
-      return applySecurityHeaders(NextResponse.redirect(dashboardUrl));
     }
   }
 
@@ -110,13 +106,18 @@ export function proxy(request: NextRequest) {
   }
 
   // ── 4. API route protection for admin endpoints ──
-  if (pathname.startsWith("/api/seed") || pathname.startsWith("/api/setup") || pathname.startsWith("/api/sync-db")) {
+  if (
+    pathname.startsWith("/api/seed") ||
+    pathname.startsWith("/api/setup") ||
+    pathname.startsWith("/api/sync-db") ||
+    pathname.startsWith("/api/admin")
+  ) {
     const adminSecret = request.headers.get("x-admin-secret");
     const expectedSecret = process.env.ADMIN_SECRET_KEY;
 
     if (!expectedSecret || adminSecret !== expectedSecret) {
       return applySecurityHeaders(
-        NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        NextResponse.json({ error: "Unauthorized access to admin API" }, { status: 401 })
       );
     }
   }

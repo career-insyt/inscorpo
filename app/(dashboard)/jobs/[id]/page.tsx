@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
   ArrowLeft, Briefcase, Building2, MapPin, DollarSign, Calendar,
   CheckCircle2, Clock, ShieldCheck, Share2, UserCheck, Sparkles,
-  ChevronRight, Award, Check, FileText, Download, Coins
+  ChevronRight, Award, Check, FileText, Download, Coins, ExternalLink
 } from "lucide-react";
 import Link from "next/link";
 import { jobsData, JobListing } from "@/lib/data/jobs";
@@ -33,51 +33,49 @@ export default function JobDetailPage(props: PageProps) {
 
   const params = use(props.params);
   const rawId = params?.id || "brac-bank-mtp";
+  const govJob = getGovJobById(rawId);
 
   // 1. Check corporate jobs
   let job: JobListing | undefined = jobsData.find((j) => j.id === rawId || (j as any).slug === rawId);
 
   // 2. Check government research jobs if not corporate
-  if (!job) {
-    const govJob = getGovJobById(rawId);
-    if (govJob) {
-      job = {
-        id: govJob.id,
-        title: govJob.title,
-        company: `${govJob.organizationName} (${govJob.organizationAcronym})`,
-        location: `${govJob.organizationAcronym} HQ / Research Labs`,
-        type: `Grade ${govJob.grade} (Govt NPS 2015)`,
-        experienceLevel: `Grade ${govJob.grade} Officer`,
-        department: govJob.family,
-        salary: `৳${govJob.salary_scale_bdt}`,
-        postedDate: "Active Circular",
-        deadline: govJob.applicationDeadline,
-        logo: govJob.organizationAcronym.charAt(0),
-        description: `Official recruitment circular for ${govJob.title} at ${govJob.organizationName} (${govJob.organizationAcronym}) under National Pay Scale 2015. Position Grade: Grade ${govJob.grade}. Total Vacancies: ${govJob.vacancy} post(s).`,
-        requirements: [
-          govJob.requirements,
-          ...(govJob.before_skills?.map(s => `Screening Competency: ${s.replace(/_/g, " ")}`) || [])
-        ],
-        responsibilities: [
-          `Execute scientific research and administrative duties mandated for Grade ${govJob.grade} ${govJob.title}.`,
-          `Collaborate with research teams across ${govJob.organizationAcronym} laboratories and field stations.`,
-          `Maintain technical logs, research documentation, and regulatory compliance under ${govJob.ministry}.`,
-        ],
-        perks: [
-          `National Pay Scale 2015 Grade ${govJob.grade} Salary Scale`,
-          `Government Housing / Rent Allowance & Medical Benefits`,
-          `Pension & Gratuity Protection`,
-          `Institutional Training & Seniority Promotion Track`,
-        ],
-        stages: [
-          { step: 1, title: "Circular Published", desc: "Official notice published under NPS 2015" },
-          { step: 2, title: "Online Application", desc: `Application deadline: ${govJob.applicationDeadline}` },
-          { step: 3, title: "Written Screening Exam", desc: "Syllabus based on candidate degree & competencies" },
-          { step: 4, title: "Viva Voce & Merit List", desc: "Final verification and appointment recommendation" },
-        ],
-        applied: false,
-      };
-    }
+  if (!job && govJob) {
+    job = {
+      id: govJob.id,
+      title: govJob.title,
+      company: `${govJob.organizationName} (${govJob.organizationAcronym})`,
+      location: `${govJob.organizationAcronym} HQ / Research Labs`,
+      type: `Grade ${govJob.grade} (Govt NPS 2015)`,
+      experienceLevel: `Grade ${govJob.grade} Officer`,
+      department: govJob.family,
+      salary: `৳${govJob.salary_scale_bdt}`,
+      postedDate: govJob.isArchived ? "Archived Circular" : "Active Circular",
+      deadline: govJob.applicationDeadline,
+      logo: govJob.organizationAcronym.charAt(0),
+      description: `Official recruitment circular for ${govJob.title} at ${govJob.organizationName} (${govJob.organizationAcronym}) under National Pay Scale 2015. Position Grade: Grade ${govJob.grade}. Total Vacancies: ${govJob.vacancy} post(s).`,
+      requirements: [
+        govJob.requirements,
+        ...(govJob.before_skills?.map(s => `Screening Competency: ${s.replace(/_/g, " ")}`) || [])
+      ],
+      responsibilities: [
+        `Execute scientific research and administrative duties mandated for Grade ${govJob.grade} ${govJob.title}.`,
+        `Collaborate with research teams across ${govJob.organizationAcronym} laboratories and field stations.`,
+        `Maintain technical logs, research documentation, and regulatory compliance under ${govJob.ministry}.`,
+      ],
+      perks: [
+        `National Pay Scale 2015 Grade ${govJob.grade} Salary Scale`,
+        `Government Housing / Rent Allowance & Medical Benefits`,
+        `Pension & Gratuity Protection`,
+        `Institutional Training & Seniority Promotion Track`,
+      ],
+      stages: [
+        { step: 1, title: "Circular Published", desc: "Official notice published under NPS 2015" },
+        { step: 2, title: "Online Application", desc: `Application deadline: ${govJob.applicationDeadline}` },
+        { step: 3, title: "Written Screening Exam", desc: "Syllabus based on candidate degree & competencies" },
+        { step: 4, title: "Viva Voce & Merit List", desc: "Final verification and appointment recommendation" },
+      ],
+      applied: false,
+    };
   }
 
   // Fallback if ID is unknown
@@ -167,6 +165,16 @@ export default function JobDetailPage(props: PageProps) {
         </Link>
       </div>
 
+      {/* Archived Notice Banner */}
+      {govJob?.isArchived && (
+        <div className="p-4 rounded-sm border-2 border-amber-500 bg-amber-50 text-amber-950 font-mono text-xs flex items-center gap-3 shadow-[3px_3px_0px_0px_#b45309]">
+          <Clock className="w-5 h-5 text-amber-600 shrink-0" />
+          <div>
+            <strong>ARCHIVED CIRCULAR / PAST DEADLINE:</strong> {govJob.archiveNotice || `The deadline for this circular (${govJob.applicationDeadline}) has concluded. Maintained for syllabus mapping, skill benchmarks, and preparation tracking.`}
+          </div>
+        </div>
+      )}
+
       {/* Hero Header Card — Boxy styling with light blue border */}
       <div
         className="rounded-sm p-6 sm:p-8 border-2 border-blue-400 shadow-[4px_4px_0px_0px_#2563eb] space-y-6 relative overflow-hidden"
@@ -197,7 +205,7 @@ export default function JobDetailPage(props: PageProps) {
             </div>
           </div>
 
-          {/* Action CTAs: CV Fit Check Button inside each job page + Career Passport Apply */}
+          {/* Action CTAs: CV Fit Check Button inside each job page + Official Portal + Career Passport Apply */}
           <div className="w-full sm:w-auto flex-shrink-0 font-mono flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <button
               type="button"
@@ -209,10 +217,23 @@ export default function JobDetailPage(props: PageProps) {
               <span>AI CV Fit Check (-10 XP)</span>
             </button>
 
+            {govJob?.portalUrl && (
+              <a
+                href={govJob.portalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-3.5 rounded-sm text-xs font-black uppercase text-[#2563eb] bg-white hover:bg-blue-50 transition-all border-2 border-[#2563eb] shadow-[3px_3px_0px_0px_#2563eb] flex items-center justify-center gap-2"
+                title="Open Official Teletalk / Employer Portal"
+              >
+                <span>Official Portal</span>
+                <ExternalLink size={14} />
+              </a>
+            )}
+
             {applied ? (
               <div className="space-y-2">
                 <div className="px-6 py-3.5 rounded-sm text-xs font-extrabold bg-blue-500/10 text-[#2563eb] border-2 border-blue-400 flex items-center justify-center gap-2 shadow-sm uppercase">
-                  <CheckCircle2 size={16} /> Application Transmitted
+                  <CheckCircle2 size={16} /> Tracked in Dashboard
                 </div>
                 {applicationData?.refId && (
                   <p className="text-[10px] font-mono text-corp-text-tertiary text-center">
@@ -226,7 +247,7 @@ export default function JobDetailPage(props: PageProps) {
                 onClick={() => setApplyModalOpen(true)}
                 className="px-8 py-3.5 rounded-sm text-xs font-black text-white bg-[#2563eb] hover:bg-blue-600 transition-all shadow-[3px_3px_0px_0px_#1e3a8a] border-2 border-blue-300 flex items-center justify-center gap-2 uppercase tracking-wider cursor-pointer"
               >
-                <span>Apply with Career Passport</span>
+                <span>Track Application</span>
                 <Sparkles size={15} />
               </button>
             )}

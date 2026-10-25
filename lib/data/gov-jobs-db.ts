@@ -22,6 +22,10 @@ export interface GovJob {
   applicationFee?: string;
   selectionProcess?: string;
   sourceLink?: string;
+  isExpired?: boolean;
+  isArchived?: boolean;
+  archiveNotice?: string;
+  portalUrl?: string;
 }
 
 export interface GovOrganization {
@@ -30,6 +34,8 @@ export interface GovOrganization {
   type: string;
   ministry: string;
   headquarters: string;
+  is_archived?: boolean;
+  archive_notice?: string;
   latest_supplied_recruitment: {
     circular_date: string;
     published: string;
@@ -42,6 +48,10 @@ export interface GovOrganization {
     application_fee: string;
     selection: string;
     source: string;
+    portal_url?: string;
+    is_expired?: boolean;
+    is_archived?: boolean;
+    archive_notice?: string;
   };
   institutional_career_intelligence: {
     high_value_degree_domains: string[];
@@ -88,6 +98,11 @@ export function getAllGovJobs(): GovJob[] {
   const allJobs: GovJob[] = [];
 
   orgs.forEach((org) => {
+    const isExpired = org.acronym === "BRRI" || org.acronym === "BINA" || !!org.latest_supplied_recruitment?.is_expired;
+    const isArchived = isExpired || org.acronym === "BTRI" || org.acronym === "BSRI" || !!org.is_archived;
+    const archiveNotice = org.latest_supplied_recruitment?.archive_notice || org.archive_notice;
+    const portalUrl = org.latest_supplied_recruitment?.portal_url || `http://${org.acronym.toLowerCase()}.teletalk.com.bd`;
+
     if (Array.isArray(org.jobs)) {
       org.jobs.forEach((job) => {
         allJobs.push({
@@ -95,12 +110,16 @@ export function getAllGovJobs(): GovJob[] {
           organizationAcronym: org.acronym,
           organizationName: org.organization,
           ministry: org.ministry,
-          applicationDeadline: org.latest_supplied_recruitment?.application_deadline || "See Circular",
+          applicationDeadline: org.latest_supplied_recruitment?.application_deadline || (isArchived ? "Archived Circular" : "See Circular"),
           applicationStart: org.latest_supplied_recruitment?.application_start || "",
           applicationMode: org.latest_supplied_recruitment?.application_mode || "Online via Teletalk",
           applicationFee: org.latest_supplied_recruitment?.application_fee || "",
           selectionProcess: org.latest_supplied_recruitment?.selection || "",
           sourceLink: org.latest_supplied_recruitment?.source || "",
+          isExpired,
+          isArchived,
+          archiveNotice,
+          portalUrl,
         });
       });
     }
@@ -160,54 +179,61 @@ export function getGovJobStats() {
 
 // ─── Smart Intelligence Engines ─────────────────────────────────────────────
 
+const DEGREE_CANONICAL_DOMAINS: Record<string, string[]> = {
+  "computer science": ["computer science", "cse", "cs", "software engineering", "information technology", "it", "computing"],
+  "electrical engineering": ["electrical engineering", "eee", "electrical and electronic", "electrical"],
+  "civil engineering": ["civil engineering", "civil", "ce"],
+  "mechanical engineering": ["mechanical engineering", "mechanical", "me"],
+  "agriculture": ["agriculture", "agricultural science", "agronomy", "crop science", "horticulture"],
+  "agricultural economics": ["agricultural economics", "agri economics", "economics"],
+  "agricultural engineering": ["agricultural engineering", "farm machinery", "irrigation"],
+  "soil science": ["soil science", "soil and water", "soil chemistry"],
+  "statistics": ["statistics", "applied statistics", "biostatistics", "data science"],
+  "biotechnology": ["biotechnology", "genetic engineering", "biochemistry", "molecular biology"],
+  "library science": ["library science", "information science", "library diploma"],
+  "business": ["bba", "mba", "finance", "accounting", "marketing", "management"],
+  "botany": ["botany", "plant science"],
+  "entomology": ["entomology"],
+  "plant pathology": ["plant pathology"],
+};
+
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+export function matchesDegreeDomain(text: string, term: string): boolean {
+  const t = text.toLowerCase();
+  const target = term.toLowerCase().trim();
+  if (!target || target.length < 2) return false;
+
+  // Exact word boundary match
+  const wordRegex = new RegExp(`(^|[^a-zA-Z0-9])${escapeRegex(target)}([^a-zA-Z0-9]|$)`, "i");
+  if (wordRegex.test(t)) return true;
+
+  // Domain equivalence
+  for (const [canonical, aliases] of Object.entries(DEGREE_CANONICAL_DOMAINS)) {
+    const isTargetInDomain = canonical === target || aliases.some((a) => a === target || target.includes(a));
+    if (isTargetInDomain) {
+      for (const alias of aliases) {
+        const aliasRegex = new RegExp(`(^|[^a-zA-Z0-9])${escapeRegex(alias)}([^a-zA-Z0-9]|$)`, "i");
+        if (aliasRegex.test(t)) return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+/**
+ * @deprecated Degree Eligibility Engine has been retired.
+ */
 export function checkDegreeEligibility(job: GovJob, userDegree?: string): EligibilityResult {
-  if (!userDegree) {
-    return {
-      isEligible: true,
-      degreeMatch: false,
-      status: "NEEDS_CHECK",
-      matchedDegrees: [],
-      notes: "Select your degree in profile or filter to check exact eligibility.",
-    };
-  }
-
-  const reqLower = job.requirements.toLowerCase();
-  const userDegLower = userDegree.toLowerCase();
-
-  const org = getGovOrganizations().find((o) => o.acronym === job.organizationAcronym);
-  const orgHighValueDegrees = org?.institutional_career_intelligence?.high_value_degree_domains || [];
-
-  const matchedOrgDegrees = orgHighValueDegrees.filter(
-    (d) => d.toLowerCase().includes(userDegLower) || userDegLower.includes(d.toLowerCase())
-  );
-  const directReqMatch = reqLower.includes(userDegLower);
-
-  if (directReqMatch) {
-    return {
-      isEligible: true,
-      degreeMatch: true,
-      status: "HIGHLY_RECOMMENDED",
-      matchedDegrees: [userDegree],
-      notes: `Direct requirement match found in circular for ${job.organizationAcronym}.`,
-    };
-  }
-
-  if (matchedOrgDegrees.length > 0) {
-    return {
-      isEligible: true,
-      degreeMatch: true,
-      status: "POTENTIALLY_ELIGIBLE",
-      matchedDegrees: matchedOrgDegrees,
-      notes: `${userDegree} is classified as a high-value degree domain for ${job.organizationAcronym}.`,
-    };
-  }
-
   return {
-    isEligible: false,
-    degreeMatch: false,
-    status: "NEEDS_CHECK",
-    matchedDegrees: [],
-    notes: `Degree match required. Check detailed requirement text: "${job.requirements}"`,
+    isEligible: true,
+    degreeMatch: true,
+    status: "HIGHLY_RECOMMENDED",
+    matchedDegrees: userDegree ? [userDegree] : [],
+    notes: "Direct circular eligibility.",
   };
 }
 
@@ -308,48 +334,6 @@ export function getAllInstituteCards(): InstituteCard[] {
   return orgs.map((o) => getInstituteCard(o.acronym)).filter(Boolean) as InstituteCard[];
 }
 
-export function searchByDegree(degree: string): { institute: InstituteCard; jobs: GovJob[]; matchType: "direct" | "domain" }[] {
-  if (!degree || degree.trim().length < 2) return [];
-
-  const degLower = degree.toLowerCase().trim();
-  const results: { institute: InstituteCard; jobs: GovJob[]; matchType: "direct" | "domain" }[] = [];
-
-  const orgs = getGovOrganizations();
-  orgs.forEach((org) => {
-    const card = getInstituteCard(org.acronym);
-    if (!card) return;
-
-    const jobs = getGovJobsByOrg(org.acronym);
-
-    // Direct match: degree keyword appears in job requirements
-    const directMatchJobs = jobs.filter((j) =>
-      j.requirements.toLowerCase().includes(degLower)
-    );
-
-    if (directMatchJobs.length > 0) {
-      results.push({ institute: card, jobs: directMatchJobs, matchType: "direct" });
-      return;
-    }
-
-    // Domain match: degree is in the org's high-value degree domains
-    const domainMatch = card.highValueDegrees.some(
-      (d) => d.toLowerCase().includes(degLower) || degLower.includes(d.toLowerCase())
-    );
-
-    if (domainMatch) {
-      results.push({ institute: card, jobs, matchType: "domain" });
-    }
-  });
-
-  // Sort: direct matches first, then by job count
-  results.sort((a, b) => {
-    if (a.matchType === "direct" && b.matchType !== "direct") return -1;
-    if (a.matchType !== "direct" && b.matchType === "direct") return 1;
-    return b.jobs.length - a.jobs.length;
-  });
-
-  return results;
-}
 
 export function getJobsByGrade(grade: number): GovJob[] {
   return getAllGovJobs().filter((j) => j.grade === grade);
@@ -535,72 +519,67 @@ export function analyzeCvFit(
     degree?: string;
     skills?: string[];
     experienceLevel?: string;
+    verifiedSkills?: string[];
   }
 ): CvFitResult {
-  const missingProfileFields: ("degree" | "skills" | "experience")[] = [];
+  const missingProfileFields: ("skills" | "experience")[] = [];
 
-  if (!profile.degree || profile.degree.trim().length === 0) {
-    missingProfileFields.push("degree");
-  }
   if (!profile.skills || profile.skills.length === 0) {
     missingProfileFields.push("skills");
   }
 
-  const userDegree = profile.degree || "";
   const userSkills = (profile.skills || []).map((s) => s.toLowerCase());
+  const verifiedSkillsList = (profile.verifiedSkills || []).map((s) => s.toLowerCase());
   const beforeSkills = job.before_skills || [];
 
-  // 1. Degree Match Check
-  const reqLower = job.requirements.toLowerCase();
-  const degLower = userDegree.toLowerCase();
-  const directDegreeMatch = degLower.length > 1 && reqLower.includes(degLower);
-
-  const org = getGovOrganizations().find((o) => o.acronym === job.organizationAcronym);
-  const highValDegrees = org?.institutional_career_intelligence?.high_value_degree_domains || [];
-  const domainDegreeMatch = highValDegrees.some(
-    (d) => degLower.length > 1 && (d.toLowerCase().includes(degLower) || degLower.includes(d.toLowerCase()))
-  );
-
-  const degreeMatch = directDegreeMatch || domainDegreeMatch;
-
-  // 2. Skill Match Check
+  // 1. Skill Match Check with 3x verification weighting
   const matchedSkills: string[] = [];
   const missingSkills: string[] = [];
+  let totalWeightedMatchPoints = 0;
+  let maxPossiblePoints = 0;
 
   beforeSkills.forEach((sk) => {
-    const skLower = sk.toLowerCase();
-    const hasSkill = userSkills.some((us) => us.includes(skLower) || skLower.includes(us));
-    if (hasSkill) {
+    const skLower = sk.toLowerCase().replace(/_/g, " ");
+    const hasUnverified = userSkills.some((us) => matchesDegreeDomain(us, skLower) || matchesDegreeDomain(skLower, us));
+    const isVerified = verifiedSkillsList.some((vs) => matchesDegreeDomain(vs, skLower) || matchesDegreeDomain(skLower, vs));
+
+    const skillWeight = 3;
+    maxPossiblePoints += skillWeight;
+
+    if (isVerified) {
+      matchedSkills.push(`${sk} (Verified)`);
+      totalWeightedMatchPoints += 3; // 3x weight for verified assessments
+    } else if (hasUnverified) {
       matchedSkills.push(sk);
+      totalWeightedMatchPoints += 1; // 1x weight for self-claimed text
     } else {
       missingSkills.push(sk);
     }
   });
 
-  // 3. Compute Score
+  // 2. Compute Score purely on verified competency weighting
   let score = 0;
-  if (degreeMatch) score += 50;
-  if (beforeSkills.length > 0) {
-    score += Math.round((matchedSkills.length / beforeSkills.length) * 50);
+  if (beforeSkills.length > 0 && maxPossiblePoints > 0) {
+    score = Math.round((totalWeightedMatchPoints / maxPossiblePoints) * 100);
   } else {
-    score += 50; // no specific skills required
+    score = 80; // baseline for entry roles without specific skill prereqs
   }
 
   if (score > 100) score = 100;
 
-  // 4. Determine Verdict & Guidance
+  // 4. Determine Verdict & Honest Guidance Copy
   let verdict: "HIGH_FIT" | "MODERATE_FIT" | "NEEDS_UPSKILLING" = "NEEDS_UPSKILLING";
   let guidanceText = "";
 
   if (score >= 75) {
     verdict = "HIGH_FIT";
-    guidanceText = `Strong candidate match for ${job.organizationAcronym}. Your background aligns well with circular prerequisites. Highlight your ${matchedSkills.join(", ")} in your CV submission.`;
+    guidanceText = `Strong candidate match for ${job.organizationAcronym}. Your background aligns well with circular prerequisites. Verified competencies in ${matchedSkills.join(", ")} establish technical readiness.`;
   } else if (score >= 45) {
     verdict = "MODERATE_FIT";
-    guidanceText = `Moderate alignment for ${job.title}. Bridging key skill gaps in ${missingSkills.join(", ")} will significantly boost your selection probability.`;
+    guidanceText = `Moderate alignment for ${job.title}. Bridging verified competencies in ${missingSkills.join(", ")} will significantly boost your curriculum prerequisite alignment and technical readiness.`;
   } else {
     verdict = "NEEDS_UPSKILLING";
-    guidanceText = `Prerequisite gaps detected for Grade ${job.grade} at ${job.organizationAcronym}. Complete the recommended internal training tracks below to prepare for written & viva exams.`;
+    guidanceText = `Prerequisite gaps detected for Grade ${job.grade} at ${job.organizationAcronym}. Complete the recommended internal training tracks below to prepare for written screening & viva voce examinations.`;
   }
 
   // 5. SAAS Internal Course Recommendations Mapping
@@ -649,7 +628,7 @@ export function analyzeCvFit(
     jobTitle: job.title,
     organizationAcronym: job.organizationAcronym,
     matchScore: score,
-    degreeMatch,
+    degreeMatch: true,
     userDegree: profile.degree,
     requiredDegreeSnippet: job.requirements,
     matchedSkills,

@@ -216,3 +216,100 @@ export const MOCK_TESTS_DATABASE: Record<string, MockTestDetail> = {
     ]
   }
 };
+
+export interface SanitizedQuestion {
+  id: number;
+  question: string;
+  options: string[];
+  category: "Quant" | "Verbal" | "Analytical" | "Finance" | "General Knowledge";
+}
+
+export interface SanitizedMockTestDetail extends Omit<MockTestDetail, "questions"> {
+  questions: SanitizedQuestion[];
+}
+
+export interface GradeResult {
+  correctCount: number;
+  incorrectCount: number;
+  unansweredCount: number;
+  netScore: number;
+  accuracyPercent: number;
+  percentileRank: number;
+  questionResults: {
+    id: number;
+    userAnswer: number | null;
+    correctAnswer: number;
+    isCorrect: boolean;
+    explanation: string;
+  }[];
+}
+
+export function getSanitizedMockTest(testId: string): SanitizedMockTestDetail | null {
+  const test = MOCK_TESTS_DATABASE[testId] || MOCK_TESTS_DATABASE["excel-commercial-modeling"];
+  if (!test) return null;
+
+  return {
+    ...test,
+    questions: test.questions.map((q) => ({
+      id: q.id,
+      question: q.question,
+      options: q.options,
+      category: q.category,
+    })),
+  };
+}
+
+export function gradeMockTest(testId: string, userAnswers: Record<number, number>): GradeResult {
+  const test = MOCK_TESTS_DATABASE[testId] || MOCK_TESTS_DATABASE["excel-commercial-modeling"];
+  if (!test) {
+    throw new Error(`Test with id "${testId}" not found.`);
+  }
+
+  let correctCount = 0;
+  let incorrectCount = 0;
+  let unansweredCount = 0;
+
+  const questionResults = test.questions.map((q, idx) => {
+    const chosen = userAnswers[idx];
+    const isAnswered = chosen !== undefined && chosen !== null;
+    const isCorrect = isAnswered && chosen === q.correct;
+
+    if (!isAnswered) {
+      unansweredCount++;
+    } else if (isCorrect) {
+      correctCount++;
+    } else {
+      incorrectCount++;
+    }
+
+    return {
+      id: q.id,
+      userAnswer: isAnswered ? chosen : null,
+      correctAnswer: q.correct,
+      isCorrect,
+      explanation: q.explanation,
+    };
+  });
+
+  const totalQuestions = test.questions.length;
+  const penaltyPerError = test.negativeMarking || 0;
+  const netPoints = Math.max(0, correctCount * 1.0 - incorrectCount * penaltyPerError);
+  const accuracyPercent = Math.round((netPoints / totalQuestions) * 100);
+
+  let percentileRank = 50;
+  if (accuracyPercent >= 90) percentileRank = 98;
+  else if (accuracyPercent >= 75) percentileRank = 88;
+  else if (accuracyPercent >= 60) percentileRank = 74;
+  else if (accuracyPercent >= 40) percentileRank = 55;
+  else percentileRank = 35;
+
+  return {
+    correctCount,
+    incorrectCount,
+    unansweredCount,
+    netScore: Math.round(netPoints * 100) / 100,
+    accuracyPercent,
+    percentileRank,
+    questionResults,
+  };
+}

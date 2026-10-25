@@ -6,7 +6,7 @@ import {
   ArrowLeft, BookOpen, Clock, Award, Play, CheckCircle2, ChevronRight, ArrowRight,
   BookOpenCheck, Compass, HelpCircle, FileText, Sparkles, Trophy, Check, X,
   Users, ChevronDown, Download, ShieldCheck, Star, Brain, CheckSquare, Layers,
-  Briefcase
+  Briefcase, Lock
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,9 @@ import { databases } from "@/lib/appwrite";
 import { DB_CONFIG } from "@/lib/db";
 import { Query } from "appwrite";
 import { cn } from "@/lib/utils";
+import { isFreeAccessUser } from "@/lib/auth/whitelist";
+import { isExcelCourse, getExpectedCoursePrice } from "@/lib/payments/bkash-config";
+import { BkashPaymentModal } from "@/components/learning/bkash-payment-modal";
 
 interface PageProps {
   params: Promise<{ pathSlug: string; courseSlug: string }>;
@@ -48,14 +51,46 @@ function getCourseCoverImage(slug: string, pathSlug: string): string {
 
 export default function MasterCourseLandingPage(props: PageProps) {
   const router = useRouter();
-  const { state, updateCourseProgress } = useUser();
+  const { state, updateCourseProgress, enrollInPath } = useUser();
   const [openModuleIndex, setOpenModuleIndex] = useState<number | null>(0);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [dbCourseDoc, setDbCourseDoc] = useState<any>(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   const params = use(props.params);
   const pathSlug = params?.pathSlug || "video-ai-production";
   const courseSlug = params?.courseSlug || "video-editing-mastery";
+
+  const isWhitelisted = isFreeAccessUser(state.email);
+  const expectedPrice = getExpectedCoursePrice(courseSlug);
+  const isEnrolledInState = state.enrolledPathSlugs.some(
+    (slug) => slug === courseSlug || slug === pathSlug || (isExcelCourse(courseSlug) && (slug === "corporate-financial-commercial-modeling-excel" || slug === "excel-modeling"))
+  );
+  const [isAccessVerified, setIsAccessVerified] = useState<boolean>(isWhitelisted || isEnrolledInState);
+
+  useEffect(() => {
+    if (isWhitelisted) {
+      setIsAccessVerified(true);
+      return;
+    }
+    if (isEnrolledInState) {
+      setIsAccessVerified(true);
+    }
+    if (state.email) {
+      fetch("/api/courses/verify-access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: state.email, courseSlug }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.hasAccess) {
+            setIsAccessVerified(true);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [state.email, courseSlug, isWhitelisted, isEnrolledInState]);
 
   useEffect(() => {
     if (courseSlug === "capcut-complete-course" || courseSlug === "capcut-core-engine" || courseSlug.includes("capcut")) {
@@ -218,6 +253,19 @@ export default function MasterCourseLandingPage(props: PageProps) {
               <span className="px-3 py-1 rounded-md text-xs font-extrabold uppercase tracking-wider bg-blue-500 text-white border border-blue-400 font-mono shadow-xs">
                 <Sparkles size={13} className="text-white inline mr-1" /> Masterclass Course
               </span>
+              {isWhitelisted ? (
+                <span className="px-3 py-1 rounded-md text-xs font-mono font-extrabold bg-emerald-400 text-emerald-950 border border-emerald-500 shadow-xs flex items-center gap-1">
+                  <ShieldCheck size={13} className="text-emerald-950" /> VIP Staff Access (100% Free)
+                </span>
+              ) : isAccessVerified ? (
+                <span className="px-3 py-1 rounded-md text-xs font-mono font-extrabold bg-emerald-400 text-emerald-950 border border-emerald-500 shadow-xs flex items-center gap-1">
+                  <CheckCircle2 size={13} className="text-emerald-950" /> Enrolled & Verified
+                </span>
+              ) : (
+                <span className="px-3 py-1 rounded-md text-xs font-mono font-extrabold bg-rose-500 text-white border border-rose-400 shadow-xs flex items-center gap-1">
+                  <Lock size={13} className="text-white" /> Enrollment Required (৳{expectedPrice.toFixed(2)})
+                </span>
+              )}
               {registryCourse.credential ? (
                 <span className="px-3 py-1 rounded-md text-xs font-mono font-extrabold bg-emerald-400 text-emerald-950 border border-emerald-500 shadow-xs">
                   <ShieldCheck size={13} className="text-emerald-950 inline mr-1" /> {registryCourse.credential.benchmark}
@@ -268,13 +316,24 @@ export default function MasterCourseLandingPage(props: PageProps) {
               )}
             </div>
 
-            <Link
-              href={`/learn/${pathSlug}/${courseSlug}/${dynamicModules[0]?.lessons[0]?.slug || "lesson-1"}`}
-              className="w-full py-4 px-6 rounded-lg text-xs font-extrabold text-white bg-[#3B5BDB] hover:bg-[#2F4AC0] transition-all shadow-[4px_4px_0px_0px_#1e3a8a] border-2 border-blue-400 flex items-center justify-center gap-2 uppercase tracking-wider font-mono"
-            >
-              <Play size={15} className="fill-current" />
-              <span>{courseProgress > 0 ? "Continue Course" : "Start Course"}</span>
-            </Link>
+            {isAccessVerified ? (
+              <Link
+                href={`/learn/${pathSlug}/${courseSlug}/${dynamicModules[0]?.lessons[0]?.slug || "lesson-1"}`}
+                className="w-full py-4 px-6 rounded-lg text-xs font-extrabold text-white bg-[#3B5BDB] hover:bg-[#2F4AC0] transition-all shadow-[4px_4px_0px_0px_#1e3a8a] border-2 border-blue-400 flex items-center justify-center gap-2 uppercase tracking-wider font-mono"
+              >
+                <Play size={15} className="fill-current" />
+                <span>{courseProgress > 0 ? "Continue Course" : "Start Course"}</span>
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsPaymentModalOpen(true)}
+                className="w-full py-4 px-6 rounded-lg text-xs font-extrabold text-white bg-[#E2136E] hover:bg-[#c20f5e] transition-all shadow-[4px_4px_0px_0px_#830c40] border-2 border-pink-400 flex items-center justify-center gap-2 uppercase tracking-wider font-mono"
+              >
+                <Lock size={15} />
+                <span>Unlock via bKash (৳{expectedPrice.toFixed(2)})</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -505,22 +564,49 @@ export default function MasterCourseLandingPage(props: PageProps) {
                       {isOpen && (
                         <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="border-t-2 border-corp-border divide-y-2 divide-corp-border">
                           {mod.lessons.map((lesson) => (
-                            <Link key={lesson.slug} href={`/learn/${pathSlug}/${courseSlug}/${lesson.slug}`} className="group flex items-center justify-between p-4 pl-8 hover:bg-corp-bg-secondary transition-colors">
-                              <div className="flex items-center gap-3.5">
-                                <div className="w-8 h-8 rounded-md bg-[#10b981] text-emerald-950 flex items-center justify-center border border-emerald-400">
-                                  <Play size={14} className="fill-current" />
+                            isAccessVerified ? (
+                              <Link key={lesson.slug} href={`/learn/${pathSlug}/${courseSlug}/${lesson.slug}`} className="group flex items-center justify-between p-4 pl-8 hover:bg-corp-bg-secondary transition-colors">
+                                <div className="flex items-center gap-3.5">
+                                  <div className="w-8 h-8 rounded-md bg-[#10b981] text-emerald-950 flex items-center justify-center border border-emerald-400">
+                                    <Play size={14} className="fill-current" />
+                                  </div>
+                                  <div>
+                                    <p className="text-xs font-extrabold group-hover:text-[#3B5BDB] transition-colors" style={{ color: "var(--corp-text)" }}>{lesson.title}</p>
+                                    <span className="text-[10px] text-corp-text-tertiary font-mono font-bold flex items-center gap-1">
+                                      <Clock size={11} className="text-[#3B5BDB]" />
+                                      <span>{lesson.duration}</span>
+                                      {lesson.type && <span className="uppercase text-[9px] px-1.5 py-0.2 rounded bg-corp-surface border border-corp-border ml-1">{lesson.type}</span>}
+                                    </span>
+                                  </div>
                                 </div>
-                                <div>
-                                  <p className="text-xs font-extrabold group-hover:text-[#3B5BDB] transition-colors" style={{ color: "var(--corp-text)" }}>{lesson.title}</p>
-                                  <span className="text-[10px] text-corp-text-tertiary font-mono font-bold flex items-center gap-1">
-                                    <Clock size={11} className="text-[#3B5BDB]" />
-                                    <span>{lesson.duration}</span>
-                                    {lesson.type && <span className="uppercase text-[9px] px-1.5 py-0.2 rounded bg-corp-surface border border-corp-border ml-1">{lesson.type}</span>}
-                                  </span>
+                                <ChevronRight size={16} className="text-corp-text-tertiary group-hover:text-[#3B5BDB] transition-colors" />
+                              </Link>
+                            ) : (
+                              <button
+                                key={lesson.slug}
+                                type="button"
+                                onClick={() => setIsPaymentModalOpen(true)}
+                                className="w-full group flex items-center justify-between p-4 pl-8 hover:bg-corp-bg-secondary transition-colors text-left"
+                              >
+                                <div className="flex items-center gap-3.5">
+                                  <div className="w-8 h-8 rounded-md bg-amber-500/20 text-amber-500 flex items-center justify-center border border-amber-500/40">
+                                    <Lock size={14} />
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <p className="text-xs font-extrabold text-corp-text group-hover:text-[#E2136E] transition-colors">{lesson.title}</p>
+                                      <span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/30">Locked</span>
+                                    </div>
+                                    <span className="text-[10px] text-corp-text-tertiary font-mono font-bold flex items-center gap-1">
+                                      <Clock size={11} className="text-corp-text-tertiary" />
+                                      <span>{lesson.duration}</span>
+                                      {lesson.type && <span className="uppercase text-[9px] px-1.5 py-0.2 rounded bg-corp-surface border border-corp-border ml-1">{lesson.type}</span>}
+                                    </span>
+                                  </div>
                                 </div>
-                              </div>
-                              <ChevronRight size={16} className="text-corp-text-tertiary group-hover:text-[#3B5BDB] transition-colors" />
-                            </Link>
+                                <Lock size={14} className="text-amber-500" />
+                              </button>
+                            )
                           ))}
                         </motion.div>
                       )}
@@ -545,9 +631,19 @@ export default function MasterCourseLandingPage(props: PageProps) {
                 ? "Certified Corporate Financial & Commercial Modeler designation issued with the auditable INSYT Career Passport."
                 : "Official cryptographic credential issued upon completing all course modules & capstone deliverables."}
             </p>
-            <Link href={`/learn/${pathSlug}/${courseSlug}/${dynamicModules[0]?.lessons[0]?.slug || "lesson-1"}`} className="w-full py-3.5 rounded-lg text-xs font-extrabold text-white bg-emerald-600 hover:bg-emerald-500 shadow-[3px_3px_0px_0px_#047857] border-2 border-emerald-400 block uppercase font-mono tracking-wider">
-              {courseProgress > 0 ? "Resume Masterclass" : "Enroll & Start Course"}
-            </Link>
+            {isAccessVerified ? (
+              <Link href={`/learn/${pathSlug}/${courseSlug}/${dynamicModules[0]?.lessons[0]?.slug || "lesson-1"}`} className="w-full py-3.5 rounded-lg text-xs font-extrabold text-white bg-emerald-600 hover:bg-emerald-500 shadow-[3px_3px_0px_0px_#047857] border-2 border-emerald-400 block uppercase font-mono tracking-wider">
+                {courseProgress > 0 ? "Resume Masterclass" : "Enroll & Start Course"}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsPaymentModalOpen(true)}
+                className="w-full py-3.5 rounded-lg text-xs font-extrabold text-white bg-[#E2136E] hover:bg-[#c20f5e] shadow-[3px_3px_0px_0px_#830c40] border-2 border-pink-400 block uppercase font-mono tracking-wider"
+              >
+                Pay ৳{expectedPrice.toFixed(2)} & Unlock
+              </button>
+            )}
           </div>
 
           {/* Pricing Architecture Card */}
@@ -580,6 +676,22 @@ export default function MasterCourseLandingPage(props: PageProps) {
           )}
         </div>
       </div>
+
+      {/* bKash Payment & Verification Modal */}
+      <BkashPaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        courseSlug={courseSlug}
+        courseTitle={title}
+        userEmail={state.email}
+        userName={state.name}
+        onSuccess={() => {
+          setIsPaymentModalOpen(false);
+          setIsAccessVerified(true);
+          enrollInPath(courseSlug, title);
+          router.push(`/learn/${pathSlug}/${courseSlug}/${dynamicModules[0]?.lessons[0]?.slug || "lesson-1"}`);
+        }}
+      />
     </div>
   );
 }

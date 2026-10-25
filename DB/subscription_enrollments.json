@@ -1,0 +1,36 @@
+[
+  {
+    "id": "sub-free-1792266449955-zjvy6",
+    "userId": "whitelist-user",
+    "userEmail": "z65gt9@gmail.com",
+    "userName": "Authorized Executive",
+    "planId": "pro",
+    "planName": "Pro VIP Corporate Lifetime Access",
+    "period": "lifetime",
+    "paymentMethod": "corporate_whitelist",
+    "amountPaidBdt": 0,
+    "senderNumber": "INTERNAL_AUTHORIZED",
+    "accountHolderName": "Corporate Licensee",
+    "trxId": "FREE-SUB-1792266449955",
+    "status": "VERIFIED",
+    "activatedAt": "2026-10-17T19:47:29.955Z",
+    "securityHash": "642339341c4b40bca0eda637e7c2ce9dcea82e88ffae9167ecede50104907a65"
+  },
+  {
+    "id": "sub-bkash-1792266449966-wcep7",
+    "userId": "usr-01712345678",
+    "userEmail": "analyst@bank.com",
+    "userName": "Commercial Analyst",
+    "planId": "pro",
+    "planName": "INSYT Pro Monthly",
+    "period": "monthly",
+    "paymentMethod": "bkash_send_money",
+    "amountPaidBdt": 799,
+    "senderNumber": "01712345678",
+    "accountHolderName": "Commercial Analyst",
+    "trxId": "BKA1194947",
+    "status": "VERIFIED",
+    "activatedAt": "2026-10-17T19:47:29.966Z",
+    "securityHash": "d0c5611362a78179ac52f46c5be891af56b498c2176cd30afca2b9bd24289fbb"
+  }
+]

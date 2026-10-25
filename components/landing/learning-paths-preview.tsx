@@ -174,15 +174,15 @@ export function LearningPathsPreview() {
             <span>ভেরিফায়েড করপোরেট কারিকুলাম</span>
           </div>
 
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-950 leading-tight font-sans">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-950 leading-tight font-sans">
             আপনার লক্ষ্য অনুযায়ী <br className="hidden sm:inline" />
-            <span className="text-white bg-[#2563eb] px-3 py-0.5 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0f172a] inline-block mt-1">
+            <span className="text-white bg-[#2563eb] px-2.5 sm:px-3 py-1 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0f172a] inline-block mt-1.5 whitespace-nowrap text-[17px] sm:text-3xl md:text-4xl">
               ক্যারিয়ার ট্র্যাক বেছে নিন
             </span>
           </h2>
 
           <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-sans">
-            কোনো তাত্ত্বিক লেকচার নয়। প্রতিটি ট্র্যাকে রয়েছে রিয়েল করপোরেট ডাটাবেস, বাস্তব ব্যবসায়িক সমস্যা এবং আন্তর্জাতিক মানসম্মত W3C ক্রেডেনশিয়াল।
+            কোনো তাত্ত্বিক লেকচার নয়। প্রতিটি ট্র্যাকে রয়েছে রিয়েল করপোরেট ডাটাবেস, বাস্তব ব্যবসায়িক সমস্যা এবং আন্তর্জাতিক মানসম্মত ভেরিফায়েড ক্রেডেনশিয়াল।
           </p>
 
           {/* Brutalist Tabs */}
@@ -203,7 +203,7 @@ export function LearningPathsPreview() {
           </div>
         </div>
 
-        {/* 6 Flagship Tracks Grid (Gamified Brutalist Cards) */}
+        {/* 6 Flagship Tracks Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-mono">
           {filteredTracks.map((track) => {
             const Icon = track.icon;
@@ -220,7 +220,7 @@ export function LearningPathsPreview() {
                 }}
               >
                 <div className="space-y-4">
-                  {/* Top Bar: Icon, Credential Stamp, and XP Bounty */}
+                  {/* Top Bar: Icon, 20% Discount Stamp, and Credential */}
                   <div className="flex items-center justify-between">
                     <div 
                       className="w-12 h-12 rounded-xl border-2 border-slate-900 flex items-center justify-center shadow-[2px_2px_0px_0px_#0f172a]"
@@ -234,7 +234,7 @@ export function LearningPathsPreview() {
 
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] font-black px-2 py-0.5 rounded border-2 border-slate-900 bg-amber-300 text-slate-950 shadow-[1px_1px_0px_0px_#0f172a]">
-                        {track.xpReward}
+                        ২০% ছাড়
                       </span>
                       <span 
                         className="text-[11px] font-black px-2.5 py-0.5 rounded border-2 border-slate-900 text-white shadow-[2px_2px_0px_0px_#0f172a]"
@@ -270,18 +270,6 @@ export function LearningPathsPreview() {
                       <BookOpen size={13} className="text-[#2563eb]" />
                       {track.lessons}টি লেসন
                     </span>
-                  </div>
-
-                  {/* Core Practical Competencies */}
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {track.skills.map((skill) => (
-                      <span 
-                        key={skill}
-                        className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-800"
-                      >
-                        {skill}
-                      </span>
-                    ))}
                   </div>
                 </div>
 

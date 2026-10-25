@@ -6,16 +6,34 @@ import {
   ArrowLeft, Play, FileText, Bookmark, MessageSquare,
   Sparkles, CheckCircle2, ChevronRight, Download, Send, Check, AlertCircle,
   Table, HelpCircle, Terminal, Calculator, Layers, Code, Zap, Video,
-  Wand2, ShieldAlert, FileSpreadsheet, RefreshCw, Eye, CheckSquare, BarChart3, GraduationCap
+  Wand2, ShieldAlert, FileSpreadsheet, RefreshCw, Eye, CheckSquare, BarChart3, GraduationCap,
+  Lock, Copy, Smartphone, ShieldCheck
 } from "lucide-react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useUser } from "@/components/providers/user-context";
 import { DYNAMIC_LESSONS, getLessonBySlug, LessonDetail } from "@/lib/data/lessons";
-import PythonAnalyticsStudio from "@/components/learning/python-analytics-studio";
-import WorkflowAutomationStudio from "@/components/learning/workflow-automation-studio";
-import { BIPowerBISqlStudio } from "@/components/learning/bi-powerbi-sql-studio";
-import { MTORecruitmentStudio } from "@/components/learning/mto-recruitment-studio";
+
+const PythonAnalyticsStudio = dynamic(
+  () => import("@/components/learning/python-analytics-studio"),
+  { ssr: false, loading: () => <div className="p-8 text-center font-mono text-xs text-slate-500">Loading Python Analytics Sandbox...</div> }
+);
+const WorkflowAutomationStudio = dynamic(
+  () => import("@/components/learning/workflow-automation-studio"),
+  { ssr: false, loading: () => <div className="p-8 text-center font-mono text-xs text-slate-500">Loading Workflow Automation Sandbox...</div> }
+);
+const BIPowerBISqlStudio = dynamic(
+  () => import("@/components/learning/bi-powerbi-sql-studio").then((m) => m.BIPowerBISqlStudio),
+  { ssr: false, loading: () => <div className="p-8 text-center font-mono text-xs text-slate-500">Loading Power BI SQL Sandbox...</div> }
+);
+const MTORecruitmentStudio = dynamic(
+  () => import("@/components/learning/mto-recruitment-studio").then((m) => m.MTORecruitmentStudio),
+  { ssr: false, loading: () => <div className="p-8 text-center font-mono text-xs text-slate-500">Loading MTO Assessment Sandbox...</div> }
+);
+
 import { RenderLessonNotes } from "@/components/learning/render-lesson-notes";
+import { isFreeAccessUser } from "@/lib/auth/whitelist";
+import { isExcelCourse, getExpectedCoursePrice, BKASH_CONFIG } from "@/lib/payments/bkash-config";
 
 interface PageProps {
   params: Promise<{ pathSlug: string; courseSlug: string; lessonSlug: string }>;
@@ -32,11 +50,116 @@ const trackTitles: Record<string, string> = {
 };
 
 export default function LessonPlayerPage(props: PageProps) {
-  const { state, addNotification, updateCourseProgress, recordStudyMinutes, completeLesson } = useUser();
+  const { state, addNotification, updateCourseProgress, recordStudyMinutes, completeLesson, enrollInPath } = useUser();
   const params = use(props.params);
   const pathSlug = params?.pathSlug || "video-ai-production";
   const courseSlug = params?.courseSlug || "capcut-complete-course";
   const lessonSlug = params?.lessonSlug || "timeline-assembly";
+
+  const isWhitelisted = isFreeAccessUser(state.email);
+  const expectedPrice = getExpectedCoursePrice(courseSlug);
+  const isEnrolledInState = state.enrolledPathSlugs.some(
+    (slug) => slug === courseSlug || slug === pathSlug || (isExcelCourse(courseSlug) && (slug === "corporate-financial-commercial-modeling-excel" || slug === "excel-modeling"))
+  );
+
+  const [hasAccess, setHasAccess] = useState<boolean>(isWhitelisted);
+  const [isCheckingAccess, setIsCheckingAccess] = useState<boolean>(!isWhitelisted);
+
+  // Paywall verification state
+  const [paywallEmail, setPaywallEmail] = useState(state.email || "");
+  const [senderNumber, setSenderNumber] = useState("");
+  const [trxId, setTrxId] = useState("");
+  const [accountHolderName, setAccountHolderName] = useState(state.name || "");
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [copiedNumber, setCopiedNumber] = useState(false);
+
+  useEffect(() => {
+    if (isWhitelisted) {
+      setHasAccess(true);
+      setIsCheckingAccess(false);
+      return;
+    }
+    if (state.email) {
+      setIsCheckingAccess(true);
+      fetch("/api/courses/verify-access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: state.email, courseSlug }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.hasAccess) {
+            setHasAccess(true);
+          } else {
+            setHasAccess(false);
+          }
+        })
+        .catch(() => {
+          setHasAccess(false);
+        })
+        .finally(() => setIsCheckingAccess(false));
+    } else {
+      setIsCheckingAccess(false);
+      setHasAccess(false);
+    }
+  }, [state.email, courseSlug, isWhitelisted]);
+
+  const handleCopyBkash = () => {
+    if (navigator?.clipboard) {
+      navigator.clipboard.writeText(BKASH_CONFIG.ACCOUNT_NUMBER);
+      setCopiedNumber(true);
+      setTimeout(() => setCopiedNumber(false), 2500);
+    }
+  };
+
+  const handlePaywallVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPaymentError(null);
+    const emailToVerify = paywallEmail.trim() || state.email?.trim();
+
+    if (!emailToVerify || !emailToVerify.includes("@")) {
+      setPaymentError("Please provide a valid account email for enrollment verification.");
+      return;
+    }
+
+    const isInputWhitelisted = isFreeAccessUser(emailToVerify);
+
+    setIsVerifyingPayment(true);
+    try {
+      const res = await fetch("/api/payments/bkash-verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: emailToVerify,
+          userName: accountHolderName || state.name,
+          courseSlug,
+          courseTitle: lessonSlug,
+          senderNumber: isInputWhitelisted ? "INTERNAL_AUTHORIZED" : senderNumber,
+          trxId: isInputWhitelisted ? `FREE-${Date.now()}` : trxId.trim().toUpperCase(),
+          accountHolderName,
+          amount: expectedPrice,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Payment verification failed. Please verify your TrxID and Sender Number.");
+      }
+
+      enrollInPath(courseSlug, lessonSlug);
+      setHasAccess(true);
+      addNotification({
+        type: "achievement",
+        title: "Course Unlocked! 🚀",
+        message: `Your payment was verified. Welcome to the course!`,
+      });
+    } catch (err: any) {
+      setPaymentError(err.message || "Failed to verify transaction.");
+    } finally {
+      setIsVerifyingPayment(false);
+    }
+  };
 
   // Formatted title for dynamic fallback
   const formattedTitle = lessonSlug
@@ -361,15 +484,242 @@ Mastering **${formattedTitle}** provides you with tangible, production-grade ski
 
       {/* Lesson Banner */}
       <div className="p-6 rounded-xl space-y-2 shadow-[5px_5px_0px_0px_rgba(16,185,129,0.25)] border-2 border-[#10b981]/50" style={{ background: "var(--corp-surface)" }}>
-        <h1 className="text-xl md:text-2xl font-extrabold tracking-tight font-mono uppercase" style={{ color: "var(--corp-text)" }}>
-          {lesson.title}
-        </h1>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="text-xl md:text-2xl font-extrabold tracking-tight font-mono uppercase" style={{ color: "var(--corp-text)" }}>
+            {lesson.title}
+          </h1>
+          {isWhitelisted ? (
+            <span className="px-2.5 py-1 rounded text-[10px] font-mono font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
+              <ShieldCheck size={12} /> VIP Staff Access (Free)
+            </span>
+          ) : hasAccess ? (
+            <span className="px-2.5 py-1 rounded text-[10px] font-mono font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
+              <CheckCircle2 size={12} /> Verified Enrolled
+            </span>
+          ) : (
+            <span className="px-2.5 py-1 rounded text-[10px] font-mono font-black uppercase bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center gap-1">
+              <Lock size={12} /> Payment Required (৳{expectedPrice.toFixed(2)})
+            </span>
+          )}
+        </div>
         <p className="text-xs font-extrabold text-corp-text-secondary font-mono">
           Estimated duration: {lesson.duration} · Masterclass: {trackTitle}
         </p>
       </div>
 
-      {/* Tabs */}
+      {/* Access Gate: If not verified and not whitelisted, lock lesson content and display bulletproof paywall! */}
+      {isCheckingAccess ? (
+        <div className="p-12 text-center font-mono space-y-3 rounded-2xl border-2 border-slate-800 bg-corp-surface">
+          <RefreshCw size={24} className="animate-spin mx-auto text-emerald-400" />
+          <p className="text-xs font-bold text-corp-text">Verifying Course Access Credentials...</p>
+        </div>
+      ) : !hasAccess ? (
+        <div className="rounded-2xl border-2 border-slate-900 bg-white shadow-[8px_8px_0px_0px_#0f172a] overflow-hidden font-mono my-4">
+          {/* Header Banner */}
+          <div className="bg-[#E2136E] text-white p-5 border-b-2 border-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white text-[#E2136E] flex items-center justify-center font-black text-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0f172a]">
+                ব
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-pink-200 block">
+                  bKash Personal Payment · Course License Locked
+                </span>
+                <h2 className="text-base sm:text-lg font-black leading-tight text-white">
+                  কোর্স আনলক করতে পেমেন্ট ভেরিফাই করুন
+                </h2>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-start sm:self-auto bg-black/20 px-3 py-1.5 rounded-lg border border-white/20">
+              <Lock size={14} className="text-pink-200" />
+              <span className="text-xs font-black text-white">Instant Verification</span>
+            </div>
+          </div>
+
+          <div className="p-6 sm:p-8 space-y-6">
+            {/* Price & Target Bar */}
+            <div className="p-4 rounded-xl border-2 border-slate-900 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <span className="text-[10px] font-bold uppercase text-slate-500 block">Locked Course Curriculum</span>
+                <p className="text-sm sm:text-base font-black text-slate-900">{lesson.title}</p>
+                <p className="text-[11px] text-slate-600 font-sans mt-0.5">
+                  Complete video lectures, downloadable models, and interactive sandboxes require verified enrollment.
+                </p>
+              </div>
+              <div className="text-left sm:text-right flex-shrink-0 bg-white p-3 rounded-lg border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0f172a]">
+                <span className="text-[10px] font-bold uppercase text-slate-500 block">Required Enrollment Fee</span>
+                <span className="text-xl sm:text-2xl font-black text-[#E2136E]">৳{expectedPrice.toFixed(2)} BDT</span>
+              </div>
+            </div>
+
+            {/* Receiver bKash Number Box with 1-Click Copy */}
+            <div className="p-5 rounded-xl border-2 border-slate-900 bg-amber-50 space-y-3 shadow-[4px_4px_0px_0px_#d97706]">
+              <div className="flex items-center justify-between text-xs font-bold text-amber-900">
+                <span className="flex items-center gap-1.5 uppercase font-mono">
+                  <Smartphone size={16} className="text-[#E2136E]" />
+                  bKash Personal Account (Send Money)
+                </span>
+                <span className="text-[10px] font-black bg-amber-300 text-slate-950 px-2 py-0.5 rounded border border-slate-900">
+                  সেন্ড মানি অপশন
+                </span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl sm:text-3xl font-black font-mono tracking-wider text-slate-950 select-all">
+                    {BKASH_CONFIG.ACCOUNT_NUMBER}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleCopyBkash}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 border-slate-900 bg-white hover:bg-slate-100 text-slate-950 font-black text-xs shadow-[3px_3px_0px_0px_#0f172a] active:translate-x-[1px] active:translate-y-[1px] transition-all"
+                >
+                  {copiedNumber ? (
+                    <>
+                      <Check size={16} className="text-emerald-600" />
+                      <span className="text-emerald-700 font-black">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={16} />
+                      <span>Copy Number</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="text-xs text-amber-950 font-sans space-y-1 pt-1 border-t border-amber-200">
+                <p>
+                  <strong>পেমেন্ট নিয়ম:</strong> আপনার বিকাশ অ্যাপ বা <strong>*247#</strong> ডায়াল করে <strong>Send Money</strong> এর মাধ্যমে <strong>{BKASH_CONFIG.ACCOUNT_NUMBER}</strong> নম্বরে ঠিক <strong>৳{expectedPrice.toFixed(2)}</strong> পাঠান।
+                </p>
+                <p className="text-[11px] text-amber-900">
+                  টাকা পাঠানো সম্পন্ন হলে ফিরতি মেসেজ থেকে <strong>TrxID</strong> এবং আপনার <strong>বিকাশ নম্বর</strong> নিচের ফর্মে লিখে সাবমিট করুন। তাৎক্ষণিক ভেরিফাই হয়ে কোর্স আনলক হবে!
+                </p>
+              </div>
+            </div>
+
+            {/* Instant Verification Form */}
+            <form onSubmit={handlePaywallVerify} className="space-y-4">
+              {paymentError && (
+                <div className="p-3.5 rounded-xl border-2 border-rose-500 bg-rose-50 text-rose-900 text-xs font-sans font-medium flex items-start gap-2">
+                  <AlertCircle size={16} className="text-rose-600 flex-shrink-0 mt-0.5" />
+                  <span>{paymentError}</span>
+                </div>
+              )}
+
+              {/* Reactive Whitelist Notice if user types @insyt.bd or z65gt9@gmail.com */}
+              {isFreeAccessUser(paywallEmail) ? (
+                <div className="p-4 rounded-xl border-2 border-slate-900 bg-emerald-50 text-emerald-950 space-y-2 shadow-[3px_3px_0px_0px_#059669]">
+                  <div className="flex items-center gap-2 font-black text-sm uppercase">
+                    <ShieldCheck size={18} className="text-emerald-600" />
+                    <span>Corporate VIP / Staff Whitelist Detected</span>
+                  </div>
+                  <p className="text-xs font-sans text-emerald-900">
+                    <strong>{paywallEmail}</strong> অনুমোদিত ইনসাইট কর্পোরেট টিমের সদস্য। আপনার কোনো পেমেন্ট লাগবে না। নিচের বাটনে চাপ দিন এবং ফ্রিতে কোর্স আনলক করুন।
+                  </p>
+                </div>
+              ) : null}
+
+              {/* Email Field */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-black uppercase text-slate-700 block">
+                  Account Email (Course Credential License) *
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={paywallEmail}
+                  onChange={(e) => setPaywallEmail(e.target.value)}
+                  placeholder="e.g. candidate@domain.com"
+                  className="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-900 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#E2136E]"
+                />
+              </div>
+
+              {!isFreeAccessUser(paywallEmail) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-black uppercase text-slate-700 block">
+                      Sender bKash Mobile Number *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={senderNumber}
+                      onChange={(e) => setSenderNumber(e.target.value)}
+                      placeholder="017XXXXXXXX"
+                      maxLength={11}
+                      className="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-900 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#E2136E]"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-black uppercase text-slate-700 block">
+                      bKash Transaction ID (TrxID) *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={trxId}
+                      onChange={(e) => setTrxId(e.target.value.toUpperCase())}
+                      placeholder="e.g. BKA8X9Z10Q"
+                      maxLength={12}
+                      className="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-900 text-xs font-mono font-black uppercase text-[#E2136E] focus:outline-none focus:ring-2 focus:ring-[#E2136E]"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {!isFreeAccessUser(paywallEmail) && (
+                <div className="space-y-1">
+                  <label className="text-[11px] font-black uppercase text-slate-700 block">
+                    bKash Account Holder Name (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={accountHolderName}
+                    onChange={(e) => setAccountHolderName(e.target.value)}
+                    placeholder="e.g. Shakib Al Hasan"
+                    className="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-900 text-xs font-sans font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#E2136E]"
+                  />
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isVerifyingPayment}
+                className="w-full mt-2 py-4 px-6 rounded-xl border-2 border-slate-900 bg-[#E2136E] hover:bg-[#c20f5e] text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-[4px_4px_0px_0px_#0f172a] hover:shadow-[2px_2px_0px_0px_#0f172a] hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2"
+              >
+                {isVerifyingPayment ? (
+                  <>
+                    <RefreshCw size={16} className="animate-spin" />
+                    <span>যাচাই করা হচ্ছে (Verifying Transaction)...</span>
+                  </>
+                ) : isFreeAccessUser(paywallEmail) ? (
+                  <>
+                    <ShieldCheck size={16} />
+                    <span>ভিআইপি ফ্রি অ্যাক্সেস সক্রিয় করুন →</span>
+                  </>
+                ) : (
+                  <>
+                    <Lock size={16} />
+                    <span>ভেরিফাই করুন ও কোর্স আনলক করুন (৳{expectedPrice.toFixed(2)}) →</span>
+                  </>
+                )}
+              </button>
+
+              <div className="flex items-center justify-center gap-2 text-[10px] text-slate-500 font-sans text-center pt-2">
+                <ShieldCheck size={14} className="text-emerald-600" />
+                <span>HMAC-SHA256 ক্রিপ্টোগ্রাফিক সিগনেচার ও রিয়েল-টাইম অ্যান্টি-রিপ্লে সিকিউরিটি এনফোর্সড।</span>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Tabs */}
       <div className="flex items-center gap-1 border-b-2 border-corp-border">
         {(["video", "reading", "simulation", "quiz"] as const).map((tab) => (
           <button
@@ -1253,6 +1603,8 @@ Mastering **${formattedTitle}** provides you with tangible, production-grade ski
         )}
 
       </div>
+      </>
+      )}
 
       {/* Floating Completion overlay */}
       <AnimatePresence>

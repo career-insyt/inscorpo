@@ -52,42 +52,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(false);
         return;
       } catch {
-        // Appwrite failed (CORS on insyt.bd, missing credentials, offline, or network error).
-        // Check for local fallback user.
+        // Appwrite session check failed or unauthenticated.
+        // Check for legitimate local offline user cached from previous authentic session.
         if (localUserRaw) {
           try {
             const localUser = JSON.parse(localUserRaw);
-            setUser(localUser);
-            document.cookie = `insyt_fallback_session=true; path=/; max-age=31536000; SameSite=Lax${secureAttr}`;
-            if (localUser.email) {
-              document.cookie = `insyt_admin_email=${encodeURIComponent(localUser.email)}; path=/; max-age=31536000; SameSite=Lax${secureAttr}`;
+            if (localUser && localUser.$id) {
+              setUser(localUser);
+              document.cookie = `insyt_fallback_session=true; path=/; max-age=31536000; SameSite=Lax${secureAttr}`;
+              setIsLoading(false);
+              return;
             }
-            setIsLoading(false);
-            return;
           } catch {
             // Malformed local user
           }
         }
 
-        // If cookie is present but local storage was cleared, create a resilient default session
-        if (hasCookie) {
-          const defaultUser = {
-            $id: "user-" + Math.random().toString(36).substring(2, 9),
-            name: "Corporate Member",
-            email: "career@insyt.bd",
-            emailVerification: true,
-            status: true,
-            prefs: { subscriptionTier: "starter", subscriptionStatus: "active" },
-          } as any;
-          setUser(defaultUser);
-          if (typeof window !== "undefined") {
-            localStorage.setItem("insyt_local_user", JSON.stringify(defaultUser));
-          }
-          setIsLoading(false);
-          return;
-        }
-
-        // Truly unauthenticated
+        // Truly unauthenticated — clear session markers and state
         setUser(null);
         document.cookie = `insyt_fallback_session=; path=/; max-age=0; SameSite=Lax${secureAttr}`;
         document.cookie = `insyt_admin_email=; path=/; max-age=0; SameSite=Lax${secureAttr}`;

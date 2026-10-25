@@ -1,6 +1,4 @@
 import { HeroSection } from "@/components/landing/hero-section";
-import { TrustedPartners } from "@/components/landing/trusted-partners";
-import { InteractiveDiagnostic } from "@/components/landing/interactive-diagnostic";
 import { FeaturesSection } from "@/components/landing/features-section";
 import { LearningPathsPreview } from "@/components/landing/learning-paths-preview";
 import { CTASection } from "@/components/landing/cta-section";
@@ -14,8 +12,6 @@ export default function LandingPage() {
   return (
     <>
       <HeroSection />
-      <TrustedPartners />
-      <InteractiveDiagnostic />
       <FeaturesSection />
       <LearningPathsPreview />
       <CTASection />

@@ -22,7 +22,6 @@ const nextConfig: NextConfig = {
       { source: "/evaluate/interviews", destination: "/mock-interviews" },
       { source: "/evaluate/interviews/:path*", destination: "/mock-interviews/:path*" },
       { source: "/passport", destination: "/career-passport" },
-      { source: "/passport/:path*", destination: "/career-passport/:path*" },
       { source: "/opportunities", destination: "/jobs" },
       { source: "/opportunities/:path*", destination: "/jobs/:path*" },
     ];

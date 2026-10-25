@@ -108,17 +108,6 @@ export function HeroSection() {
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="lg:col-span-7 space-y-6 sm:space-y-7"
           >
-            {/* Brutalist System Pill Badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1, duration: 0.4 }}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border-2 border-slate-900 bg-amber-300 text-slate-950 font-mono font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#0f172a]"
-            >
-              <Zap size={14} className="text-slate-950 fill-slate-950" />
-              <span>// TALENT OPERATING SYSTEM · v2.4</span>
-            </motion.div>
-
             {/* Main Headline with Brutalist Pop */}
             <h1 className="text-3xl sm:text-5xl lg:text-[3.6rem] font-black leading-[1.18] tracking-tight text-slate-950">
               কর্পোরেট ক্যারিয়ারে এগিয়ে যান <br className="hidden sm:inline" />
@@ -132,14 +121,14 @@ export function HeroSection() {
               শীর্ষস্থানীয় করপোরেট এমটিও ও বিজনেস অ্যানালিস্টদের মতো নিজেকে প্রস্তুত করুন। এক্সেল ফিনান্সিয়াল মডেলিং, পাইথন ডাটা অটোমেশন, পাওয়ার বিআই এবং এআই ওয়ার্কফ্লো—সবকিছুই হ্যান্ডস-অন প্রজেক্ট এবং ভেরিফায়েড ক্রেডেনশিয়ালের মাধ্যমে।
             </p>
 
-            {/* Action Buttons: Hard Brutalist Drop-Shadows & Tactile Presses */}
+            {/* Reimagined Action Buttons: Mobile tactile and clear wording */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-2">
               <Link
                 href="#tracks"
                 className="inline-flex items-center justify-center gap-2.5 px-7 py-4 text-base font-mono font-black text-white bg-[#2563eb] hover:bg-[#1d4ed8] rounded-xl border-2 border-slate-900 shadow-[5px_5px_0px_0px_#0f172a] hover:shadow-[2px_2px_0px_0px_#0f172a] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-x-[5px] active:translate-y-[5px] active:shadow-none transition-all"
               >
                 <BookOpen size={18} />
-                <span>ক্যারিয়ার ট্র্যাক বাছাই করুন</span>
+                <span>ক্যারিয়ার স্কিল শুরু করুন</span>
                 <ArrowRight size={17} />
               </Link>
               
@@ -148,28 +137,12 @@ export function HeroSection() {
                 className="inline-flex items-center justify-center gap-2.5 px-7 py-4 text-base font-mono font-black text-slate-950 bg-white hover:bg-slate-50 rounded-xl border-2 border-slate-900 shadow-[5px_5px_0px_0px_#0f172a] hover:shadow-[2px_2px_0px_0px_#0f172a] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-x-[5px] active:translate-y-[5px] active:shadow-none transition-all"
               >
                 <Activity size={18} className="text-[#2563eb]" />
-                <span>লাইভ ড্যাশবোর্ড দেখুন</span>
+                <span>ড্যাশবোর্ড ঘুরে দেখুন</span>
               </Link>
-            </div>
-
-            {/* Brutalist Trust Highlights */}
-            <div className="flex flex-wrap items-center gap-3 pt-2 text-xs font-mono font-bold text-slate-800">
-              <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0f172a]">
-                <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
-                ক্লাউড ডাটাবেস-ব্যাকড
-              </span>
-              <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0f172a]">
-                <ShieldCheck size={15} className="text-[#2563eb] shrink-0" />
-                W3C ED25519 ভেরিফায়েড
-              </span>
-              <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0f172a]">
-                <Sparkles size={15} className="text-amber-500 shrink-0" />
-                ১০০% প্র্যাকটিক্যাল কেস স্টাডি
-              </span>
             </div>
           </motion.div>
 
-          {/* Right Column: Live Gamified Candidate Cockpit Preview (Brutalist Card) */}
+          {/* Right Column: Live Candidate Cockpit Preview */}
           <motion.div
             initial={{ opacity: 0, y: 24, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -194,23 +167,18 @@ export function HeroSection() {
                 </span>
               </div>
 
-              {/* XP Gauge Meter */}
-              <div className="space-y-1.5 p-3.5 rounded-xl border-2 border-slate-900 bg-slate-50">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                  <span className="flex items-center gap-1.5 text-slate-900 font-black">
-                    <Zap size={14} className="text-blue-600 fill-blue-600" />
-                    EXPERIENCE POINTS
+              {/* Special 20% Discount Offer Banner (Replaces XP Gauge) */}
+              <div className="p-3.5 rounded-xl border-2 border-slate-900 bg-amber-300 text-slate-950 shadow-[3px_3px_0px_0px_#0f172a] space-y-1">
+                <div className="flex items-center justify-between font-black text-xs">
+                  <span className="flex items-center gap-1.5 uppercase tracking-wider">
+                    <Sparkles size={14} className="fill-amber-600 text-amber-600" />
+                    স্পেশাল অফার
                   </span>
-                  <span className="font-black text-[#2563eb]">{currentXp.toLocaleString()} / 3,000 XP</span>
+                  <span className="bg-slate-950 text-white px-2 py-0.5 rounded text-[10px]">SAVE 20%</span>
                 </div>
-                <div className="h-3 w-full rounded-full border-2 border-slate-900 bg-slate-200 overflow-hidden p-0.5">
-                  <motion.div 
-                    className="h-full rounded-full bg-[#2563eb]"
-                    initial={{ width: "70%" }}
-                    animate={{ width: `${(currentXp / 3000) * 100}%` }}
-                    transition={{ duration: 0.4 }}
-                  />
-                </div>
+                <p className="text-xs font-bold text-slate-900 leading-snug">
+                  প্রথম কোর্সে পান <span className="underline decoration-2">২০% বিশেষ ছাড়</span> — আজই শুরু করুন!
+                </p>
               </div>
 
               {/* Institutional Readiness Gauge */}
@@ -236,12 +204,12 @@ export function HeroSection() {
                 </p>
               </div>
 
-              {/* Interactive Quest Engine Teaser */}
+              {/* Interactive Daily Modules Teaser (No XP) */}
               <div className="space-y-2 pt-1">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
                     <CheckCircle2 size={14} className="text-[#2563eb]" />
-                    DAILY QUEST ENGINE ({completedCount}/3)
+                    DAILY PRACTICE DRILLS ({completedCount}/3)
                   </span>
                   <span className="text-[10px] font-bold text-slate-500">
                     CLICK TO TOGGLE
@@ -250,9 +218,9 @@ export function HeroSection() {
 
                 <div className="space-y-2">
                   {[
-                    { id: 0, title: "3-Statement FAST Model Drill", xp: "+75 XP", tag: "Finance" },
-                    { id: 1, title: "Power BI Star Schema & DAX Bridge", xp: "+75 XP", tag: "BI" },
-                    { id: 2, title: "STAR Proctored Mock Interview", xp: "+100 XP", tag: "Interview" },
+                    { id: 0, title: "3-Statement FAST Model Drill", tag: "কেস স্টাডি" },
+                    { id: 1, title: "Power BI Star Schema & DAX Bridge", tag: "হ্যান্ডস-অন" },
+                    { id: 2, title: "STAR Proctored Mock Interview", tag: "মক ইন্টারভিউ" },
                   ].map((q) => {
                     const done = completedQuests[q.id];
                     return (
@@ -275,7 +243,7 @@ export function HeroSection() {
                           </span>
                         </div>
                         <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 border border-blue-300">
-                          {q.xp}
+                          {q.tag}
                         </span>
                       </button>
                     );
@@ -320,7 +288,7 @@ export function HeroSection() {
           </div>
 
           <div className="p-4 rounded-xl border-2 border-slate-900 bg-white shadow-[4px_4px_0px_0px_#7c3aed] space-y-1">
-            <span className="text-[11px] font-mono font-black text-slate-500 uppercase block">W3C CREDENTIALS</span>
+            <span className="text-[11px] font-mono font-black text-slate-500 uppercase block">VERIFIED CREDENTIALS</span>
             <div className="flex items-baseline gap-1">
               <AnimatedCounter target={stats.verifiedCredentials} suffix="+" />
             </div>

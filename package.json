@@ -8,6 +8,8 @@
     "start": "next start",
     "clean": "powershell -Command \"Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue\"",
     "sync:db": "node scripts/upload_db_to_cloud.js",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/auth-whitelist.test.mjs tests/pricing-ledger.test.mjs tests/sha256-crypto.test.mjs tests/job-engine.test.mjs",
     "lint": "eslint"
   },
   "dependencies": {
